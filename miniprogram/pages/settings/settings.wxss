@@ -1,0 +1,130 @@
+.page-container {
+  padding: 20rpx;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.avatar-icon {
+  font-size: 64rpx;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.user-desc {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 20rpx;
+}
+
+.menu-left {
+  flex: 1;
+}
+
+.menu-icon-wrapper {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.menu-icon-wrapper.export {
+  background: rgba(78, 205, 196, 0.15);
+}
+
+.menu-icon-wrapper.import {
+  background: rgba(255, 107, 107, 0.15);
+}
+
+.menu-icon-wrapper.clear {
+  background: rgba(153, 153, 153, 0.15);
+}
+
+.menu-icon-wrapper.category {
+  background: rgba(255, 193, 7, 0.15);
+}
+
+.menu-icon {
+  font-size: 40rpx;
+}
+
+.menu-text {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.menu-text.text-danger {
+  color: #E74C3C;
+}
+
+.menu-arrow {
+  font-size: 48rpx;
+  color: #CCC;
+  font-weight: 300;
+}
+
+.info-card {
+  background: #FFF5F5;
+  border-color: #FFE8E8;
+}
+
+.info-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.info-content text {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.version-section {
+  text-align: center;
+  padding: 20rpx 0;
+}
+
+.version-text {
+  font-size: 26rpx;
+  color: #999;
+}

@@ -1,0 +1,73 @@
+<view class="container">
+  <!-- 标题 -->
+  <view class="header">
+    <view class="title">{{isNew ? '添加' : '编辑'}}{{isGroup ? '分类组' : '分类'}}</view>
+  </view>
+
+  <!-- 表单 -->
+  <view class="form">
+    <!-- 名称 -->
+    <view class="form-item">
+      <view class="label">名称</view>
+      <input class="input" value="{{name}}" bindinput="onNameInput" placeholder="请输入名称" />
+    </view>
+
+    <!-- 图标 -->
+    <view class="form-item">
+      <view class="label">图标</view>
+      <view class="icon-selector" bindtap="toggleIconPicker">
+        <view class="selected-icon" wx:if="{{icon}}" style="color: {{color}}">{{icon}}</view>
+        <view class="selected-icon placeholder" wx:else>请选择</view>
+        <view class="arrow">▼</view>
+      </view>
+    </view>
+
+    <!-- 颜色 -->
+    <view class="form-item">
+      <view class="label">颜色</view>
+      <view class="color-selector" bindtap="toggleColorPicker">
+        <view class="selected-color" style="background-color: {{color}};"></view>
+        <view class="arrow">▼</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 图标选择器 -->
+  <view class="picker-overlay" wx:if="{{showIconPicker}}" bindtap="toggleIconPicker">
+    <view class="picker-panel" catchtap="stopPropagation">
+      <view class="picker-header">
+        <view class="picker-title">选择图标</view>
+        <view class="picker-close" bindtap="toggleIconPicker">✕</view>
+      </view>
+      <scroll-view class="picker-content" scroll-y>
+        <view class="icon-grid">
+          <view wx:for="{{icons}}" wx:key="*this" class="icon-item" style="color: {{color}}" data-icon="{{item}}" bindtap="selectIcon">
+            {{item}}
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 颜色选择器 -->
+  <view class="picker-overlay" wx:if="{{showColorPicker}}" bindtap="toggleColorPicker">
+    <view class="picker-panel" catchtap="stopPropagation">
+      <view class="picker-header">
+        <view class="picker-title">选择颜色</view>
+        <view class="picker-close" bindtap="toggleColorPicker">✕</view>
+      </view>
+      <scroll-view class="picker-content" scroll-y>
+        <view class="color-grid">
+          <view wx:for="{{colors}}" wx:key="*this" class="color-item" style="background-color: {{item}};" data-color="{{item}}" bindtap="selectColor">
+            <view wx:if="{{color === item}}" class="color-check">✓</view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="save-btn" bindtap="save">
+    保存
+  </view>
+</view>

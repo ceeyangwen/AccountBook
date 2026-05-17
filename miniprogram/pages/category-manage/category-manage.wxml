@@ -1,0 +1,61 @@
+<view class="container">
+  <!-- 标签页 -->
+  <view class="tabs">
+    <view class="tab-item {{currentTab === 'expense' ? 'active' : ''}}" data-type="expense" bindtap="switchTab">
+      支出
+    </view>
+    <view class="tab-item {{currentTab === 'income' ? 'active' : ''}}" data-type="income" bindtap="switchTab">
+      收入
+    </view>
+  </view>
+
+  <!-- 分类组列表 -->
+  <scroll-view scroll-y class="content">
+    <view wx:for="{{categories.groups}}" wx:key="id" class="group-card">
+      <!-- 组标题 -->
+      <view class="group-header" data-id="{{item.id}}" bindtap="toggleGroup">
+        <view class="group-left">
+          <view class="group-icon" style="color: {{item.color}}">{{item.icon}}</view>
+          <view class="group-name">{{item.name}}</view>
+        </view>
+        <view class="group-right">
+          <view class="group-action" catchtap="editGroup" data-groupid="{{item.id}}">
+            <text class="icon">✏️</text>
+          </view>
+          <view class="group-action" catchtap="deleteGroup" data-groupid="{{item.id}}">
+            <text class="icon">🗑️</text>
+          </view>
+          <view class="group-action" catchtap="addCategory" data-groupid="{{item.id}}">
+            <text class="icon">➕</text>
+          </view>
+          <view class="expand-icon">
+            {{expandedGroups[item.id] ? '▼' : '▶'}}
+          </view>
+        </view>
+      </view>
+
+      <!-- 组内容 -->
+      <view class="group-content" wx:if="{{expandedGroups[item.id]}}">
+        <view class="category-list">
+          <view wx:for="{{item.children}}" wx:for-item="category" wx:key="id" class="category-item">
+            <view class="category-left" bindtap="editCategory" data-groupid="{{item.id}}" data-categoryid="{{category.id}}">
+              <view class="category-icon" style="color: {{category.color}}">{{category.icon}}</view>
+              <view class="category-name">{{category.name}}</view>
+            </view>
+            <view class="category-right">
+              <view class="category-action" catchtap="deleteCategory" data-groupid="{{item.id}}" data-categoryid="{{category.id}}">
+                <text class="icon">🗑️</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 添加新组按钮 -->
+    <view class="add-group-btn" bindtap="addGroup">
+      <text class="btn-icon">➕</text>
+      <text class="btn-text">添加分类组</text>
+    </view>
+  </scroll-view>
+</view>

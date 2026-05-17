@@ -1,0 +1,108 @@
+<view class="page-container">
+  <view class="user-card card p-20">
+    <view class="user-avatar">
+      <text class="avatar-icon">📒</text>
+    </view>
+    <view class="user-info">
+      <view class="user-name">手账记账</view>
+      <view class="user-desc">云端存储，数据安全</view>
+    </view>
+  </view>
+
+  <view class="menu-section mt-20">
+    <view class="menu-item card" bindtap="goToCategoryManage">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper category">
+          <text class="menu-icon">📂</text>
+        </view>
+        <view class="menu-text">管理分类</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
+    <view class="menu-item card mt-15" bindtap="exportData">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper export">
+          <text class="menu-icon">📤</text>
+        </view>
+        <view class="menu-text">导出数据备份</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
+    <view class="menu-item card mt-15" bindtap="refreshData">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper refresh">
+          <text class="menu-icon">🔄</text>
+        </view>
+        <view class="menu-text">刷新数据</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
+    <view class="menu-item card mt-15" bindtap="testCloudStorage">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper debug">
+          <text class="menu-icon">☁️</text>
+        </view>
+        <view class="menu-text">测试云存储</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
+    <view class="menu-item card mt-15" bindtap="debugData">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper debug">
+          <text class="menu-icon">🔍</text>
+        </view>
+        <view class="menu-text">调试数据</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
+    <view class="menu-item card mt-15" bindtap="exportLogs">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper debug">
+          <text class="menu-icon">📋</text>
+        </view>
+        <view class="menu-text">导出日志</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
+    <view class="menu-item card mt-15" bindtap="clearLogs">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper clear">
+          <text class="menu-icon">🧹</text>
+        </view>
+        <view class="menu-text">清空日志</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
+    <view class="menu-item card mt-15" bindtap="clearData">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper clear">
+          <text class="menu-icon">🗑️</text>
+        </view>
+        <view class="menu-text text-danger">清空数据</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="info-section mt-40">
+    <view class="info-card card p-20">
+      <view class="info-title">💡 使用说明</view>
+      <view class="info-content">
+        <text>• 所有数据自动存储在微信云端，换手机自动同步</text>
+        <text>• 数据按账号隔离，个人隐私有保障</text>
+        <text>• 使用微信云存储，安全可靠，免费额度充足</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="version-section mt-20 mb-40">
+    <view class="version-text">版本 1.0.0</view>
+  </view>
+</view>

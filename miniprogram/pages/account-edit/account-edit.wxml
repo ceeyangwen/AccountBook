@@ -1,0 +1,77 @@
+<view class="page-container">
+  <view class="form-card card p-20">
+    <view class="form-title">基本信息</view>
+    
+    <view class="form-item">
+      <view class="form-label">账户名称</view>
+      <input class="form-input" placeholder="请输入账户名称" value="{{name}}" bindinput="onNameInput" />
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">账户类别</view>
+      <picker mode="selector" range="{{accountCategories}}" range-key="name" value="{{categoryIndex}}" bindchange="onCategoryChange">
+        <view class="picker-value">
+          <text class="picker-icon">{{selectedIcon}}</text>
+          {{selectedCategory.name || '请选择'}}
+        </view>
+      </picker>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">账户图标</view>
+      <view class="icon-grid">
+        <view 
+          wx:for="{{icons}}" 
+          wx:key="icon" 
+          class="icon-item {{icon === selectedIcon ? 'selected' : ''}}"
+          bindtap="selectIcon"
+          data-icon="{{item.icon}}"
+        >
+          <text class="icon-emoji">{{item.icon}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">{{balanceLabel}}</view>
+      <view class="amount-input-wrapper">
+        <text class="amount-symbol">¥</text>
+        <input 
+          class="amount-input" 
+          type="digit" 
+          placeholder="0.00" 
+          value="{{balance}}"
+          bindinput="onBalanceInput"
+        />
+      </view>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">备注（选填）</view>
+      <textarea 
+        class="form-textarea" 
+        placeholder="添加备注"
+        value="{{note}}"
+        bindinput="onNoteInput"
+        maxlength="100"
+      />
+      <view class="note-count">{{note.length}}/100</view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">统计到总资产</view>
+      <switch 
+        checked="{{includeInTotal}}" 
+        bindchange="onIncludeInTotalChange"
+        color="#667eea"
+      />
+    </view>
+  </view>
+
+  <view class="btn-group">
+    <button wx:if="{{isEdit}}" class="delete-btn" bindtap="deleteAccount">删除账户</button>
+    <button class="save-btn btn-primary" bindtap="saveAccount">
+      {{isEdit ? '保存修改' : '创建账户'}}
+    </button>
+  </view>
+</view>

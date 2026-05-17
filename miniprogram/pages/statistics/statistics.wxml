@@ -1,0 +1,163 @@
+<view class="page-container">
+  <view class="period-selector card p-15">
+    <view class="period-item {{period === 'month' ? 'active' : ''}}" bindtap="switchPeriod" data-period="month">
+      本月
+    </view>
+    <view class="period-divider"></view>
+    <view class="period-item {{period === 'year' ? 'active' : ''}}" bindtap="switchPeriod" data-period="year">
+      本年
+    </view>
+  </view>
+
+  <view class="summary-card card p-20 mt-20">
+    <view class="summary-header">
+      <view class="summary-title">📊 {{period === 'month' ? '本月' : '本年'}}收支概览</view>
+    </view>
+    <view class="summary-data flex flex-between mt-20">
+      <view class="summary-item">
+        <view class="summary-label">总收入</view>
+        <view class="summary-value income">¥{{totalIncome}}</view>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <view class="summary-label">总支出</view>
+        <view class="summary-value expense">¥{{totalExpense}}</view>
+      </view>
+    </view>
+    <view class="balance-section mt-20">
+      <view class="balance-label">结余</view>
+      <view class="balance-value {{balance >= 0 ? 'income' : 'expense'}}">
+        {{balance >= 0 ? '+' : ''}}¥{{balance}}
+      </view>
+    </view>
+  </view>
+
+  <view class="trend-section mt-20">
+    <view class="section-title">📈 总资产趋势</view>
+    <view class="trend-card card p-20">
+      <view wx:if="{{assetTrend.length === 0}}" class="empty-state">
+        <view class="empty-icon">📊</view>
+        <view class="empty-text">暂无资产数据</view>
+      </view>
+      <view wx:else class="line-chart">
+        <view class="chart-header">
+          <text class="chart-label">{{period === 'month' ? '每日' : '每月'}}资产变化</text>
+          <view class="zoom-controls">
+            <view class="zoom-btn" bindtap="zoomOut">➖</view>
+            <view class="zoom-info">{{zoomLevelDisplay}}x</view>
+            <view class="zoom-btn" bindtap="zoomIn">➕</view>
+            <view class="zoom-btn reset" bindtap="resetZoom">↺</view>
+          </view>
+        </view>
+        
+        <view class="chart-wrapper">
+          <view class="y-axis">
+            <view class="y-label">{{yAxisTop}}</view>
+            <view class="y-label">0</view>
+            <view class="y-label">{{yAxisBottom}}</view>
+          </view>
+          
+          <view class="chart-area">
+            <view class="grid-lines">
+              <view class="grid-line"></view>
+              <view class="grid-line"></view>
+              <view class="grid-line"></view>
+            </view>
+            
+            <view class="chart-lines">
+              <view class="line-segment" 
+                    wx:for="{{chartSegments}}" 
+                    wx:key="index"
+                    style="left: {{item.x1}}px; top: {{item.y1}}px; width: {{item.width}}px; transform: rotate({{item.angle}}deg); transform-origin: left center;"></view>
+              
+              <!-- 数据点 -->
+              <view class="data-point" 
+                    wx:for="{{chartPoints}}" 
+                    wx:key="index"
+                    style="left: {{item.x}}px; top: {{item.y}}px;"
+                    data-index="{{index}}"
+                    bindtap="onPointTap">
+                <view class="point-dot"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 固定位置的tooltip -->
+        <view class="fixed-tooltip" wx:if="{{selectedPointIndex >= 0}}">
+          <view class="tooltip-label">日期: {{chartPoints[selectedPointIndex].data.label}}</view>
+          <view class="tooltip-value">余额: ¥{{chartPoints[selectedPointIndex].data.balance}}</view>
+        </view>
+        
+        <view class="trend-footer">
+          <view class="footer-item">
+            <text class="x-label">{{assetTrend[0].label}}</text>
+            <text class="summary-text">期初</text>
+            <text class="summary-amount">¥{{assetTrend[0].balance}}</text>
+          </view>
+          <view class="footer-divider"></view>
+          <view class="footer-item">
+            <text class="x-label">{{assetTrend[assetTrend.length-1].label}}</text>
+            <text class="summary-text">期末</text>
+            <text class="summary-amount {{assetTrend[assetTrend.length-1].balance >= assetTrend[0].balance ? 'income' : 'expense'}}">
+              ¥{{assetTrend[assetTrend.length-1].balance}}
+            </text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="category-section mt-20">
+    <view class="section-title">💰 支出分类统计</view>
+    
+    <view wx:if="{{expenseCategoryList.length === 0}}" class="empty-state card p-20">
+      <view class="empty-icon">📊</view>
+      <view class="empty-text">{{period === 'month' ? '本月' : '本年'}}暂无支出记录</view>
+    </view>
+    
+    <view wx:else>
+      <view class="pie-chart-section card p-20">
+        <view class="pie-chart-wrapper">
+          <view class="pie-chart" style="background: conic-gradient({{pieGradient}});">
+            <view class="pie-center">
+              <view class="pie-total-label">总支出</view>
+              <view class="pie-total-value">¥{{totalExpense}}</view>
+            </view>
+          </view>
+        </view>
+        <view class="pie-legend">
+          <view wx:for="{{expenseCategoryList}}" 
+                wx:key="id" 
+                class="legend-item {{item.selected ? 'selected' : ''}}"
+                bindtap="selectPieItem"
+                data-index="{{index}}">
+            <view class="legend-color" style="background: {{item.color}};"></view>
+            <view class="legend-text">{{item.name}}</view>
+            <view class="legend-percent">{{item.percent}}%</view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="category-list mt-20">
+        <view wx:for="{{expenseCategoryList}}" wx:key="id" class="category-card card p-20">
+          <view class="category-header">
+            <view class="category-icon-wrapper" style="background: {{item.color}}20;">
+              <text class="category-emoji">{{item.icon}}</text>
+            </view>
+            <view class="category-info">
+              <view class="category-name">{{item.name}}</view>
+              <view class="category-percent">{{item.percent}}%</view>
+            </view>
+            <view class="category-amount">¥{{item.amount}}</view>
+          </view>
+          <view class="category-bar">
+            <view class="bar-track">
+              <view class="bar-fill" style="width: {{item.percent}}%; background: {{item.color}};"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

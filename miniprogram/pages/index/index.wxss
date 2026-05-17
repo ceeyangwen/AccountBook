@@ -1,0 +1,310 @@
+.page-container {
+  padding: 20rpx;
+  padding-bottom: 120rpx;
+}
+
+.summary-card {
+  margin-bottom: 30rpx;
+}
+
+.summary-header {
+  align-items: center;
+}
+
+.summary-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.summary-month {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.summary-data {
+  align-items: center;
+}
+
+.summary-item {
+  flex: 1;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.summary-value {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.summary-value.expense {
+  color: #2ECC71;
+}
+
+.summary-value.income {
+  color: #E74C3C;
+}
+
+.summary-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: #FFE8E8;
+}
+
+.section-header {
+  align-items: center;
+  margin: 30rpx 0 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.date-group {
+  margin-bottom: 30rpx;
+}
+
+.date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10rpx 10rpx 20rpx;
+}
+
+.date-text {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.date-summary {
+  font-size: 24rpx;
+}
+
+.date-expense {
+  color: #2ECC71;
+  margin-left: 20rpx;
+}
+
+.date-income {
+  color: #E74C3C;
+  margin-left: 20rpx;
+}
+
+.record-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.record-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.category-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+
+.record-info {
+  flex: 1;
+}
+
+.record-category {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 6rpx;
+}
+
+.record-note {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.record-right {
+  flex-shrink: 0;
+}
+
+.record-amount {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.record-amount.expense {
+  color: #2ECC71;
+}
+
+.record-amount.income {
+  color: #E74C3C;
+}
+
+.record-amount.transfer {
+  color: #E74C3C;
+}
+
+.record-account {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.floating-btn-group {
+  position: fixed;
+  bottom: 100rpx;
+  right: 40rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  z-index: 100;
+}
+
+.floating-btn {
+  width: 120rpx;
+  height: 120rpx;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 107, 0.4);
+}
+
+.floating-btn.transfer-btn {
+  background: linear-gradient(135deg, #4ECDC4 0%, #6EE7DE 100%);
+  box-shadow: 0 8rpx 24rpx rgba(78, 205, 196, 0.4);
+}
+
+.floating-icon {
+  font-size: 60rpx;
+  color: white;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.record-more {
+  font-size: 32rpx;
+  color: #999;
+  margin-left: 20rpx;
+}
+
+.action-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.action-mask.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.action-sheet {
+  width: 100%;
+  background: white;
+  border-radius: 24rpx 24rpx 0 0;
+  padding-bottom: 40rpx;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.action-mask.show .action-sheet {
+  transform: translateY(0);
+}
+
+.action-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 30rpx 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.action-sheet-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.action-sheet-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+}
+
+.action-list {
+  padding: 20rpx 0;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 40rpx;
+  transition: background 0.2s;
+}
+
+.action-item:active {
+  background: #f5f5f5;
+}
+
+.action-item.delete {
+  color: #FF6B6B;
+}
+
+.action-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+
+.action-text {
+  font-size: 30rpx;
+  font-weight: 500;
+}

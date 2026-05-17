@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "openapi": [
+      "wxacode.get"
+    ]
+  },
+  "permissions": {
+    "openapi": []
+  },
+  "env": "cloud1-d3gvv57hn4dfa5588"
+}

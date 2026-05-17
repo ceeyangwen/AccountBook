@@ -1,0 +1,17 @@
+{
+  "name": "account-book-tests",
+  "version": "1.0.0",
+  "description": "记账小程序单元测试",
+  "scripts": {
+    "test": "node test/run-tests.js",
+    "test:balance": "node test/balanceCalculator.test.js",
+    "test:account": "node test/account-detail.test.js",
+    "test:include": "node test/include-in-total.test.js"
+  },
+  "keywords": ["test"],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

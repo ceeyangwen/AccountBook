@@ -1,0 +1,228 @@
+.page-container {
+  padding: 20rpx;
+  padding-bottom: 120rpx;
+}
+
+.summary-card {
+  margin-bottom: 30rpx;
+  text-align: center;
+}
+
+.summary-title {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.total-amount {
+  font-size: 56rpx;
+  font-weight: 700;
+}
+
+.account-list {
+  margin-bottom: 30rpx;
+}
+
+.category-group {
+  margin-bottom: 30rpx;
+}
+
+.category-header {
+  padding: 10rpx 10rpx 20rpx;
+  align-items: center;
+}
+
+.category-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.category-icon {
+  margin-right: 10rpx;
+}
+
+.category-total {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.account-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.account-left {
+  flex: 1;
+}
+
+.account-icon-wrapper {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.account-icon {
+  font-size: 40rpx;
+}
+
+.account-info {
+  flex: 1;
+}
+
+.account-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 6rpx;
+}
+
+.account-note {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.account-right {
+  text-align: right;
+}
+
+.account-balance {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.account-balance.debt {
+  color: #FF6B6B;
+}
+
+.account-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-btn {
+  font-size: 24rpx;
+  color: #666;
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  background: #F5F5F5;
+}
+
+.action-btn.delete {
+  color: #FF6B6B;
+  background: #FFF5F5;
+}
+
+.add-quick-account {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx;
+  color: #FF6B6B;
+  font-size: 26rpx;
+  background: #FFF5F5;
+  border-radius: 12rpx;
+  margin-top: 10rpx;
+}
+
+.add-quick-account .add-icon {
+  font-size: 32rpx;
+  margin-right: 8rpx;
+}
+
+.floating-btn {
+  position: fixed;
+  bottom: 100rpx;
+  right: 40rpx;
+  width: 120rpx;
+  height: 120rpx;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 107, 0.4);
+  z-index: 100;
+}
+
+.floating-icon {
+  font-size: 60rpx;
+  color: white;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.quick-add-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 200;
+}
+
+.quick-add-content {
+  background: white;
+  width: 100%;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 30rpx;
+  padding-bottom: 60rpx;
+}
+
+.quick-add-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 30rpx;
+  color: #333;
+}
+
+.quick-account-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.quick-account-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  background: #FDF8F3;
+  border-radius: 16rpx;
+}
+
+.quick-icon {
+  font-size: 48rpx;
+  margin-bottom: 10rpx;
+}
+
+.quick-name {
+  font-size: 26rpx;
+  color: #333;
+  text-align: center;
+}
+
+.cancel-btn {
+  text-align: center;
+  padding: 24rpx;
+  font-size: 30rpx;
+  color: #999;
+  background: #F5F5F5;
+  border-radius: 24rpx;
+}

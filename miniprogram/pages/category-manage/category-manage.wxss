@@ -1,0 +1,166 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.tabs {
+  display: flex;
+  background-color: white;
+  padding: 20rpx 40rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  font-size: 32rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab-item.active {
+  color: #FF6B6B;
+  font-weight: bold;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 6rpx;
+  background-color: #FF6B6B;
+  border-radius: 3rpx;
+}
+
+.content {
+  flex: 1;
+  padding: 20rpx;
+}
+
+.group-card {
+  background-color: white;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.group-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.group-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+
+.group-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.group-right {
+  display: flex;
+  align-items: center;
+}
+
+.group-action {
+  padding: 10rpx;
+  margin-left: 10rpx;
+}
+
+.group-action .icon {
+  font-size: 28rpx;
+}
+
+.expand-icon {
+  font-size: 24rpx;
+  margin-left: 20rpx;
+  color: #999;
+}
+
+.group-content {
+  padding: 20rpx 0;
+}
+
+.category-list {
+  padding: 0 30rpx;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f8f8f8;
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.category-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.category-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.category-right {
+  display: flex;
+  align-items: center;
+}
+
+.category-action {
+  padding: 10rpx;
+}
+
+.category-action .icon {
+  font-size: 28rpx;
+}
+
+.add-group-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  padding: 30rpx;
+  border-radius: 16rpx;
+  margin-top: 20rpx;
+}
+
+.btn-icon {
+  font-size: 32rpx;
+  margin-right: 10rpx;
+}
+
+.btn-text {
+  font-size: 28rpx;
+  color: #666;
+}

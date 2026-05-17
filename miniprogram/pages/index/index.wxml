@@ -1,0 +1,94 @@
+<view class="page-container">
+  <view class="summary-card card p-20">
+    <view class="summary-header flex flex-between">
+      <view class="summary-title">📅 本月账单</view>
+      <view class="summary-month">{{currentMonth}}</view>
+    </view>
+    <view class="summary-data flex flex-between mt-20">
+      <view class="summary-item">
+        <view class="summary-label">支出</view>
+        <view class="summary-value expense">-¥{{monthlyExpense}}</view>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <view class="summary-label">收入</view>
+        <view class="summary-value income">+¥{{monthlyIncome}}</view>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <view class="summary-label">结余</view>
+        <view class="summary-value {{balance >= 0 ? 'income' : 'expense'}}">{{balance >= 0 ? '+' : ''}}¥{{balance}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="record-list">
+    <view class="section-header flex flex-between">
+      <view class="section-title">📝 记账记录</view>
+    </view>
+    
+    <view wx:if="{{groupedRecords.length === 0}}" class="empty-state">
+      <view class="empty-icon">📒</view>
+      <view class="empty-text">还没有记账记录哦</view>
+      <view class="empty-hint">点击下方按钮开始记账吧～</view>
+    </view>
+    
+    <view wx:for="{{groupedRecords}}" wx:key="date" class="date-group">
+      <view class="date-header">
+        <view class="date-text">{{item.dateText}}</view>
+        <view class="date-summary">
+          <text wx:if="{{item.dayExpense > 0}}" class="date-expense">支出 ¥{{item.dayExpense}}</text>
+          <text wx:if="{{item.dayIncome > 0}}" class="date-income">收入 ¥{{item.dayIncome}}</text>
+        </view>
+      </view>
+      
+      <view wx:for="{{item.records}}" wx:for-item="record" wx:for-index="recordIndex" wx:key="id" class="record-card card" bindtap="showRecordActions" data-record="{{record}}">
+        <view class="record-left">
+          <view class="category-icon" style="background: {{record.category.color}}20;">{{record.category.icon}}</view>
+          <view class="record-info">
+            <view class="record-category" wx:if="{{record.type !== 'transfer'}}">{{record.category.name}}</view>
+            <view class="record-category" wx:else>{{record.fromAccountName}} → {{record.toAccountName}}</view>
+            <view class="record-note" wx:if="{{record.note}}">{{record.note}}</view>
+            <view class="record-account" wx:if="{{record.accountName && record.type !== 'transfer'}}">{{record.accountName}}</view>
+          </view>
+        </view>
+        <view class="record-right">
+          <view class="record-amount {{record.type === 'expense' ? 'expense' : record.type === 'income' ? 'income' : 'transfer'}}">
+            <block wx:if="{{record.type === 'transfer'}}">¥{{record.amount}}</block>
+            <block wx:else>{{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}</block>
+          </view>
+          <view class="record-more">•••</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作弹窗 -->
+  <view class="action-mask {{showActionSheet ? 'show' : ''}}" bindtap="hideActionSheet">
+    <view class="action-sheet" catchtap="">
+      <view class="action-sheet-header">
+        <text class="action-sheet-title">操作记录</text>
+        <text class="action-sheet-close" bindtap="hideActionSheet">✕</text>
+      </view>
+      <view class="action-list">
+        <view class="action-item" bindtap="editRecord">
+          <text class="action-icon">✏️</text>
+          <text class="action-text">编辑记录</text>
+        </view>
+        <view class="action-item delete" bindtap="deleteRecord">
+          <text class="action-icon">🗑️</text>
+          <text class="action-text">删除记录</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="floating-btn-group">
+    <view class="floating-btn transfer-btn" bindtap="goToTransfer">
+      <view class="floating-icon">↔</view>
+    </view>
+    <view class="floating-btn" bindtap="goToAddRecord">
+      <view class="floating-icon">+</view>
+    </view>
+  </view>
+</view>

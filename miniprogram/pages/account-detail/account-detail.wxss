@@ -1,0 +1,258 @@
+.page-container {
+  padding: 20rpx;
+  padding-bottom: 120rpx;
+}
+
+.account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+}
+
+.account-icon-wrapper {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.account-icon {
+  font-size: 50rpx;
+}
+
+.account-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.account-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.account-category {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.account-balance {
+  text-align: right;
+}
+
+.balance-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.balance-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.account-balance.debt .balance-value {
+  color: #FF6B6B;
+}
+
+.summary-section {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.summary-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30rpx;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 10rpx;
+}
+
+.summary-value {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.summary-value.expense {
+  color: #2ECC71;
+}
+
+.summary-value.income {
+  color: #E74C3C;
+}
+
+.summary-value.transfer {
+  color: #FFA500;
+}
+
+.summary-value.transfer-in {
+  color: #4ECDC4;
+}
+
+.record-section {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30rpx;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #666;
+}
+
+.date-group {
+  margin-bottom: 30rpx;
+}
+
+.date-header {
+  padding: 10rpx 0 20rpx;
+}
+
+.date-text {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.record-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.record-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.record-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+
+.record-icon.expense {
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.record-icon.income {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.record-icon.transfer-out {
+  background: rgba(255, 165, 0, 0.1);
+}
+
+.record-icon.transfer-in {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.record-info {
+  flex: 1;
+}
+
+.record-type {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 6rpx;
+}
+
+.record-note {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.record-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
+}
+
+.record-amount {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.record-amount.expense {
+  color: #2ECC71;
+}
+
+.record-amount.income,
+.record-amount.transfer-in {
+  color: #E74C3C;
+}
+
+.record-amount.transfer-out {
+  color: #FFA500;
+}
+
+.record-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-text {
+  font-size: 24rpx;
+  color: #999;
+  padding: 4rpx 8rpx;
+}
+
+.action-text:active {
+  color: #FF6B6B;
+}

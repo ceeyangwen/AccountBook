@@ -1,0 +1,466 @@
+.page-container {
+  padding: 20rpx;
+}
+
+.type-toggle {
+  display: flex;
+  align-items: center;
+  padding: 8rpx;
+  background: #FFF5F5;
+}
+
+.toggle-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 30rpx;
+  color: #999;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+}
+
+.toggle-item.expense.active {
+  background: #2ECC71;
+  color: white;
+  font-weight: 600;
+}
+
+.toggle-item.income.active {
+  background: #E74C3C;
+  color: white;
+  font-weight: 600;
+}
+
+.toggle-divider {
+  width: 2rpx;
+  height: 40rpx;
+  background: #FFE8E8;
+}
+
+.amount-card {
+  text-align: center;
+}
+
+.amount-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.amount-input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.amount-symbol.expense {
+  font-size: 48rpx;
+  color: #2ECC71;
+  font-weight: 700;
+  margin-right: 10rpx;
+}
+
+.amount-symbol.income {
+  font-size: 48rpx;
+  color: #E74C3C;
+  font-weight: 700;
+  margin-right: 10rpx;
+}
+
+.amount-input {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #333;
+  min-width: 200rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+  padding-left: 10rpx;
+}
+
+.category-step {
+  background: white;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.category-step-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.back-btn {
+  font-size: 28rpx;
+  color: #666;
+  padding: 10rpx;
+  margin-right: 20rpx;
+}
+
+.step-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.category-group-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-group-option {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  border-radius: 16rpx;
+  transition: background 0.2s;
+}
+
+.category-group-option:active {
+  background: #f5f5f5;
+}
+
+.group-option-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.group-option-emoji {
+  font-size: 40rpx;
+}
+
+.group-option-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.group-option-arrow {
+  font-size: 32rpx;
+  color: #ccc;
+}
+
+.selected-category {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+  padding: 20rpx;
+  background: #FFF5F5;
+  border-radius: 12rpx;
+}
+
+.selected-label {
+  font-size: 26rpx;
+  color: #666;
+  margin-right: 12rpx;
+}
+
+.selected-display {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.selected-icon {
+  font-size: 32rpx;
+  margin-right: 8rpx;
+}
+
+.selected-text.expense {
+  font-size: 28rpx;
+  color: #2ECC71;
+  font-weight: 600;
+}
+
+.selected-text.income {
+  font-size: 28rpx;
+  color: #E74C3C;
+  font-weight: 600;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 10rpx;
+  border-radius: 16rpx;
+  background: white;
+  border: 3rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.category-item.expense.selected {
+  border-color: #2ECC71;
+  background: #E8F8F0;
+}
+
+.category-item.income.selected {
+  border-color: #E74C3C;
+  background: #FDECEC;
+}
+
+.category-icon-wrapper {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+}
+
+.category-emoji {
+  font-size: 48rpx;
+}
+
+.category-name {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.account-section {
+  margin-top: 30rpx;
+}
+
+.account-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-radius: 16rpx;
+}
+
+.account-display {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.account-display > view {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.account-icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.account-name-text {
+  font-size: 30rpx;
+  color: #333;
+  flex: 1;
+}
+
+.account-balance {
+  font-size: 28rpx;
+  color: #E74C3C;
+  font-weight: 600;
+}
+
+.account-placeholder {
+  flex: 1;
+}
+
+.placeholder-text {
+  font-size: 30rpx;
+  color: #999;
+}
+
+.arrow {
+  font-size: 36rpx;
+  color: #CCC;
+  margin-left: 10rpx;
+}
+
+.date-card, .note-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-label, .note-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.date-value {
+  font-size: 32rpx;
+  color: #333;
+  padding: 16rpx 0;
+}
+
+.note-input {
+  min-height: 120rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #333;
+  padding: 16rpx;
+  background: #FDF8F3;
+  border-radius: 12rpx;
+}
+
+.note-count {
+  text-align: right;
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.btn-group {
+  padding: 20rpx 0;
+}
+
+.save-btn {
+  width: 100%;
+  padding: 30rpx 0;
+  font-size: 34rpx;
+  border: none;
+  border-radius: 30rpx;
+}
+
+/* 账户选择弹窗 */
+.account-picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.account-picker-mask.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.account-picker-popup {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  border-radius: 30rpx 30rpx 0 0;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s;
+}
+
+.account-picker-mask.show .account-picker-popup {
+  transform: translateY(0);
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #EEE;
+}
+
+.popup-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.popup-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+}
+
+.account-list {
+  max-height: 60vh;
+  padding: 20rpx;
+}
+
+.account-option {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+  background: #F9F9F9;
+  transition: all 0.3s;
+}
+
+.account-option.expense.selected {
+  background: #E8F8F0;
+  border: 2rpx solid #2ECC71;
+}
+
+.account-option.income.selected {
+  background: #FDECEC;
+  border: 2rpx solid #E74C3C;
+}
+
+.account-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 16rpx;
+}
+
+.account-category {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.check-icon.expense {
+  width: 48rpx;
+  height: 48rpx;
+  background: #2ECC71;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  margin-left: 16rpx;
+}
+
+.check-icon.income {
+  width: 48rpx;
+  height: 48rpx;
+  background: #E74C3C;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  margin-left: 16rpx;
+}
+
+.no-account {
+  text-align: center;
+  padding: 60rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}

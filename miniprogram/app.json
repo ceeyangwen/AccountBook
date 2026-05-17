@@ -1,0 +1,56 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/accounts/accounts",
+    "pages/account-detail/account-detail",
+    "pages/account-edit/account-edit",
+    "pages/add-record/add-record",
+    "pages/transfer/transfer",
+    "pages/statistics/statistics",
+    "pages/settings/settings",
+    "pages/category-manage/category-manage",
+    "pages/category-edit/category-edit"
+  ],
+  "window": {
+    "backgroundColor": "#FDF8F3",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FFD6D6",
+    "navigationBarTitleText": "手账记账",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#FF6B6B",
+    "backgroundColor": "#FFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "记账",
+        "iconPath": "images/icons/home.png",
+        "selectedIconPath": "images/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/accounts/accounts",
+        "text": "账户",
+        "iconPath": "images/icons/business.png",
+        "selectedIconPath": "images/icons/business-active.png"
+      },
+      {
+        "pagePath": "pages/statistics/statistics",
+        "text": "统计",
+        "iconPath": "images/icons/goods.png",
+        "selectedIconPath": "images/icons/goods-active.png"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "我的",
+        "iconPath": "images/icons/usercenter.png",
+        "selectedIconPath": "images/icons/usercenter-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

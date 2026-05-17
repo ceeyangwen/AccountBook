@@ -1,0 +1,75 @@
+<view class="page-container">
+  <view class="summary-card card p-20">
+    <view class="summary-header flex flex-between">
+      <view class="summary-title">💰 账户总资产</view>
+    </view>
+    <view class="total-amount text-primary" wx:if="{{totalBalance !== null}}">
+      ¥{{totalBalance}}
+    </view>
+    <view class="total-amount text-primary" wx:else>
+      加载中...
+    </view>
+    <view class="debug-info" style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 8px; font-size: 12px; color: #666;">
+      {{debugInfo}}
+    </view>
+  </view>
+
+  <view class="account-list">
+    <view wx:for="{{groupedAccounts}}" wx:key="category" class="category-group">
+      <view class="category-header flex flex-between">
+        <view class="category-name">
+          <text class="category-icon">{{item.categoryInfo.icon}}</text>
+          {{item.categoryInfo.name}}
+        </view>
+        <view class="category-total">¥{{item.totalBalance}}</view>
+      </view>
+      
+      <view wx:for="{{item.accounts}}" wx:for-item="account" wx:key="id" class="account-item card">
+        <view class="account-left flex flex-center" bindtap="viewAccountDetail" data-account="{{account}}">
+          <view class="account-icon-wrapper" style="background: {{account.color}}20;">
+            <text class="account-icon">{{account.icon}}</text>
+          </view>
+          <view class="account-info">
+            <view class="account-name">{{account.name}}</view>
+            <view class="account-note" wx:if="{{account.note}}">{{account.note}}</view>
+          </view>
+        </view>
+        <view class="account-right">
+          <view class="account-balance {{account.categoryInfo.type === 'debt' ? 'debt' : ''}}">
+            ¥{{account.balance}}
+          </view>
+          <view class="account-actions">
+            <text class="action-btn" bindtap="editAccount" data-account="{{account}}">编辑</text>
+            <text class="action-btn delete" bindtap="deleteAccount" data-id="{{account.id}}" data-name="{{account.name}}">删除</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="add-quick-account" bindtap="showQuickAdd" data-category="{{item.categoryInfo.name}}">
+        <text class="add-icon">+</text> 快速添加
+      </view>
+    </view>
+    
+    <view wx:if="{{groupedAccounts.length === 0 && totalBalance !== null}}" class="empty-tip">
+      <view class="empty-tip-text">还没有账户</view>
+      <view class="empty-tip-subtext">点击右下角按钮添加第一个账户</view>
+    </view>
+  </view>
+
+  <view class="floating-btn" bindtap="addAccount">
+    <view class="floating-icon">+</view>
+  </view>
+
+  <view class="quick-add-modal" wx:if="{{showQuickAdd}}" bindtap="hideQuickAdd">
+    <view class="quick-add-content" catchtap="stopPropagation">
+      <view class="quick-add-title">快速添加 {{currentCategory}}</view>
+      <view class="quick-account-list">
+        <view wx:for="{{quickAccounts}}" wx:key="name" class="quick-account-item" bindtap="quickAddAccount" data-account="{{item}}">
+          <text class="quick-icon">{{item.icon}}</text>
+          <text class="quick-name">{{item.name}}</text>
+        </view>
+      </view>
+      <view class="cancel-btn" bindtap="hideQuickAdd">取消</view>
+    </view>
+  </view>
+</view>
