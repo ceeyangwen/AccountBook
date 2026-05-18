@@ -8,7 +8,8 @@ Page({
     showQuickAdd: false,
     currentCategory: '',
     quickAccounts: [],
-    debugInfo: ''
+    debugInfo: '',
+    isEditing: false
   },
 
   onLoad: function() {
@@ -29,12 +30,10 @@ Page({
       debugInfo: '正在加载账户数据...'
     });
     
-    // 优先使用内存中的数据，避免云存储读取失败导致数据清空
     if (app.globalData.accounts && app.globalData.accounts.length > 0) {
       logger.info('accounts', '直接使用内存中的账户数据');
       this.processAccounts();
     } else {
-      // 只有内存中没有数据时，才从云存储加载
       app.loadAccounts(() => {
         logger.info('accounts', '账户加载完成回调执行');
         this.processAccounts();
@@ -68,20 +67,24 @@ Page({
         
         const balance = parseFloat(account.balance) || 0;
         
-        // 只有 includeInTotal 为 true 的账户才计入总余额
         if (account.includeInTotal !== false) {
-          // 资产、投资和债权类型账户累加余额，负债和信用类型账户扣除余额
           if (categoryInfo.type === 'debt' || categoryInfo.type === 'credit') {
-            // 负债和信用类账户，余额应该扣除（显示为负数）
             grouped[account.category].totalBalance -= balance;
             totalBalance -= balance;
           } else {
-            // 资产、投资和债权类账户，余额累加
             grouped[account.category].totalBalance += balance;
             totalBalance += balance;
           }
         }
       }
+    });
+    
+    Object.keys(grouped).forEach(category => {
+      grouped[category].accounts.sort((a, b) => {
+        const orderA = a.order !== undefined ? a.order : 0;
+        const orderB = b.order !== undefined ? b.order : 0;
+        return orderA - orderB;
+      });
     });
     
     const groupedAccounts = Object.values(grouped).filter(g => g.accounts.length > 0);
@@ -193,5 +196,81 @@ Page({
     });
     
     this.hideQuickAdd();
+  },
+
+  toggleEdit: function() {
+    this.setData({
+      isEditing: !this.data.isEditing
+    });
+  },
+
+  moveUp: function(e) {
+    const groupIndex = e.currentTarget.dataset.groupIndex;
+    const index = e.currentTarget.dataset.index;
+    
+    if (index <= 0) return;
+    
+    const groupedAccounts = JSON.parse(JSON.stringify(this.data.groupedAccounts));
+    const accounts = groupedAccounts[groupIndex].accounts;
+    
+    const temp = accounts[index];
+    accounts[index] = accounts[index - 1];
+    accounts[index - 1] = temp;
+    
+    this.setData({
+      groupedAccounts
+    });
+    
+    this.saveOrder();
+  },
+
+  moveDown: function(e) {
+    const groupIndex = e.currentTarget.dataset.groupIndex;
+    const index = e.currentTarget.dataset.index;
+    
+    const groupedAccounts = this.data.groupedAccounts;
+    const accounts = groupedAccounts[groupIndex].accounts;
+    
+    if (index >= accounts.length - 1) return;
+    
+    const newGroupedAccounts = JSON.parse(JSON.stringify(groupedAccounts));
+    const newAccounts = newGroupedAccounts[groupIndex].accounts;
+    
+    const temp = newAccounts[index];
+    newAccounts[index] = newAccounts[index + 1];
+    newAccounts[index + 1] = temp;
+    
+    this.setData({
+      groupedAccounts: newGroupedAccounts
+    });
+    
+    this.saveOrder();
+  },
+
+  saveOrder: function() {
+    const groupedAccounts = this.data.groupedAccounts;
+    const accounts = app.globalData.accounts || [];
+    
+    let changed = false;
+    
+    groupedAccounts.forEach(group => {
+      group.accounts.forEach((account, index) => {
+        const accountIndex = accounts.findIndex(a => a.id === account.id);
+        if (accountIndex !== -1) {
+          const oldOrder = accounts[accountIndex].order;
+          if (oldOrder !== index) {
+            accounts[accountIndex].order = index;
+            changed = true;
+          }
+        }
+      });
+    });
+    
+    if (changed) {
+      app.globalData.accounts = accounts;
+      app.saveAccounts(() => {
+        logger.info('accounts', '账户顺序已保存');
+      });
+    }
   }
 });

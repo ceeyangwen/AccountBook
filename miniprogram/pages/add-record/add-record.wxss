@@ -464,3 +464,77 @@
   color: #999;
   font-size: 28rpx;
 }
+
+/* 账户分类选择 */
+.account-category-option {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  border-radius: 16rpx;
+  background: #f9f9f9;
+  margin-bottom: 12rpx;
+  transition: background 0.2s;
+}
+
+.account-category-option:active {
+  background: #f0f0f0;
+}
+
+.category-option-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: rgba(78, 205, 196, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.category-option-emoji {
+  font-size: 36rpx;
+}
+
+.category-option-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.category-option-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 4rpx;
+}
+
+.category-option-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.category-option-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+}
+
+/* 账户步骤头部 */
+.account-step-header {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.account-step-header .back-btn {
+  padding: 10rpx;
+  margin-right: 20rpx;
+  color: #666;
+  font-size: 32rpx;
+}
+
+.account-step-header .step-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}

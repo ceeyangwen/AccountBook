@@ -2,6 +2,9 @@
   <view class="summary-card card p-20">
     <view class="summary-header flex flex-between">
       <view class="summary-title">💰 账户总资产</view>
+      <view class="edit-btn" bindtap="toggleEdit">
+        {{isEditing ? '完成' : '排序'}}
+      </view>
     </view>
     <view class="total-amount text-primary" wx:if="{{totalBalance !== null}}">
       ¥{{totalBalance}}
@@ -14,8 +17,8 @@
     </view>
   </view>
 
-  <view class="account-list">
-    <view wx:for="{{groupedAccounts}}" wx:key="category" class="category-group">
+  <view class="account-list" id="accountList">
+    <view wx:for="{{groupedAccounts}}" wx:key="category" class="category-group" wx:for-index="groupIndex">
       <view class="category-header flex flex-between">
         <view class="category-name">
           <text class="category-icon">{{item.categoryInfo.icon}}</text>
@@ -24,23 +27,43 @@
         <view class="category-total">¥{{item.totalBalance}}</view>
       </view>
       
-      <view wx:for="{{item.accounts}}" wx:for-item="account" wx:key="id" class="account-item card">
-        <view class="account-left flex flex-center" bindtap="viewAccountDetail" data-account="{{account}}">
-          <view class="account-icon-wrapper" style="background: {{account.color}}20;">
-            <text class="account-icon">{{account.icon}}</text>
-          </view>
-          <view class="account-info">
-            <view class="account-name">{{account.name}}</view>
-            <view class="account-note" wx:if="{{account.note}}">{{account.note}}</view>
-          </view>
+      <view wx:for="{{item.accounts}}" wx:for-item="account" wx:for-index="accountIndex" wx:key="id" 
+            class="account-item card {{isEditing ? 'editing' : ''}}"
+            data-index="{{accountIndex}}" 
+            data-category="{{item.categoryInfo.name}}"
+            data-category-index="{{groupIndex}}"
+            data-id="{{account.id}}">
+        <view class="drag-handle" wx:if="{{isEditing}}">
+          <text class="drag-icon">☰</text>
         </view>
-        <view class="account-right">
-          <view class="account-balance {{account.categoryInfo.type === 'debt' ? 'debt' : ''}}">
-            ¥{{account.balance}}
+        <view class="account-content" bindtap="{{isEditing ? '' : 'viewAccountDetail'}}" data-account="{{account}}">
+          <view class="account-left flex flex-center">
+            <view class="account-icon-wrapper" style="background: {{account.color}}20;">
+              <text class="account-icon">{{account.icon}}</text>
+            </view>
+            <view class="account-info">
+              <view class="account-name">{{account.name}}</view>
+              <view class="account-note" wx:if="{{account.note}}">{{account.note}}</view>
+            </view>
           </view>
-          <view class="account-actions">
-            <text class="action-btn" bindtap="editAccount" data-account="{{account}}">编辑</text>
-            <text class="action-btn delete" bindtap="deleteAccount" data-id="{{account.id}}" data-name="{{account.name}}">删除</text>
+          <view class="account-right">
+            <view class="account-balance {{account.categoryInfo.type === 'debt' ? 'debt' : ''}}">
+              ¥{{account.balance}}
+            </view>
+            <view class="account-actions" wx:if="{{!isEditing}}">
+              <text class="action-btn" bindtap="editAccount" data-account="{{account}}">编辑</text>
+              <text class="action-btn delete" bindtap="deleteAccount" data-id="{{account.id}}" data-name="{{account.name}}">删除</text>
+            </view>
+            <view class="drag-actions" wx:if="{{isEditing}}">
+              <text class="drag-btn up {{accountIndex === 0 ? 'disabled' : ''}}" 
+                    catchtap="moveUp" 
+                    data-group-index="{{groupIndex}}" 
+                    data-index="{{accountIndex}}">↑</text>
+              <text class="drag-btn down {{accountIndex === item.accounts.length - 1 ? 'disabled' : ''}}" 
+                    catchtap="moveDown" 
+                    data-group-index="{{groupIndex}}" 
+                    data-index="{{accountIndex}}">↓</text>
+            </view>
           </view>
         </view>
       </view>
@@ -56,7 +79,7 @@
     </view>
   </view>
 
-  <view class="floating-btn" bindtap="addAccount">
+  <view class="floating-btn" wx:if="{{!isEditing}}" bindtap="addAccount">
     <view class="floating-icon">+</view>
   </view>
 

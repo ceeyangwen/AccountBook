@@ -27,8 +27,7 @@ App({
             icon: '🍜',
             color: '#4ECDC4',
             children: [
-              { id: 'expense-2-1', name: '早午餐', icon: '🍳', color: '#4ECDC4' },
-              { id: 'expense-2-2', name: '早晚餐', icon: '🍽️', color: '#7EDDD6' },
+              { id: 'expense-2-2', name: '三餐', icon: '🍽️', color: '#7EDDD6' },
               { id: 'expense-2-3', name: '水果零食', icon: '🍎', color: '#A8EDE4' },
               { id: 'expense-2-4', name: '下午茶', icon: '☕', color: '#D3F3EF' },
               { id: 'expense-2-5', name: '酒水', icon: '🍺', color: '#4ECDC4' },
@@ -574,7 +573,7 @@ App({
     logger.info('App', '开始加载账户', { forceRefresh });
     
     if (!forceRefresh && this.globalData.accounts && this.globalData.accounts.length > 0) {
-      logger.info('App', '使用内存中已有账户数据', { count: this.globalData.accounts.length });
+      logger.info('App', '使用内存中已有账户数据');
       if (callback) callback();
       return;
     }
@@ -585,15 +584,15 @@ App({
           this.globalData.accounts = data;
           logger.info('App', '账户加载成功', { count: data.length });
         } else {
-          logger.info('App', '云存储没有数据，保持现有数据', { 
-            existingCount: (this.globalData.accounts || []).length 
-          });
+          logger.info('App', '云存储没有账户数据或读取失败，使用空数组');
+          this.globalData.accounts = [];
         }
         
         if (callback) callback();
       })
       .catch(err => {
         logger.error('App', '加载账户失败', err);
+        this.globalData.accounts = [];
         if (callback) callback();
       });
   },
@@ -734,6 +733,25 @@ App({
       });
   },
 
+  saveAccounts: function(callback) {
+    logger.info('App', '保存账户数据到云端');
+    
+    cloudStorage.writeDataToCloud('accounts', this.globalData.accounts)
+      .then(result => {
+        if (result.success) {
+          logger.info('App', '账户数据保存到云端成功');
+          if (callback) callback(true);
+        } else {
+          logger.error('App', '账户数据保存到云端失败', result.errMsg);
+          if (callback) callback(false);
+        }
+      })
+      .catch(err => {
+        logger.error('App', '保存账户到云端失败', err);
+        if (callback) callback(false);
+      });
+  },
+
   migrateOldData: function() {
     logger.info('App', '开始检查并迁移旧数据');
     
@@ -797,6 +815,21 @@ App({
         needSave = true;
         logger.info('App', '分类更新完成', records[i]);
       }
+      
+      // 检查早午餐和早晚餐的分类
+      if (record.categoryName === '早午餐' || record.categoryName === '早晚餐') {
+        logger.info('App', '发现需要更新的食品分类记录', record);
+        
+        records[i] = {
+          ...record,
+          categoryId: 'expense-2-2',
+          categoryName: '三餐',
+          categoryIcon: '🍽️'
+        };
+        
+        needSave = true;
+        logger.info('App', '食品分类更新完成', records[i]);
+      }
     }
     
     // 如果有更新，保存到云端
@@ -814,6 +847,10 @@ App({
     } else {
       logger.info('App', '没有需要迁移的数据');
     }
+    
+    // 无论是否有记录需要迁移，都强制更新分类数据到云端
+    this.globalData.categories = JSON.parse(JSON.stringify(this.DEFAULT_CATEGORIES));
+    this.saveCategories();
   },
 
   clearAllData: function(callback) {

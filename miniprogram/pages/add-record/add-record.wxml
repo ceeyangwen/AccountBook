@@ -123,28 +123,59 @@
 
   <!-- 账户选择弹窗 -->
   <view class="account-picker-mask {{showAccountPicker ? 'show' : ''}}" bindtap="hideAccountPicker">
-    <view class="account-picker-popup" catchtap="">
+    <view class="account-picker-popup" catchtap="onPopupTap">
       <view class="popup-header">
         <text class="popup-title">选择账户</text>
         <text class="popup-close" bindtap="hideAccountPicker">×</text>
       </view>
-      <scroll-view scroll-y class="account-list">
-        <view 
-          wx:for="{{accounts}}" 
-          wx:key="id" 
-          class="account-option {{recordType}} {{selectedAccountId === item.id ? 'selected' : ''}}"
-          bindtap="selectAccount"
-          data-id="{{item.id}}"
-        >
-          <text class="account-icon">{{item.icon}}</text>
-          <view class="account-info">
-            <text class="account-name-text">{{item.name}}</text>
-            <text class="account-category">{{item.category}}</text>
+      
+      <!-- 账户分类选择 -->
+      <view class="account-category-step" wx:if="{{!selectedAccountCategoryId}}">
+        <scroll-view scroll-y class="account-list">
+          <view 
+            wx:for="{{groupedAccounts}}" 
+            wx:key="id" 
+            class="account-category-option"
+            bindtap="selectAccountCategory"
+            data-category="{{item}}"
+          >
+            <view class="category-option-icon">
+              <text class="category-option-emoji">{{item.icon}}</text>
+            </view>
+            <view class="category-option-info">
+              <text class="category-option-name">{{item.name}}</text>
+              <text class="category-option-count">{{item.children.length}} 个账户</text>
+            </view>
+            <view class="category-option-arrow">›</view>
           </view>
-          <text class="account-balance">¥{{item.balance}}</text>
-          <view class="check-icon {{recordType}}" wx:if="{{selectedAccountId === item.id}}">✓</view>
+        </scroll-view>
+      </view>
+      
+      <!-- 具体账户选择 -->
+      <view class="account-step" wx:else>
+        <view class="account-step-header">
+          <view class="back-btn" bindtap="backToAccountCategories">‹ 返回</view>
+          <view class="step-title">{{selectedAccountCategory.name}}</view>
         </view>
-      </scroll-view>
+        <scroll-view scroll-y class="account-list">
+          <view 
+            wx:for="{{selectedAccountCategory.children}}" 
+            wx:key="id" 
+            class="account-option {{recordType}} {{selectedAccountId === item.id ? 'selected' : ''}}"
+            bindtap="selectAccount"
+            data-id="{{item.id}}"
+          >
+            <text class="account-icon">{{item.icon}}</text>
+            <view class="account-info">
+              <text class="account-name-text">{{item.name}}</text>
+              <text class="account-category">{{item.category}}</text>
+            </view>
+            <text class="account-balance">¥{{item.balance}}</text>
+            <view class="check-icon {{recordType}}" wx:if="{{selectedAccountId === item.id}}">✓</view>
+          </view>
+        </scroll-view>
+      </view>
+      
       <view class="no-account" wx:if="{{accounts.length === 0}}">
         <text>暂无账户，请先添加账户</text>
       </view>

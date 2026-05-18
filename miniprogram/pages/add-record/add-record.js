@@ -14,6 +14,9 @@ Page({
     selectedGroup: null,
     selectedCategoryDisplay: null,
     accounts: [],
+    groupedAccounts: [],
+    selectedAccountCategoryId: null,
+    selectedAccountCategory: null,
     selectedAccountId: null,
     showAccountPicker: false,
     isEdit: false,
@@ -161,10 +164,41 @@ Page({
     const accounts = app.globalData.accounts || [];
     const selectedAccountId = this.data.selectedAccountId || accounts[0]?.id;
     
+    // 按账户分类分组
+    const categoryMap = {};
+    accounts.forEach(account => {
+      const category = account.category;
+      if (!categoryMap[category]) {
+        categoryMap[category] = {
+          id: category,
+          name: category,
+          icon: this.getCategoryIcon(category),
+          children: []
+        };
+      }
+      categoryMap[category].children.push(account);
+    });
+    
+    const groupedAccounts = Object.values(categoryMap);
+    
     this.setData({
       accounts,
+      groupedAccounts,
       selectedAccountId
     });
+  },
+
+  getCategoryIcon: function(category) {
+    const iconMap = {
+      '现金': '💵',
+      '信用卡': '💳',
+      '储蓄卡': '🏦',
+      '虚拟账户': '💬',
+      '投资': '📊',
+      '负债': '💸',
+      '债权': '💰'
+    };
+    return iconMap[category] || '💵';
   },
 
   switchType: function (e) {
@@ -199,15 +233,39 @@ Page({
   },
 
   showAccountPicker: function() {
+    // 重置账户分类选择状态
     this.setData({
-      showAccountPicker: true
+      showAccountPicker: true,
+      selectedAccountCategoryId: null,
+      selectedAccountCategory: null
     });
   },
 
   hideAccountPicker: function() {
     this.setData({
-      showAccountPicker: false
+      showAccountPicker: false,
+      selectedAccountCategoryId: null,
+      selectedAccountCategory: null
     });
+  },
+
+  selectAccountCategory: function(e) {
+    const category = e.currentTarget.dataset.category;
+    this.setData({
+      selectedAccountCategoryId: category.id,
+      selectedAccountCategory: category
+    });
+  },
+
+  backToAccountCategories: function() {
+    this.setData({
+      selectedAccountCategoryId: null,
+      selectedAccountCategory: null
+    });
+  },
+
+  onPopupTap: function() {
+    // 空函数，仅用于阻止冒泡
   },
 
   onDateChange: function (e) {
