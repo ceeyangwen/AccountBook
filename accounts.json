@@ -1,0 +1,523 @@
+[
+  {
+    "name": "现金",
+    "category": "现金",
+    "icon": "💵",
+    "color": "#FF6B6B",
+    "balance": 230,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986140940",
+    "createdAt": "2026-05-17T02:49:00.940Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 1,
+      "name": "现金",
+      "icon": "💵",
+      "color": "#FF6B6B",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "招商",
+    "category": "储蓄卡",
+    "icon": "🏦",
+    "color": "#FFE66D",
+    "balance": 99.88,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986198086",
+    "createdAt": "2026-05-17T02:49:58.086Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 3,
+      "name": "储蓄卡",
+      "icon": "🏦",
+      "color": "#FFE66D",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "兴业",
+    "category": "储蓄卡",
+    "icon": "🏦",
+    "color": "#FFE66D",
+    "balance": 2798.86,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986330359",
+    "createdAt": "2026-05-17T02:52:10.359Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 3,
+      "name": "储蓄卡",
+      "icon": "🏦",
+      "color": "#FFE66D",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "工商",
+    "category": "储蓄卡",
+    "icon": "🏦",
+    "color": "#FFE66D",
+    "balance": 1488.6,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986394478",
+    "createdAt": "2026-05-17T02:53:14.478Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 3,
+      "name": "储蓄卡",
+      "icon": "🏦",
+      "color": "#FFE66D",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "泉州",
+    "category": "储蓄卡",
+    "icon": "🏦",
+    "color": "#FFE66D",
+    "balance": 0.39,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986434050",
+    "createdAt": "2026-05-17T02:53:54.050Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 3,
+      "name": "储蓄卡",
+      "icon": "🏦",
+      "color": "#FFE66D",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "农业",
+    "category": "储蓄卡",
+    "icon": "🏦",
+    "color": "#FFE66D",
+    "balance": 0,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986451021",
+    "createdAt": "2026-05-17T02:54:11.021Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 3,
+      "name": "储蓄卡",
+      "icon": "🏦",
+      "color": "#FFE66D",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "微众",
+    "category": "储蓄卡",
+    "icon": "🏦",
+    "color": "#FFE66D",
+    "balance": 10015.92,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986522770",
+    "createdAt": "2026-05-17T02:55:22.770Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 3,
+      "name": "储蓄卡",
+      "icon": "🏦",
+      "color": "#FFE66D",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "微信",
+    "category": "虚拟账户",
+    "icon": "💬",
+    "color": "#FFB6C1",
+    "balance": 32.09,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986570232",
+    "createdAt": "2026-05-17T02:56:10.232Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 6,
+      "name": "虚拟账户",
+      "icon": "📱",
+      "color": "#FFB6C1",
+      "type": "asset"
+    },
+    "updatedAt": "2026-05-17T02:56:55.228Z"
+  },
+  {
+    "name": "支付宝",
+    "category": "虚拟账户",
+    "icon": "💙",
+    "color": "#FFB6C1",
+    "balance": 799.9,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986595745",
+    "createdAt": "2026-05-17T02:56:35.745Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 6,
+      "name": "虚拟账户",
+      "icon": "📱",
+      "color": "#FFB6C1",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "招商信用卡",
+    "category": "信用卡",
+    "icon": "💳",
+    "color": "#4ECDC4",
+    "balance": "52701.31",
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986725357",
+    "createdAt": "2026-05-17T02:58:45.357Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 2,
+      "name": "信用卡",
+      "icon": "💳",
+      "color": "#4ECDC4",
+      "type": "credit"
+    }
+  },
+  {
+    "name": "花呗",
+    "category": "信用卡",
+    "icon": "🐜",
+    "color": "#4ECDC4",
+    "balance": "2905.74",
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986782088",
+    "createdAt": "2026-05-17T02:59:42.088Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 2,
+      "name": "信用卡",
+      "icon": "💳",
+      "color": "#4ECDC4",
+      "type": "credit"
+    }
+  },
+  {
+    "name": "京东白条",
+    "category": "信用卡",
+    "icon": "🐕",
+    "color": "#4ECDC4",
+    "balance": 1999.52,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778986849072",
+    "createdAt": "2026-05-17T03:00:49.072Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 2,
+      "name": "信用卡",
+      "icon": "💳",
+      "color": "#4ECDC4",
+      "type": "credit"
+    }
+  },
+  {
+    "name": "兴业信用卡",
+    "category": "信用卡",
+    "icon": "💳",
+    "color": "#4ECDC4",
+    "balance": 5366.22,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778993256838",
+    "createdAt": "2026-05-17T04:47:36.838Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 2,
+      "name": "信用卡",
+      "icon": "💳",
+      "color": "#4ECDC4",
+      "type": "credit"
+    }
+  },
+  {
+    "name": "虚拟利息",
+    "category": "虚拟账户",
+    "icon": "📱",
+    "color": "#FFB6C1",
+    "balance": 14650,
+    "note": "",
+    "includeInTotal": false,
+    "id": "1778993384869",
+    "createdAt": "2026-05-17T04:49:44.869Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 6,
+      "name": "虚拟账户",
+      "icon": "📱",
+      "color": "#FFB6C1",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "建设",
+    "category": "储蓄卡",
+    "icon": "🏦",
+    "color": "#FFE66D",
+    "balance": 435.19,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997130431",
+    "createdAt": "2026-05-17T05:52:10.431Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 3,
+      "name": "储蓄卡",
+      "icon": "🏦",
+      "color": "#FFE66D",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "公积金",
+    "category": "虚拟账户",
+    "icon": "🔴",
+    "color": "#FFB6C1",
+    "balance": 0,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997413406",
+    "createdAt": "2026-05-17T05:56:53.406Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 6,
+      "name": "虚拟账户",
+      "icon": "📱",
+      "color": "#FFB6C1",
+      "type": "asset"
+    }
+  },
+  {
+    "name": "邮储信用卡",
+    "category": "信用卡",
+    "icon": "💳",
+    "color": "#4ECDC4",
+    "balance": "551.95",
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997526567",
+    "createdAt": "2026-05-17T05:58:46.567Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 2,
+      "name": "信用卡",
+      "icon": "💳",
+      "color": "#4ECDC4",
+      "type": "credit"
+    },
+    "updatedAt": "2026-05-17T07:50:32.611Z"
+  },
+  {
+    "name": "平安信用卡",
+    "category": "信用卡",
+    "icon": "💳",
+    "color": "#4ECDC4",
+    "balance": "-157.58",
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997544538",
+    "createdAt": "2026-05-17T05:59:04.538Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 2,
+      "name": "信用卡",
+      "icon": "💳",
+      "color": "#4ECDC4",
+      "type": "credit"
+    }
+  },
+  {
+    "name": "建设信用卡",
+    "category": "信用卡",
+    "icon": "💳",
+    "color": "#4ECDC4",
+    "balance": 0,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997544804",
+    "createdAt": "2026-05-17T05:59:04.804Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 2,
+      "name": "信用卡",
+      "icon": "💳",
+      "color": "#4ECDC4",
+      "type": "credit"
+    },
+    "updatedAt": "2026-05-17T05:59:45.166Z"
+  },
+  {
+    "name": "兴闪贷",
+    "category": "负债账户",
+    "icon": "🏦",
+    "color": "#DDA0DD",
+    "balance": 150000,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997670583",
+    "createdAt": "2026-05-17T06:01:10.583Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 7,
+      "name": "负债账户",
+      "icon": "📝",
+      "color": "#DDA0DD",
+      "type": "debt"
+    },
+    "updatedAt": "2026-05-17T06:03:10.813Z"
+  },
+  {
+    "name": "快贷",
+    "category": "负债账户",
+    "icon": "🏦",
+    "color": "#DDA0DD",
+    "balance": 0,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997703402",
+    "createdAt": "2026-05-17T06:01:43.402Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 7,
+      "name": "负债账户",
+      "icon": "📝",
+      "color": "#DDA0DD",
+      "type": "debt"
+    },
+    "updatedAt": "2026-05-17T06:02:58.581Z"
+  },
+  {
+    "name": "融 e 借",
+    "category": "负债账户",
+    "icon": "🏦",
+    "color": "#DDA0DD",
+    "balance": 187929.46,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997756138",
+    "createdAt": "2026-05-17T06:02:36.138Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 7,
+      "name": "负债账户",
+      "icon": "📝",
+      "color": "#DDA0DD",
+      "type": "debt"
+    },
+    "updatedAt": "2026-05-17T06:02:51.063Z"
+  },
+  {
+    "name": "闪电贷",
+    "category": "负债账户",
+    "icon": "🏦",
+    "color": "#DDA0DD",
+    "balance": 0,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997826501",
+    "createdAt": "2026-05-17T06:03:46.501Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 7,
+      "name": "负债账户",
+      "icon": "📝",
+      "color": "#DDA0DD",
+      "type": "debt"
+    },
+    "updatedAt": "2026-05-17T06:04:09.554Z"
+  },
+  {
+    "name": "陈然压岁钱",
+    "category": "负债账户",
+    "icon": "📝",
+    "color": "#DDA0DD",
+    "balance": 3100,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778997888512",
+    "createdAt": "2026-05-17T06:04:48.512Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 7,
+      "name": "负债账户",
+      "icon": "📝",
+      "color": "#DDA0DD",
+      "type": "debt"
+    }
+  },
+  {
+    "name": "公积金贷款",
+    "category": "负债账户",
+    "icon": "📝",
+    "color": "#DDA0DD",
+    "balance": 1020533.26,
+    "note": "",
+    "includeInTotal": false,
+    "id": "1778997944377",
+    "createdAt": "2026-05-17T06:05:44.377Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 7,
+      "name": "负债账户",
+      "icon": "📝",
+      "color": "#DDA0DD",
+      "type": "debt"
+    },
+    "updatedAt": "2026-05-17T06:05:52.522Z"
+  },
+  {
+    "name": "代付利息",
+    "category": "负债账户",
+    "icon": "🏦",
+    "color": "#DDA0DD",
+    "balance": 7002.53,
+    "note": "",
+    "includeInTotal": false,
+    "id": "1778997993076",
+    "createdAt": "2026-05-17T06:06:33.076Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 7,
+      "name": "负债账户",
+      "icon": "📝",
+      "color": "#DDA0DD",
+      "type": "debt"
+    }
+  },
+  {
+    "name": "伟彬",
+    "category": "债权账户",
+    "icon": "📋",
+    "color": "#C0C0C0",
+    "balance": 370000,
+    "note": "",
+    "includeInTotal": true,
+    "id": "1778998047982",
+    "createdAt": "2026-05-17T06:07:27.982Z",
+    "order": 0,
+    "categoryInfo": {
+      "id": 8,
+      "name": "债权账户",
+      "icon": "📋",
+      "color": "#C0C0C0",
+      "type": "receivable"
+    }
+  }
+]

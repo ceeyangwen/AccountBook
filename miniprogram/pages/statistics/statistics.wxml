@@ -99,9 +99,7 @@
           <view class="footer-item">
             <text class="x-label">{{assetTrend[assetTrend.length-1].label}}</text>
             <text class="summary-text">期末</text>
-            <text class="summary-amount {{assetTrend[assetTrend.length-1].balance >= assetTrend[0].balance ? 'income' : 'expense'}}">
-              ¥{{assetTrend[assetTrend.length-1].balance}}
-            </text>
+            <text class="summary-amount {{assetTrend[assetTrend.length-1].balance >= assetTrend[0].balance ? 'income' : 'expense'}}">¥{{assetTrend[assetTrend.length-1].balance}}</text>
           </view>
         </view>
       </view>

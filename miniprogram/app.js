@@ -262,8 +262,45 @@ App({
     }
   },
 
+  waitForOpenId: function(callback) {
+    const openid = wx.getStorageSync('openid');
+    if (openid) {
+      if (callback) callback(openid);
+      return;
+    }
+    
+    this.openIdReadyCallbacks = this.openIdReadyCallbacks || [];
+    if (callback) {
+      this.openIdReadyCallbacks.push(callback);
+    }
+    
+    if (!this.isGettingOpenId) {
+      this.getOpenId();
+    }
+  },
+
+  notifyOpenIdReady: function(openid) {
+    const callbacks = this.openIdReadyCallbacks || [];
+    this.openIdReadyCallbacks = [];
+    
+    callbacks.forEach(callback => {
+      if (callback) callback(openid);
+    });
+  },
+
   getOpenId: function(callback) {
     logger.info('App', '开始获取openid');
+    
+    if (this.isGettingOpenId) {
+      logger.info('App', 'openid正在获取中，加入等待队列');
+      if (callback) {
+        this.openIdReadyCallbacks = this.openIdReadyCallbacks || [];
+        this.openIdReadyCallbacks.push(callback);
+      }
+      return;
+    }
+    
+    this.isGettingOpenId = true;
     
     wx.cloud.callFunction({
       name: 'quickstartFunctions',
@@ -277,6 +314,8 @@ App({
           const openid = res.result.openid;
           wx.setStorageSync('openid', openid);
           logger.info('App', '获取openid成功', { openid });
+          this.isGettingOpenId = false;
+          this.notifyOpenIdReady(openid);
           
           wx.showToast({
             title: '登录成功',
@@ -302,10 +341,12 @@ App({
           });
         }
         
-        if (callback) callback();
+        if (callback) callback(res.result && res.result.openid);
       },
       fail: err => {
         logger.error('App', '获取openid失败', err);
+        this.isGettingOpenId = false;
+        this.notifyOpenIdReady(null);
         
         wx.showModal({
           title: '云函数调用失败',
@@ -313,7 +354,7 @@ App({
           showCancel: false
         });
         
-        if (callback) callback();
+        if (callback) callback(null);
       }
     });
   },
@@ -324,6 +365,19 @@ App({
     if (!forceRefresh && this.globalData.records && this.globalData.records.length > 0) {
       logger.info('App', '使用内存中已有记账记录', { count: this.globalData.records.length });
       if (callback) callback();
+      return;
+    }
+    
+    if (!wx.getStorageSync('openid')) {
+      logger.info('App', 'openid未就绪，等待后加载记账记录');
+      this.waitForOpenId(openid => {
+        if (!openid) {
+          logger.warn('App', 'openid等待失败，跳过加载记账记录');
+          if (callback) callback();
+          return;
+        }
+        this.loadRecords(callback, forceRefresh);
+      });
       return;
     }
     
@@ -578,6 +632,19 @@ App({
       return;
     }
     
+    if (!wx.getStorageSync('openid')) {
+      logger.info('App', 'openid未就绪，等待后加载账户');
+      this.waitForOpenId(openid => {
+        if (!openid) {
+          logger.warn('App', 'openid等待失败，跳过加载账户');
+          if (callback) callback();
+          return;
+        }
+        this.loadAccounts(callback, forceRefresh);
+      });
+      return;
+    }
+    
     cloudStorage.readDataFromCloud('accounts')
       .then(data => {
         if (data && data.length > 0) {
@@ -693,6 +760,19 @@ App({
     if (!forceRefresh) {
       logger.info('App', '使用内存中已有分类数据');
       if (callback) callback();
+      return;
+    }
+    
+    if (!wx.getStorageSync('openid')) {
+      logger.info('App', 'openid未就绪，等待后加载分类');
+      this.waitForOpenId(openid => {
+        if (!openid) {
+          logger.warn('App', 'openid等待失败，跳过加载分类');
+          if (callback) callback();
+          return;
+        }
+        this.loadCategories(callback, forceRefresh);
+      });
       return;
     }
     

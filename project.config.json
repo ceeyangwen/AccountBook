@@ -37,5 +37,6 @@
   "editorSetting": {
     "tabSize": 2,
     "tabIndent": "insertSpaces"
-  }
+  },
+  "libVersion": "3.16.0"
 }

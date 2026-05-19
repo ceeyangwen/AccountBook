@@ -8,6 +8,9 @@ const formatTime = () => {
   return now.toISOString();
 };
 
+const CLOUD_ENV_ID = "cloud1-d3gvv57hn4dfa5588";
+const CLOUD_STORAGE_RESOURCE_ID = "636c-cloud1-d3gvv57hn4dfa5588-1433781415";
+
 console.log(`[${formatTime()}] 云函数服务启动`);
 
 const getOpenId = async () => {
@@ -20,6 +23,89 @@ const getOpenId = async () => {
   };
 };
 
+const normalizeDataByType = (data, dataType) => {
+  if (data && typeof data === "object" && !Array.isArray(data) && Array.isArray(data[dataType])) {
+    return data[dataType];
+  }
+
+  if (dataType === "categories" && data && typeof data === "object" && !Array.isArray(data) && data.categories) {
+    return data.categories;
+  }
+
+  return data;
+};
+
+const isValidDataType = (dataType) => {
+  return ["records", "accounts", "categories"].includes(dataType);
+};
+
+const readStorageData = async (dataType) => {
+  if (!isValidDataType(dataType)) {
+    return { success: false, errMsg: "Invalid dataType" };
+  }
+
+  const wxContext = cloud.getWXContext();
+  const cloudPath = `users/${wxContext.OPENID}/${dataType}.json`;
+  const fileIDCandidates = [
+    `cloud://${CLOUD_ENV_ID}.${CLOUD_STORAGE_RESOURCE_ID}/${cloudPath}`,
+    `cloud://${CLOUD_ENV_ID}/${cloudPath}`
+  ];
+
+  let lastErr = null;
+
+  for (const fileID of fileIDCandidates) {
+    try {
+      console.log(`[${formatTime()}] 尝试读取云存储文件: ${fileID}`);
+      const downloadRes = await cloud.downloadFile({ fileID });
+      const fileContent = downloadRes.fileContent.toString("utf8");
+      const data = normalizeDataByType(JSON.parse(fileContent), dataType);
+      const count = Array.isArray(data) ? data.length : (data && typeof data === "object" ? Object.keys(data).length : 0);
+
+      console.log(`[${formatTime()}] 云存储读取成功: ${dataType}, 数量: ${count}`);
+
+      return {
+        success: true,
+        data,
+        fileID,
+        count
+      };
+    } catch (e) {
+      lastErr = e;
+      console.error(`[${formatTime()}] 云存储读取失败: ${fileID}`, e.message);
+    }
+  }
+
+  return {
+    success: false,
+    errMsg: lastErr ? lastErr.message : "Storage file not found"
+  };
+};
+
+const writeStorageData = async (dataType, data) => {
+  if (!isValidDataType(dataType)) {
+    return { success: false, errMsg: "Invalid dataType" };
+  }
+
+  const wxContext = cloud.getWXContext();
+  const cloudPath = `users/${wxContext.OPENID}/${dataType}.json`;
+  const fileContent = Buffer.from(JSON.stringify(data, null, 2), "utf8");
+
+  console.log(`[${formatTime()}] 写入云存储文件: ${cloudPath}, 字节数: ${fileContent.length}`);
+
+  const uploadRes = await cloud.uploadFile({
+    cloudPath,
+    fileContent
+  });
+
+  console.log(`[${formatTime()}] 云存储写入成功: ${uploadRes.fileID}`);
+
+  return {
+    success: true,
+    fileID: uploadRes.fileID,
+    cloudPath
+  };
+};
+
 exports.main = async (event, context) => {
   console.log(`[${formatTime()}] 云函数被调用, type: ${event.type}`);
   console.log(`[${formatTime()}] 请求数据:`, JSON.stringify(event));
@@ -29,6 +115,12 @@ exports.main = async (event, context) => {
     switch (event.type) {
       case "getOpenId":
         result = await getOpenId();
+        break;
+      case "readStorageData":
+        result = await readStorageData(event.dataType);
+        break;
+      case "writeStorageData":
+        result = await writeStorageData(event.dataType, event.data);
         break;
       default:
         console.error(`[${formatTime()}] 未知类型:`, event.type);

@@ -30,6 +30,26 @@
       <view class="menu-arrow">›</view>
     </view>
     
+    <view class="menu-item card mt-15" bindtap="importData">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper import">
+          <text class="menu-icon">☁️</text>
+        </view>
+        <view class="menu-text">从云端导入</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
+    <view class="menu-item card mt-15" bindtap="importFromClipboard">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper import">
+          <text class="menu-icon">📋</text>
+        </view>
+        <view class="menu-text">粘贴数据导入</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+    
     <view class="menu-item card mt-15" bindtap="refreshData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper refresh">

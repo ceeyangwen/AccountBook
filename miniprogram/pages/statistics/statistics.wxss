@@ -273,23 +273,29 @@
 }
 
 .trend-footer {
-  display: flex;
-  justify-content: space-between;
-  padding: 8rpx 90rpx 0;
+  display: grid;
+  grid-template-columns: 1fr 2rpx 1fr;
+  align-items: stretch;
+  column-gap: 0;
+  padding: 12rpx 24rpx 0;
   border-top: 1rpx solid #f0f0f0;
-  margin-top: 5rpx;
+  margin-top: 8rpx;
 }
 
 .footer-item {
-  display: flex;
-  flex-direction: column;
+  min-width: 0;
+  min-height: 116rpx;
+  display: grid;
+  grid-template-rows: 30rpx 30rpx 44rpx;
+  justify-items: center;
   align-items: center;
-  gap: 2rpx;
+  row-gap: 2rpx;
 }
 
 .x-label {
   font-size: 22rpx;
   color: #999;
+  line-height: 1.2;
 }
 
 .summary-text {
@@ -299,10 +305,14 @@
 }
 
 .summary-amount {
+  max-width: 100%;
   font-size: 32rpx;
   font-weight: 600;
   color: #333;
-  line-height: 1.2;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .summary-amount.income {
@@ -315,8 +325,9 @@
 
 .footer-divider {
   width: 2rpx;
-  height: 70rpx;
+  height: 112rpx;
   background: #f0f0f0;
+  justify-self: center;
 }
 
 .section-title {

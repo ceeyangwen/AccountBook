@@ -1,6 +1,10 @@
 const logger = require('./logger.js');
 
-// 云数据库集合名称
+// 当前云开发环境和云存储资源 ID。
+// 控制台展示的完整 File ID 形如：
+// cloud://<envId>.<storageResourceId>/users/<openid>/records.json
+const CLOUD_ENV_ID = 'cloud1-d3gvv57hn4dfa5588';
+const CLOUD_STORAGE_RESOURCE_ID = '636c-cloud1-d3gvv57hn4dfa5588-1433781415';
 const FILE_MAPPING_COLLECTION = 'file_mappings';
 
 // 获取用户数据文件路径
@@ -11,6 +15,35 @@ const getUserDataPath = function (dataType) {
     return null;
   }
   return 'users/' + openid + '/' + dataType + '.json';
+};
+
+const addCandidate = function (candidates, fileID) {
+  if (fileID && !candidates.includes(fileID)) {
+    candidates.push(fileID);
+  }
+};
+
+const normalizeEnvID = function (env) {
+  if (!env) return '';
+  if (typeof env === 'string') return env;
+  return env.env || env.envID || env.currentEnv || '';
+};
+
+const getCloudEnvID = function () {
+  try {
+    const envID = normalizeEnvID(wx.cloud.getEnv && wx.cloud.getEnv());
+    return envID || CLOUD_ENV_ID;
+  } catch (e) {
+    logger.warn('cloudStorage', '获取环境ID失败，使用默认环境ID: ' + (e.message || e));
+    return CLOUD_ENV_ID;
+  }
+};
+
+const getConsoleFileID = function (cloudPath) {
+  if (!CLOUD_ENV_ID || !CLOUD_STORAGE_RESOURCE_ID) {
+    return null;
+  }
+  return `cloud://${CLOUD_ENV_ID}.${CLOUD_STORAGE_RESOURCE_ID}/${cloudPath}`;
 };
 
 // 从云数据库获取fileID
@@ -40,7 +73,7 @@ const getFileIDFromDB = async function (dataType) {
     logger.info('cloudStorage', '数据库中没有找到文件映射');
     return null;
   } catch (e) {
-    logger.error('cloudStorage', '从数据库获取fileID失败', e);
+    logger.warn('cloudStorage', '从数据库获取fileID失败: ' + (e.errMsg || e.message || e));
     return null;
   }
 };
@@ -56,7 +89,6 @@ const saveFileIDToDB = async function (dataType, fileID, cloudPath) {
       return;
     }
     
-    // 先查询是否已存在
     const existingRes = await db.collection(FILE_MAPPING_COLLECTION)
       .where({
         _openid: openid,
@@ -65,7 +97,6 @@ const saveFileIDToDB = async function (dataType, fileID, cloudPath) {
       .get();
     
     if (existingRes.data && existingRes.data.length > 0) {
-      // 更新现有记录
       await db.collection(FILE_MAPPING_COLLECTION)
         .doc(existingRes.data[0]._id)
         .update({
@@ -77,7 +108,6 @@ const saveFileIDToDB = async function (dataType, fileID, cloudPath) {
         });
       logger.info('cloudStorage', '文件映射已更新到数据库');
     } else {
-      // 插入新记录
       await db.collection(FILE_MAPPING_COLLECTION).add({
         data: {
           dataType: dataType,
@@ -90,7 +120,135 @@ const saveFileIDToDB = async function (dataType, fileID, cloudPath) {
       logger.info('cloudStorage', '文件映射已保存到数据库');
     }
   } catch (e) {
-    logger.error('cloudStorage', '保存fileID到数据库失败', e);
+    logger.warn('cloudStorage', '保存fileID到数据库失败: ' + (e.errMsg || e.message || e));
+  }
+};
+
+const getFileIDCandidates = async function (dataType, cloudPath) {
+  const candidates = [];
+  const envID = getCloudEnvID();
+  
+  addCandidate(candidates, wx.getStorageSync('fileID_' + dataType));
+  addCandidate(candidates, await getFileIDFromDB(dataType));
+  addCandidate(candidates, getConsoleFileID(cloudPath));
+  
+  if (envID) {
+    addCandidate(candidates, `cloud://${envID}/${cloudPath}`);
+  }
+  
+  return candidates;
+};
+
+const downloadJSONFile = async function (fileID, dataType) {
+  logger.info('cloudStorage', '开始下载文件: ' + fileID);
+  const downloadRes = await wx.cloud.downloadFile({
+    fileID: fileID
+  });
+  
+  logger.info('cloudStorage', '下载结果: ' + JSON.stringify(downloadRes));
+  
+  if (!downloadRes.tempFilePath) {
+    throw new Error('下载结果中没有tempFilePath');
+  }
+  
+  logger.info('cloudStorage', 'tempFilePath: ' + downloadRes.tempFilePath);
+  
+  const fs = wx.getFileSystemManager();
+  const fileContent = fs.readFileSync(downloadRes.tempFilePath, 'utf8');
+  logger.info('cloudStorage', '文件内容长度: ' + fileContent.length + ' 字符');
+  
+  try {
+    const data = normalizeDataByType(JSON.parse(fileContent), dataType);
+    const dataCount = Array.isArray(data) ? data.length : (typeof data === 'object' ? Object.keys(data).length : '非对象');
+    logger.info('cloudStorage', '数据解析成功: ' + dataType + ', 数据数量: ' + dataCount);
+    return data;
+  } catch (parseErr) {
+    throw new Error('JSON解析失败: ' + (parseErr.message || parseErr));
+  }
+};
+
+const normalizeDataByType = function (data, dataType) {
+  if (data && typeof data === 'object' && !Array.isArray(data) && Array.isArray(data[dataType])) {
+    logger.info('cloudStorage', dataType + '.json 为备份对象格式，已提取 ' + dataType + ' 数组');
+    return data[dataType];
+  }
+  
+  if (dataType === 'categories' && data && typeof data === 'object' && !Array.isArray(data) && data.categories) {
+    logger.info('cloudStorage', 'categories.json 为备份对象格式，已提取 categories 对象');
+    return data.categories;
+  }
+  
+  return data;
+};
+
+const isEmptyCloudData = function (data) {
+  if (Array.isArray(data)) {
+    return data.length === 0;
+  }
+  
+  if (data && typeof data === 'object') {
+    return Object.keys(data).length === 0;
+  }
+  
+  return !data;
+};
+
+const readDataByCloudFunction = async function (dataType) {
+  try {
+    logger.info('cloudStorage', '尝试通过云函数读取: ' + dataType);
+    
+    const res = await wx.cloud.callFunction({
+      name: 'quickstartFunctions',
+      data: {
+        type: 'readStorageData',
+        dataType: dataType
+      }
+    });
+    
+    if (res.result && res.result.success) {
+      const data = normalizeDataByType(res.result.data, dataType);
+      const dataCount = Array.isArray(data) ? data.length : (typeof data === 'object' ? Object.keys(data).length : '非对象');
+      logger.info('cloudStorage', '云函数读取成功: ' + dataType + ', 数据数量: ' + dataCount);
+      return data;
+    }
+    
+    logger.warn('cloudStorage', '云函数读取失败: ' + (res.result && res.result.errMsg ? res.result.errMsg : '未知错误'));
+    return null;
+  } catch (e) {
+    logger.warn('cloudStorage', '云函数读取异常: ' + (e.errMsg || e.message || e));
+    return null;
+  }
+};
+
+const writeDataByCloudFunction = async function (dataType, data) {
+  try {
+    logger.info('cloudStorage', '尝试通过云函数写入: ' + dataType);
+    
+    const res = await wx.cloud.callFunction({
+      name: 'quickstartFunctions',
+      data: {
+        type: 'writeStorageData',
+        dataType: dataType,
+        data: data
+      }
+    });
+    
+    if (res.result && res.result.success) {
+      logger.info('cloudStorage', '云函数写入成功: ' + dataType + ', fileID: ' + (res.result.fileID || 'N/A'));
+      if (res.result.fileID) {
+        wx.setStorageSync('fileID_' + dataType, res.result.fileID);
+      }
+      return {
+        success: true,
+        fileID: res.result.fileID
+      };
+    }
+    
+    logger.warn('cloudStorage', '云函数写入失败: ' + (res.result && res.result.errMsg ? res.result.errMsg : '未知错误'));
+    return { success: false, errMsg: res.result && res.result.errMsg };
+  } catch (e) {
+    logger.warn('cloudStorage', '云函数写入异常: ' + (e.errMsg || e.message || e));
+    return { success: false, errMsg: e.errMsg || e.message || e };
   }
 };
 
@@ -158,51 +316,50 @@ const readDataFromCloud = async function (dataType) {
     }
     
     logger.info('cloudStorage', '尝试读取文件: ' + cloudPath);
-    
-    // 首先尝试从本地存储获取fileID
-    let fileID = wx.getStorageSync('fileID_' + dataType);
-    logger.info('cloudStorage', '本地存储的fileID: ' + fileID);
-    
-    // 如果本地没有，从云数据库获取
-    if (!fileID) {
-      logger.info('cloudStorage', '本地存储没有fileID，尝试从数据库获取');
-      fileID = await getFileIDFromDB(dataType);
-      if (fileID) {
-        // 同步到本地存储
-        wx.setStorageSync('fileID_' + dataType, fileID);
-      }
+
+    const functionData = await readDataByCloudFunction(dataType);
+    if (!isEmptyCloudData(functionData)) {
+      return functionData;
     }
     
-    if (!fileID) {
-      logger.info('cloudStorage', '没有找到fileID，返回空数组');
-      return [];
-    }
+    const fileIDCandidates = await getFileIDCandidates(dataType, cloudPath);
+    logger.info('cloudStorage', '候选FileID数量: ' + fileIDCandidates.length);
     
-    // 使用fileID下载文件
-    logger.info('cloudStorage', '使用fileID下载: ' + fileID);
-    const downloadRes = await wx.cloud.downloadFile({
-      fileID: fileID
-    });
-    
-    if (downloadRes.tempFilePath) {
-      const fs = wx.getFileSystemManager();
-      const fileContent = fs.readFileSync(downloadRes.tempFilePath, 'utf8');
-      logger.info('cloudStorage', '文件读取成功: ' + fileContent);
-      
+    let lastErr = null;
+    let emptyData = null;
+    for (let i = 0; i < fileIDCandidates.length; i++) {
+      const fileID = fileIDCandidates[i];
       try {
-        const data = JSON.parse(fileContent);
-        logger.info('cloudStorage', '数据解析成功: ' + dataType + ', 数据数量: ' + (data ? data.length : 0));
+        const data = await downloadJSONFile(fileID, dataType);
+        if (isEmptyCloudData(data) && i < fileIDCandidates.length - 1) {
+          emptyData = data;
+          logger.warn('cloudStorage', '候选FileID读取为空，继续尝试下一个: ' + fileID);
+          continue;
+        }
+        
+        wx.setStorageSync('fileID_' + dataType, fileID);
         return data;
-      } catch (parseErr) {
-        logger.error('cloudStorage', 'JSON解析失败', parseErr);
-        return [];
+      } catch (downloadErr) {
+        lastErr = downloadErr;
+        logger.warn('cloudStorage', '候选FileID读取失败: ' + fileID + ' | ' + (downloadErr.errMsg || downloadErr.message || downloadErr));
       }
-    } else {
-      logger.warn('cloudStorage', '下载结果中没有tempFilePath');
+    }
+    
+    if (lastErr) {
+      logger.error('cloudStorage', '所有候选FileID读取失败: ' + (lastErr.errMsg || lastErr.message || lastErr));
+    }
+    
+    return emptyData || [];
+  } catch (e) {
+    const errMsg = e.errMsg || e.message || JSON.stringify(e);
+    logger.error('cloudStorage', '读取文件异常: ' + errMsg);
+    
+    // 如果是文件不存在的错误，返回空数组
+    if (errMsg.includes('file not exist') || errMsg.includes('不存在')) {
+      logger.info('cloudStorage', '文件不存在，返回空数组');
       return [];
     }
-  } catch (e) {
-    logger.error('cloudStorage', '读取文件异常: ' + (e.errMsg || e.message));
+    
     return [];
   }
 };
@@ -225,9 +382,14 @@ const writeDataToCloud = async function (dataType, data) {
     }
     
     logger.info('cloudStorage', '写入文件: ' + cloudPath);
+
+    const functionResult = await writeDataByCloudFunction(dataType, data);
+    if (functionResult.success) {
+      return functionResult;
+    }
     
     const jsonData = JSON.stringify(data, null, 2);
-    logger.info('cloudStorage', '要写入的数据: ' + jsonData);
+    logger.info('cloudStorage', '要写入的数据长度: ' + jsonData.length + ' 字符');
     
     const fs = wx.getFileSystemManager();
     const tempFilePath = wx.env.USER_DATA_PATH + '/temp_' + Date.now() + '.json';
@@ -241,11 +403,7 @@ const writeDataToCloud = async function (dataType, data) {
     });
     
     logger.info('cloudStorage', '文件写入成功: ' + cloudPath + ', fileID: ' + uploadRes.fileID);
-    
-    // 保存fileID到本地存储
     wx.setStorageSync('fileID_' + dataType, uploadRes.fileID);
-    
-    // 保存fileID到云数据库
     await saveFileIDToDB(dataType, uploadRes.fileID, cloudPath);
     
     try {
