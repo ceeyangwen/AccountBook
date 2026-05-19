@@ -7,6 +7,17 @@
 # WeChat Mini Program
 project.private.config.json
 
+# Local cloud data backups
+/accounts.json
+/records.json
+/categories.json
+
+# Accidental copies of Git internal directories
+/hooks/
+/info/
+/objects/
+/refs/
+
 # Dependencies
 node_modules/
 
