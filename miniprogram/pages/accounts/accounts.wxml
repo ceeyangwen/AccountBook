@@ -42,7 +42,11 @@
               <text class="account-icon">{{account.icon}}</text>
             </view>
             <view class="account-info">
-              <view class="account-name">{{account.name}}</view>
+              <view class="account-name-row">
+                <view class="account-name">{{account.name}}</view>
+                <view class="hidden-account-label" wx:if="{{account.isHidden === true}}">隐藏</view>
+                <view class="exclude-total-label" wx:if="{{account.includeInTotal === false}}">不计入总资产</view>
+              </view>
               <view class="account-note" wx:if="{{account.note}}">{{account.note}}</view>
             </view>
           </view>
@@ -74,8 +78,8 @@
     </view>
     
     <view wx:if="{{groupedAccounts.length === 0 && totalBalance !== null}}" class="empty-tip">
-      <view class="empty-tip-text">还没有账户</view>
-      <view class="empty-tip-subtext">点击右下角按钮添加第一个账户</view>
+      <view class="empty-tip-text">{{hiddenAccountsCount > 0 && !showHiddenAccounts ? '暂无可见账户' : '还没有账户'}}</view>
+      <view class="empty-tip-subtext">{{hiddenAccountsCount > 0 && !showHiddenAccounts ? '可在我的页面打开显示隐藏账号' : '点击右下角按钮添加第一个账户'}}</view>
     </view>
   </view>
 

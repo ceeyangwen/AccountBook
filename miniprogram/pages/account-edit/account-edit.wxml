@@ -66,6 +66,15 @@
         color="#667eea"
       />
     </view>
+
+    <view class="form-item">
+      <view class="form-label">隐藏账号</view>
+      <switch 
+        checked="{{isHidden}}" 
+        bindchange="onHiddenChange"
+        color="#FF6B6B"
+      />
+    </view>
   </view>
 
   <view class="btn-group">

@@ -1,5 +1,7 @@
 const app = getApp();
 const logger = require('../../utils/logger.js');
+const amountExpression = require('../../utils/amountExpression.js');
+const accountVisibility = require('../../utils/accountVisibility.js');
 
 Page({
   data: {
@@ -8,10 +10,16 @@ Page({
     date: '',
     dateText: '',
     accounts: [],
+    groupedAccounts: [],
     fromAccountId: null,
     toAccountId: null,
+    selectedFromAccountCategoryId: null,
+    selectedFromAccountCategory: null,
+    selectedToAccountCategoryId: null,
+    selectedToAccountCategory: null,
     showFromPicker: false,
     showToPicker: false,
+    showHiddenAccounts: false,
     isEdit: false,
     recordId: null
   },
@@ -74,40 +82,173 @@ Page({
   },
 
   loadAccounts: function() {
-    const accounts = app.globalData.accounts || [];
+    const allAccounts = app.globalData.accounts || [];
+    const showHiddenAccounts = accountVisibility.getShowHiddenAccounts();
+    const fromAccountId = this.data.fromAccountId && allAccounts.some(account => account.id === this.data.fromAccountId)
+      ? this.data.fromAccountId
+      : null;
+    const toAccountId = this.data.toAccountId && allAccounts.some(account => account.id === this.data.toAccountId)
+      ? this.data.toAccountId
+      : null;
+    const visibleAccounts = accountVisibility.getVisibleAccounts(allAccounts, {
+      showHidden: showHiddenAccounts,
+      keepIds: [fromAccountId, toAccountId]
+    });
+    const accounts = accountVisibility.decorateAccounts(visibleAccounts, showHiddenAccounts);
+    const groupedAccounts = this.groupAccountsByCategory(accounts);
     
     this.setData({
-      accounts
+      accounts,
+      groupedAccounts,
+      fromAccountId,
+      toAccountId,
+      showHiddenAccounts
     });
+  },
+
+  groupAccountsByCategory: function(accounts) {
+    const categoryMap = {};
+
+    accounts.forEach(account => {
+      const category = account.category || '未分类';
+      if (!categoryMap[category]) {
+        categoryMap[category] = {
+          id: category,
+          name: category,
+          icon: this.getCategoryIcon(category),
+          children: []
+        };
+      }
+      categoryMap[category].children.push(account);
+    });
+
+    const accountCategories = app.globalData.accountCategories || [];
+    const knownGroups = accountCategories
+      .map(category => categoryMap[category.name])
+      .filter(Boolean);
+    const knownNames = new Set(knownGroups.map(group => group.name));
+    const unknownGroups = Object.values(categoryMap).filter(group => !knownNames.has(group.name));
+
+    return knownGroups.concat(unknownGroups);
+  },
+
+  getCategoryIcon: function(category) {
+    const accountCategories = app.globalData.accountCategories || [];
+    const found = accountCategories.find(item => item.name === category);
+    if (found && found.icon) {
+      return found.icon;
+    }
+
+    const iconMap = {
+      '现金': '💵',
+      '信用卡': '💳',
+      '储蓄卡': '🏦',
+      '基金账户': '📊',
+      '股票账户': '📈',
+      '虚拟账户': '📱',
+      '负债账户': '📝',
+      '债权账户': '📋'
+    };
+    return iconMap[category] || '💵';
   },
 
   onAmountInput: function (e) {
-    let value = e.detail.value;
-    if (value.indexOf('.') !== -1) {
-      const parts = value.split('.');
-      if (parts[1].length > 2) {
-        value = parts[0] + '.' + parts[1].substring(0, 2);
-      }
-    }
+    const value = amountExpression.sanitizeAmountExpression(e.detail.value);
     this.setData({
       amount: value
     });
+    return value;
+  },
+
+  onAmountBlur: function () {
+    this.formatAmountInput(false);
+  },
+
+  formatAmountInput: function (showError) {
+    const rawAmount = this.data.amount;
+    if (!rawAmount) return null;
+
+    try {
+      const formattedAmount = amountExpression.formatAmountExpression(rawAmount);
+      this.setData({
+        amount: formattedAmount
+      });
+      return formattedAmount;
+    } catch (e) {
+      if (showError) {
+        wx.showToast({
+          title: e.message || '金额表达式有误',
+          icon: 'none'
+        });
+      }
+      return null;
+    }
   },
 
   showFromPicker: function() {
-    this.setData({ showFromPicker: true });
+    this.setData({
+      showFromPicker: true,
+      selectedFromAccountCategoryId: null,
+      selectedFromAccountCategory: null
+    });
   },
 
   hideFromPicker: function() {
-    this.setData({ showFromPicker: false });
+    this.setData({
+      showFromPicker: false,
+      selectedFromAccountCategoryId: null,
+      selectedFromAccountCategory: null
+    });
   },
 
   showToPicker: function() {
-    this.setData({ showToPicker: true });
+    this.setData({
+      showToPicker: true,
+      selectedToAccountCategoryId: null,
+      selectedToAccountCategory: null
+    });
   },
 
   hideToPicker: function() {
-    this.setData({ showToPicker: false });
+    this.setData({
+      showToPicker: false,
+      selectedToAccountCategoryId: null,
+      selectedToAccountCategory: null
+    });
+  },
+
+  selectFromAccountCategory: function(e) {
+    const category = e.currentTarget.dataset.category;
+    this.setData({
+      selectedFromAccountCategoryId: category.id,
+      selectedFromAccountCategory: category
+    });
+  },
+
+  backToFromAccountCategories: function() {
+    this.setData({
+      selectedFromAccountCategoryId: null,
+      selectedFromAccountCategory: null
+    });
+  },
+
+  selectToAccountCategory: function(e) {
+    const category = e.currentTarget.dataset.category;
+    this.setData({
+      selectedToAccountCategoryId: category.id,
+      selectedToAccountCategory: category
+    });
+  },
+
+  backToToAccountCategories: function() {
+    this.setData({
+      selectedToAccountCategoryId: null,
+      selectedToAccountCategory: null
+    });
+  },
+
+  onPopupTap: function() {
+    // 用 catchtap 阻止弹窗内部点击冒泡到遮罩层。
   },
 
   selectFromAccount: function (e) {
@@ -121,7 +262,9 @@ Page({
     }
     this.setData({
       fromAccountId: id,
-      showFromPicker: false
+      showFromPicker: false,
+      selectedFromAccountCategoryId: null,
+      selectedFromAccountCategory: null
     });
   },
 
@@ -136,7 +279,9 @@ Page({
     }
     this.setData({
       toAccountId: id,
-      showToPicker: false
+      showToPicker: false,
+      selectedToAccountCategoryId: null,
+      selectedToAccountCategory: null
     });
   },
 
@@ -160,9 +305,22 @@ Page({
   },
 
   saveTransfer: function () {
-    const { amount, note, date, fromAccountId, toAccountId, isEdit, recordId } = this.data;
+    if (!this.data.amount) {
+      wx.showToast({
+        title: '请输入有效金额',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const formattedAmount = this.formatAmountInput(true);
+    const { note, date, fromAccountId, toAccountId, isEdit, recordId } = this.data;
+
+    if (!formattedAmount) {
+      return;
+    }
     
-    if (!amount || parseFloat(amount) <= 0) {
+    if (parseFloat(formattedAmount) <= 0) {
       wx.showToast({
         title: '请输入有效金额',
         icon: 'none'
@@ -199,7 +357,7 @@ Page({
 
     const transferRecord = {
       type: 'transfer',
-      amount: parseFloat(amount).toFixed(2),
+      amount: formattedAmount,
       fromAccountId: fromAccountId,
       fromAccountName: fromAccount ? fromAccount.name : '',
       fromAccountIcon: fromAccount ? fromAccount.icon : '',

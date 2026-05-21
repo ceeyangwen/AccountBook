@@ -1,4 +1,5 @@
 const app = getApp();
+const accountVisibility = require('../../utils/accountVisibility.js');
 
 Page({
   data: {
@@ -33,12 +34,17 @@ Page({
     this.setData({ loading: true });
     
     app.loadRecords(() => {
-      this.processRecords();
+      app.loadAccounts(() => {
+        this.processRecords();
+      });
     });
   },
 
   processRecords: function () {
     const records = app.globalData.records || [];
+    const accounts = app.globalData.accounts || [];
+    const accountMap = {};
+    const showHiddenAccounts = accountVisibility.getShowHiddenAccounts();
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
@@ -47,6 +53,10 @@ Page({
     let monthlyIncome = 0;
     const groupedRecords = [];
     const dateMap = {};
+
+    accounts.forEach(account => {
+      accountMap[account.id] = account;
+    });
 
     records.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(record => {
       const recordDate = new Date(record.date);
@@ -85,10 +95,22 @@ Page({
         category = this.getCategory(record.categoryId, record.type);
       }
       
-      dateMap[dateKey].records.push({
+      const processedRecord = {
         ...record,
         category
-      });
+      };
+
+      if (record.type === 'transfer') {
+        const fromAccount = accountMap[record.fromAccountId] || { name: record.fromAccountName };
+        const toAccount = accountMap[record.toAccountId] || { name: record.toAccountName };
+        processedRecord.fromAccountDisplayName = accountVisibility.getDisplayAccountName(fromAccount, showHiddenAccounts);
+        processedRecord.toAccountDisplayName = accountVisibility.getDisplayAccountName(toAccount, showHiddenAccounts);
+      } else {
+        const account = accountMap[record.accountId] || { name: record.accountName };
+        processedRecord.accountDisplayName = accountVisibility.getDisplayAccountName(account, showHiddenAccounts);
+      }
+
+      dateMap[dateKey].records.push(processedRecord);
       
       if (record.type === 'expense') {
         dateMap[dateKey].dayExpense += parseFloat(record.amount);

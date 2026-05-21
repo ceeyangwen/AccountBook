@@ -44,6 +44,7 @@ function setupWxMock(options = {}) {
   const callFunctionResult = options.callFunctionResult;
   const callFunctionHandler = options.callFunctionHandler;
   const callFunctionRequests = [];
+  const uploadRequests = [];
   const uploadError = options.uploadError;
 
   if (cachedFileID) {
@@ -102,7 +103,8 @@ function setupWxMock(options = {}) {
         }
         return { tempFilePath: '/tmp/accounts.json' };
       },
-      uploadFile: async function () {
+      uploadFile: async function (request) {
+        uploadRequests.push(request);
         if (uploadError) {
           throw uploadError;
         }
@@ -136,6 +138,7 @@ function setupWxMock(options = {}) {
     expectedFileID,
     attemptedFileIDs,
     callFunctionRequests,
+    uploadRequests,
     cloudStorage: require('../miniprogram/utils/cloudStorage.js')
   };
 }
@@ -249,6 +252,28 @@ function setupWxMock(options = {}) {
     assertEqual(result.success, true, '写入结果');
     assertEqual(callFunctionRequests[0].data.type, 'writeStorageData', '应调用写入云函数');
     assertEqual(callFunctionRequests[0].data.dataType, 'accounts', '写入类型');
+  });
+
+  await test('云函数写入失败时不应退回前端上传，避免正式版云存储权限错误掩盖真实原因', async () => {
+    const { cloudStorage, uploadRequests } = setupWxMock({
+      callFunctionHandler: async function (request) {
+        if (request.data.type === 'writeStorageData') {
+          return {
+            result: {
+              success: false,
+              errMsg: 'cloud function write failed'
+            }
+          };
+        }
+        throw { errMsg: 'unexpected callFunction type' };
+      }
+    });
+
+    const result = await cloudStorage.writeDataToCloud('accounts', [{ id: 'acc-write-fail', name: '现金' }]);
+
+    assertEqual(result.success, false, '写入结果');
+    assertEqual(result.errMsg, 'cloud function write failed', '应返回云函数真实错误');
+    assertEqual(uploadRequests.length, 0, '不应退回前端 uploadFile');
   });
 
   console.log('\n========================================');

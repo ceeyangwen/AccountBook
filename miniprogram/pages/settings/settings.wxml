@@ -19,13 +19,27 @@
       </view>
       <view class="menu-arrow">›</view>
     </view>
+
+    <view class="menu-item card mt-15">
+      <view class="menu-left flex flex-center">
+        <view class="menu-icon-wrapper privacy">
+          <text class="menu-icon">🙈</text>
+        </view>
+        <view class="menu-text">显示隐藏账号</view>
+      </view>
+      <switch 
+        checked="{{showHiddenAccounts}}" 
+        bindchange="onShowHiddenAccountsChange"
+        color="#FF6B6B"
+      />
+    </view>
     
     <view class="menu-item card mt-15" bindtap="exportData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper export">
           <text class="menu-icon">📤</text>
         </view>
-        <view class="menu-text">导出数据备份</view>
+        <view class="menu-text">备份到云端</view>
       </view>
       <view class="menu-arrow">›</view>
     </view>

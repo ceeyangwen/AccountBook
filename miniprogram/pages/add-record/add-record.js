@@ -1,5 +1,7 @@
 const app = getApp();
 const logger = require('../../utils/logger.js');
+const amountExpression = require('../../utils/amountExpression.js');
+const accountVisibility = require('../../utils/accountVisibility.js');
 
 Page({
   data: {
@@ -18,6 +20,7 @@ Page({
     selectedAccountCategoryId: null,
     selectedAccountCategory: null,
     selectedAccountId: null,
+    showHiddenAccounts: false,
     showAccountPicker: false,
     isEdit: false,
     recordId: null
@@ -161,8 +164,17 @@ Page({
   },
 
   loadAccounts: function() {
-    const accounts = app.globalData.accounts || [];
-    const selectedAccountId = this.data.selectedAccountId || accounts[0]?.id;
+    const allAccounts = app.globalData.accounts || [];
+    const showHiddenAccounts = accountVisibility.getShowHiddenAccounts();
+    const selectedAccountId = this.data.selectedAccountId && allAccounts.some(account => account.id === this.data.selectedAccountId)
+      ? this.data.selectedAccountId
+      : null;
+    const visibleAccounts = accountVisibility.getVisibleAccounts(allAccounts, {
+      showHidden: showHiddenAccounts,
+      keepIds: [selectedAccountId]
+    });
+    const accounts = accountVisibility.decorateAccounts(visibleAccounts, showHiddenAccounts);
+    const finalSelectedAccountId = selectedAccountId || accounts[0]?.id;
     
     // 按账户分类分组
     const categoryMap = {};
@@ -184,7 +196,8 @@ Page({
     this.setData({
       accounts,
       groupedAccounts,
-      selectedAccountId
+      selectedAccountId: finalSelectedAccountId,
+      showHiddenAccounts
     });
   },
 
@@ -210,18 +223,37 @@ Page({
   },
 
   onAmountInput: function (e) {
-    let value = e.detail.value;
-    if (value.indexOf('.') !== -1) {
-      const parts = value.split('.');
-      if (parts[1].length > 2) {
-        value = parts[0] + '.' + parts[1].substring(0, 2);
-      }
-    }
+    const value = amountExpression.sanitizeAmountExpression(e.detail.value);
     this.setData({
       amount: value
     });
+    return value;
   },
 
+  onAmountBlur: function () {
+    this.formatAmountInput(false);
+  },
+
+  formatAmountInput: function (showError) {
+    const rawAmount = this.data.amount;
+    if (!rawAmount) return null;
+
+    try {
+      const formattedAmount = amountExpression.formatAmountExpression(rawAmount);
+      this.setData({
+        amount: formattedAmount
+      });
+      return formattedAmount;
+    } catch (e) {
+      if (showError) {
+        wx.showToast({
+          title: e.message || '金额表达式有误',
+          icon: 'none'
+        });
+      }
+      return null;
+    }
+  },
 
 
   selectAccount: function (e) {
@@ -289,9 +321,22 @@ Page({
   },
 
   saveRecord: function () {
-    const { recordType, amount, note, date, selectedCategoryId, selectedAccountId, isEdit, recordId } = this.data;
+    if (!this.data.amount) {
+      wx.showToast({
+        title: '请输入有效金额',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const formattedAmount = this.formatAmountInput(true);
+    const { recordType, note, date, selectedCategoryId, selectedAccountId, isEdit, recordId } = this.data;
+
+    if (!formattedAmount) {
+      return;
+    }
     
-    if (!amount || parseFloat(amount) <= 0) {
+    if (parseFloat(formattedAmount) <= 0) {
       wx.showToast({
         title: '请输入有效金额',
         icon: 'none'
@@ -320,7 +365,7 @@ Page({
 
     const record = {
       type: recordType,
-      amount: parseFloat(amount).toFixed(2),
+      amount: formattedAmount,
       categoryId: selectedCategoryId,
       categoryName: selectedCategory ? selectedCategory.name : '',
       categoryIcon: selectedCategory ? selectedCategory.icon : '',

@@ -1,6 +1,7 @@
 const app = getApp();
 const cloudStorage = require('../../utils/cloudStorage.js');
 const logger = require('../../utils/logger.js');
+const accountVisibility = require('../../utils/accountVisibility.js');
 
 const getCategoryCount = function (categories) {
   if (!categories) return 0;
@@ -18,9 +19,35 @@ const getCategoryCount = function (categories) {
 };
 
 Page({
-  data: {},
+  data: {
+    showHiddenAccounts: false
+  },
 
-  onLoad: function () {},
+  onLoad: function () {
+    this.loadPrivacySettings();
+  },
+
+  onShow: function () {
+    this.loadPrivacySettings();
+  },
+
+  loadPrivacySettings: function () {
+    this.setData({
+      showHiddenAccounts: accountVisibility.getShowHiddenAccounts()
+    });
+  },
+
+  onShowHiddenAccountsChange: function (e) {
+    const showHiddenAccounts = e.detail.value === true;
+    accountVisibility.setShowHiddenAccounts(showHiddenAccounts);
+    this.setData({
+      showHiddenAccounts
+    });
+    wx.showToast({
+      title: showHiddenAccounts ? '已显示隐藏账号' : '已隐藏敏感账号',
+      icon: 'none'
+    });
+  },
 
   goToCategoryManage: function () {
     wx.navigateTo({
@@ -28,7 +55,7 @@ Page({
     });
   },
 
-  exportData: function () {
+  exportData: async function () {
     const records = app.globalData.records || [];
     const accounts = app.globalData.accounts || [];
     const categories = app.globalData.categories;
@@ -41,25 +68,43 @@ Page({
       return;
     }
 
-    const dataStr = JSON.stringify({
+    const backupData = {
       version: '1.0',
       exportTime: new Date().toISOString(),
       records: records,
       accounts: accounts,
       categories: categories
-    }, null, 2);
+    };
 
-    wx.setClipboardData({
-      data: dataStr,
-      success: () => {
+    wx.showLoading({ title: '备份中...' });
+
+    try {
+      const result = await cloudStorage.createBackupInCloud(backupData);
+
+      wx.hideLoading();
+
+      if (result.success) {
         wx.showModal({
-          title: '导出成功',
-          content: '数据已复制到剪贴板，可粘贴保存到备忘录或其他地方作为备份',
+          title: '备份成功',
+          content: `已在云存储生成 3 个独立备份文件。\n\n目录: ${result.backupPath || 'N/A'}\n\n包含 accounts.json、records.json、categories.json，可在云开发控制台按需下载或复制恢复。`,
           showCancel: false,
           confirmText: '好的'
         });
+      } else {
+        wx.showModal({
+          title: '备份失败',
+          content: '无法创建云端备份: ' + (result.errMsg || '未知错误'),
+          showCancel: false
+        });
       }
-    });
+    } catch (e) {
+      wx.hideLoading();
+      wx.showModal({
+        title: '备份失败',
+        content: '发生错误: ' + (e.message || e),
+        showCancel: false
+      });
+    }
   },
 
   importData: function () {

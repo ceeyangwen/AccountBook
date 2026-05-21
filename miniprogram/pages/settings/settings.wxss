@@ -75,6 +75,10 @@
   background: rgba(255, 193, 7, 0.15);
 }
 
+.menu-icon-wrapper.privacy {
+  background: rgba(102, 126, 234, 0.15);
+}
+
 .menu-icon {
   font-size: 40rpx;
 }

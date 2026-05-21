@@ -8,6 +8,12 @@ const formatTime = () => {
   return now.toISOString();
 };
 
+const formatFileTimestamp = (date = new Date()) => {
+  const pad = (value) => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+};
+
 const CLOUD_ENV_ID = "cloud1-d3gvv57hn4dfa5588";
 const CLOUD_STORAGE_RESOURCE_ID = "636c-cloud1-d3gvv57hn4dfa5588-1433781415";
 
@@ -106,6 +112,52 @@ const writeStorageData = async (dataType, data) => {
   };
 };
 
+const getBackupItems = (data) => {
+  return [
+    { dataType: "records", data: data.records || [] },
+    { dataType: "accounts", data: data.accounts || [] },
+    { dataType: "categories", data: data.categories || {} }
+  ];
+};
+
+const createBackupData = async (data) => {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return { success: false, errMsg: "Invalid backup data" };
+  }
+
+  const wxContext = cloud.getWXContext();
+  const timestamp = formatFileTimestamp();
+  const backupPath = `users/${wxContext.OPENID}/backups/${timestamp}`;
+  const backupItems = getBackupItems(data);
+  const uploadedFiles = [];
+
+  for (const item of backupItems) {
+    const cloudPath = `users/${wxContext.OPENID}/backups/${timestamp}/${item.dataType}.json`;
+    const fileContent = Buffer.from(JSON.stringify(item.data, null, 2), "utf8");
+
+    console.log(`[${formatTime()}] 创建云端备份文件: ${cloudPath}, 字节数: ${fileContent.length}`);
+
+    const uploadRes = await cloud.uploadFile({
+      cloudPath,
+      fileContent
+    });
+
+    uploadedFiles.push({
+      dataType: item.dataType,
+      fileID: uploadRes.fileID,
+      cloudPath
+    });
+
+    console.log(`[${formatTime()}] 云端备份创建成功: ${uploadRes.fileID}`);
+  }
+
+  return {
+    success: true,
+    backupPath,
+    files: uploadedFiles
+  };
+};
+
 exports.main = async (event, context) => {
   console.log(`[${formatTime()}] 云函数被调用, type: ${event.type}`);
   console.log(`[${formatTime()}] 请求数据:`, JSON.stringify(event));
@@ -121,6 +173,9 @@ exports.main = async (event, context) => {
         break;
       case "writeStorageData":
         result = await writeStorageData(event.dataType, event.data);
+        break;
+      case "createBackupData":
+        result = await createBackupData(event.data);
         break;
       default:
         console.error(`[${formatTime()}] 未知类型:`, event.type);

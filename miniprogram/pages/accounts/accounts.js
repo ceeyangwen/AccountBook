@@ -1,5 +1,6 @@
 const app = getApp();
 const logger = require('../../utils/logger.js');
+const accountVisibility = require('../../utils/accountVisibility.js');
 
 Page({
   data: {
@@ -9,7 +10,9 @@ Page({
     currentCategory: '',
     quickAccounts: [],
     debugInfo: '',
-    isEditing: false
+    isEditing: false,
+    showHiddenAccounts: false,
+    hiddenAccountsCount: 0
   },
 
   onLoad: function() {
@@ -24,9 +27,11 @@ Page({
 
   loadAccounts: function() {
     logger.info('accounts', '开始加载账户');
+    const showHiddenAccounts = accountVisibility.getShowHiddenAccounts();
     
     this.setData({
       totalBalance: null,
+      showHiddenAccounts,
       debugInfo: '正在加载账户数据...'
     });
     
@@ -42,10 +47,15 @@ Page({
   },
 
   processAccounts: function() {
-    const accounts = app.globalData.accounts || [];
+    const allAccounts = app.globalData.accounts || [];
+    const showHiddenAccounts = this.data.showHiddenAccounts;
+    const accounts = accountVisibility.getVisibleAccounts(allAccounts, {
+      showHidden: showHiddenAccounts
+    });
+    const hiddenAccountsCount = allAccounts.filter(account => accountVisibility.isHiddenAccount(account)).length;
     const accountCategories = app.globalData.accountCategories || [];
     
-    logger.info('accounts', '处理账户数据', { accountCount: accounts.length, categoryCount: accountCategories.length });
+    logger.info('accounts', '处理账户数据', { accountCount: allAccounts.length, visibleAccountCount: accounts.length, categoryCount: accountCategories.length });
     
     const grouped = {};
     let totalBalance = 0;
@@ -58,8 +68,22 @@ Page({
       };
     });
     
+    allAccounts.forEach(account => {
+      const categoryInfo = accountCategories.find(cat => cat.name === account.category);
+      if (categoryInfo) {
+        const balance = parseFloat(account.balance) || 0;
+        if (account.includeInTotal !== false) {
+          if (categoryInfo.type === 'debt' || categoryInfo.type === 'credit') {
+            totalBalance -= balance;
+          } else {
+            totalBalance += balance;
+          }
+        }
+      }
+    });
+
     accounts.forEach(account => {
-      logger.info('accounts', '处理单个账户', account);
+      logger.info('accounts', '处理可见账户', account);
       const categoryInfo = accountCategories.find(cat => cat.name === account.category);
       if (categoryInfo) {
         account.categoryInfo = categoryInfo;
@@ -70,10 +94,8 @@ Page({
         if (account.includeInTotal !== false) {
           if (categoryInfo.type === 'debt' || categoryInfo.type === 'credit') {
             grouped[account.category].totalBalance -= balance;
-            totalBalance -= balance;
           } else {
             grouped[account.category].totalBalance += balance;
-            totalBalance += balance;
           }
         }
       }
@@ -98,7 +120,8 @@ Page({
     this.setData({
       groupedAccounts,
       totalBalance: totalBalance.toFixed(2),
-      debugInfo: '账户数量: ' + accounts.length + ', 分组数: ' + groupedAccounts.length
+      hiddenAccountsCount,
+      debugInfo: '账户数量: ' + accounts.length + '/' + allAccounts.length + ', 隐藏: ' + hiddenAccountsCount + ', 分组数: ' + groupedAccounts.length
     });
   },
 

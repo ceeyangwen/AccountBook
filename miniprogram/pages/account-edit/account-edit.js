@@ -16,6 +16,7 @@ Page({
     note: '',
     color: '#FF6B6B',
     includeInTotal: true,
+    isHidden: false,
     balanceLabel: '账户余额'
   },
 
@@ -106,6 +107,7 @@ Page({
         note: account.note || '',
         color: account.color,
         includeInTotal: account.includeInTotal !== undefined ? account.includeInTotal : true,
+        isHidden: account.isHidden === true,
         balanceLabel: balanceLabel
       });
       
@@ -181,8 +183,14 @@ Page({
     });
   },
 
+  onHiddenChange: function(e) {
+    this.setData({
+      isHidden: e.detail.value
+    });
+  },
+
   saveAccount: function() {
-    const { isEdit, id, name, categoryIndex, selectedIcon, balance, note, color, includeInTotal } = this.data;
+    const { isEdit, id, name, categoryIndex, selectedIcon, balance, note, color, includeInTotal, isHidden } = this.data;
     const selectedCategory = this.data.accountCategories[categoryIndex];
     
     logger.info('account-edit', '准备保存账户', {
@@ -194,7 +202,8 @@ Page({
       selectedIcon,
       balance,
       note,
-      includeInTotal
+      includeInTotal,
+      isHidden
     });
     
     if (!name.trim()) {
@@ -224,7 +233,8 @@ Page({
       color: color,
       balance: parseFloat(balance) || 0,
       note: note.trim(),
-      includeInTotal: includeInTotal
+      includeInTotal: includeInTotal,
+      isHidden: isHidden === true
     };
     
     logger.info('account-edit', '账户数据准备完成', accountData);

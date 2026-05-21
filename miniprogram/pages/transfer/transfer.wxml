@@ -5,10 +5,11 @@
       <text class="amount-symbol">¥</text>
       <input 
         class="amount-input" 
-        type="digit" 
+        type="text" 
         placeholder="0.00" 
         value="{{amount}}"
         bindinput="onAmountInput"
+        bindblur="onAmountBlur"
         focus="{{true}}"
       />
     </view>
@@ -20,7 +21,7 @@
       <view class="account-display" wx:if="{{fromAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === fromAccountId}}">
           <text class="account-icon">{{item.icon}}</text>
-          <text class="account-name-text">{{item.name}}</text>
+          <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
         </view>
       </view>
@@ -41,7 +42,7 @@
       <view class="account-display" wx:if="{{toAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === toAccountId}}">
           <text class="account-icon">{{item.icon}}</text>
-          <text class="account-name-text">{{item.name}}</text>
+          <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
         </view>
       </view>
@@ -79,28 +80,57 @@
 
   <!-- 转出账户选择弹窗 -->
   <view class="account-picker-mask {{showFromPicker ? 'show' : ''}}" bindtap="hideFromPicker">
-    <view class="account-picker-popup" catchtap="">
+    <view class="account-picker-popup" catchtap="onPopupTap">
       <view class="popup-header">
         <text class="popup-title">选择转出账户</text>
         <text class="popup-close" bindtap="hideFromPicker">×</text>
       </view>
-      <scroll-view scroll-y class="account-list">
-        <view 
-          wx:for="{{accounts}}" 
-          wx:key="id" 
-          class="account-option {{fromAccountId === item.id ? 'selected' : ''}} {{item.id === toAccountId ? 'disabled' : ''}}"
-          bindtap="selectFromAccount"
-          data-id="{{item.id}}"
-        >
-          <text class="account-icon">{{item.icon}}</text>
-          <view class="account-info">
-            <text class="account-name-text">{{item.name}}</text>
-            <text class="account-category">{{item.category}}</text>
+
+      <view class="account-category-step" wx:if="{{!selectedFromAccountCategoryId}}">
+        <scroll-view scroll-y class="account-list">
+          <view
+            wx:for="{{groupedAccounts}}"
+            wx:key="id"
+            class="account-category-option"
+            bindtap="selectFromAccountCategory"
+            data-category="{{item}}"
+          >
+            <view class="category-option-icon">
+              <text class="category-option-emoji">{{item.icon}}</text>
+            </view>
+            <view class="category-option-info">
+              <text class="category-option-name">{{item.name}}</text>
+              <text class="category-option-count">{{item.children.length}} 个账户</text>
+            </view>
+            <view class="category-option-arrow">›</view>
           </view>
-          <text class="account-balance">¥{{item.balance}}</text>
-          <view class="check-icon" wx:if="{{fromAccountId === item.id}}">✓</view>
+        </scroll-view>
+      </view>
+
+      <view class="account-step" wx:else>
+        <view class="account-step-header">
+          <view class="back-btn" bindtap="backToFromAccountCategories">‹ 返回</view>
+          <view class="step-title">{{selectedFromAccountCategory.name}}</view>
         </view>
-      </scroll-view>
+        <scroll-view scroll-y class="account-list">
+          <view
+            wx:for="{{selectedFromAccountCategory.children}}"
+            wx:key="id"
+            class="account-option {{fromAccountId === item.id ? 'selected' : ''}} {{item.id === toAccountId ? 'disabled' : ''}}"
+            bindtap="selectFromAccount"
+            data-id="{{item.id}}"
+          >
+            <text class="account-icon">{{item.icon}}</text>
+            <view class="account-info">
+              <text class="account-name-text">{{item.displayName}}</text>
+              <text class="account-category">{{item.category}}</text>
+            </view>
+            <text class="account-balance">¥{{item.balance}}</text>
+            <view class="check-icon" wx:if="{{fromAccountId === item.id}}">✓</view>
+          </view>
+        </scroll-view>
+      </view>
+
       <view class="no-account" wx:if="{{accounts.length === 0}}">
         <text>暂无账户，请先添加账户</text>
       </view>
@@ -109,28 +139,57 @@
 
   <!-- 转入账户选择弹窗 -->
   <view class="account-picker-mask {{showToPicker ? 'show' : ''}}" bindtap="hideToPicker">
-    <view class="account-picker-popup" catchtap="">
+    <view class="account-picker-popup" catchtap="onPopupTap">
       <view class="popup-header">
         <text class="popup-title">选择转入账户</text>
         <text class="popup-close" bindtap="hideToPicker">×</text>
       </view>
-      <scroll-view scroll-y class="account-list">
-        <view 
-          wx:for="{{accounts}}" 
-          wx:key="id" 
-          class="account-option {{toAccountId === item.id ? 'selected' : ''}} {{item.id === fromAccountId ? 'disabled' : ''}}"
-          bindtap="selectToAccount"
-          data-id="{{item.id}}"
-        >
-          <text class="account-icon">{{item.icon}}</text>
-          <view class="account-info">
-            <text class="account-name-text">{{item.name}}</text>
-            <text class="account-category">{{item.category}}</text>
+
+      <view class="account-category-step" wx:if="{{!selectedToAccountCategoryId}}">
+        <scroll-view scroll-y class="account-list">
+          <view
+            wx:for="{{groupedAccounts}}"
+            wx:key="id"
+            class="account-category-option"
+            bindtap="selectToAccountCategory"
+            data-category="{{item}}"
+          >
+            <view class="category-option-icon">
+              <text class="category-option-emoji">{{item.icon}}</text>
+            </view>
+            <view class="category-option-info">
+              <text class="category-option-name">{{item.name}}</text>
+              <text class="category-option-count">{{item.children.length}} 个账户</text>
+            </view>
+            <view class="category-option-arrow">›</view>
           </view>
-          <text class="account-balance">¥{{item.balance}}</text>
-          <view class="check-icon" wx:if="{{toAccountId === item.id}}">✓</view>
+        </scroll-view>
+      </view>
+
+      <view class="account-step" wx:else>
+        <view class="account-step-header">
+          <view class="back-btn" bindtap="backToToAccountCategories">‹ 返回</view>
+          <view class="step-title">{{selectedToAccountCategory.name}}</view>
         </view>
-      </scroll-view>
+        <scroll-view scroll-y class="account-list">
+          <view
+            wx:for="{{selectedToAccountCategory.children}}"
+            wx:key="id"
+            class="account-option {{toAccountId === item.id ? 'selected' : ''}} {{item.id === fromAccountId ? 'disabled' : ''}}"
+            bindtap="selectToAccount"
+            data-id="{{item.id}}"
+          >
+            <text class="account-icon">{{item.icon}}</text>
+            <view class="account-info">
+              <text class="account-name-text">{{item.displayName}}</text>
+              <text class="account-category">{{item.category}}</text>
+            </view>
+            <text class="account-balance">¥{{item.balance}}</text>
+            <view class="check-icon" wx:if="{{toAccountId === item.id}}">✓</view>
+          </view>
+        </scroll-view>
+      </view>
+
       <view class="no-account" wx:if="{{accounts.length === 0}}">
         <text>暂无账户，请先添加账户</text>
       </view>

@@ -47,9 +47,9 @@
           <view class="category-icon" style="background: {{record.category.color}}20;">{{record.category.icon}}</view>
           <view class="record-info">
             <view class="record-category" wx:if="{{record.type !== 'transfer'}}">{{record.category.name}}</view>
-            <view class="record-category" wx:else>{{record.fromAccountName}} → {{record.toAccountName}}</view>
+            <view class="record-category" wx:else>{{record.fromAccountDisplayName}} → {{record.toAccountDisplayName}}</view>
             <view class="record-note" wx:if="{{record.note}}">{{record.note}}</view>
-            <view class="record-account" wx:if="{{record.accountName && record.type !== 'transfer'}}">{{record.accountName}}</view>
+            <view class="record-account" wx:if="{{record.accountDisplayName && record.type !== 'transfer'}}">{{record.accountDisplayName}}</view>
           </view>
         </view>
         <view class="record-right">

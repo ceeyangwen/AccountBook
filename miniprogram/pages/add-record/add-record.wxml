@@ -15,10 +15,11 @@
       <text class="amount-symbol {{recordType}}">¥</text>
       <input 
         class="amount-input" 
-        type="digit" 
+        type="text" 
         placeholder="0.00" 
         value="{{amount}}"
         bindinput="onAmountInput"
+        bindblur="onAmountBlur"
         focus="{{true}}"
       />
     </view>
@@ -85,7 +86,7 @@
       <view class="account-display" wx:if="{{selectedAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === selectedAccountId}}">
           <text class="account-icon">{{item.icon}}</text>
-          <text class="account-name-text">{{item.name}}</text>
+          <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
         </view>
       </view>
@@ -167,7 +168,7 @@
           >
             <text class="account-icon">{{item.icon}}</text>
             <view class="account-info">
-              <text class="account-name-text">{{item.name}}</text>
+              <text class="account-name-text">{{item.displayName}}</text>
               <text class="account-category">{{item.category}}</text>
             </view>
             <text class="account-balance">¥{{item.balance}}</text>

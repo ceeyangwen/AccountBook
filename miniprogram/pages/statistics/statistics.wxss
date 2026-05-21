@@ -114,162 +114,141 @@
 .line-chart {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 18rpx;
 }
 
 .chart-header {
-  margin-bottom: 10rpx;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+
+.chart-heading {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
 }
 
 .chart-label {
-  font-size: 26rpx;
-  color: #666;
-  font-weight: 500;
+  font-size: 28rpx;
+  color: #2F3442;
+  font-weight: 600;
 }
 
-.zoom-controls {
+.chart-subtitle {
+  font-size: 22rpx;
+  color: #98A1B2;
+  line-height: 1.3;
+}
+
+.trend-current {
+  flex-shrink: 0;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+
+.trend-current-label {
+  font-size: 22rpx;
+  color: #98A1B2;
+}
+
+.trend-current-value {
+  font-size: 34rpx;
+  color: #1F2937;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.trend-change {
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.trend-change.income,
+.detail-value.income {
+  color: #E74C3C;
+}
+
+.trend-change.expense,
+.detail-value.expense {
+  color: #2ECC71;
+}
+
+.asset-chart-shell {
+  position: relative;
+  height: 360rpx;
+  border-radius: 12rpx;
+  background: #FFFFFF;
+  border: 1rpx solid #EEF1F6;
+  overflow: hidden;
+}
+
+.asset-trend-canvas {
+  width: 100%;
+  height: 360rpx;
+  display: block;
+}
+
+.trend-detail-panel {
+  padding: 20rpx;
+  border-radius: 12rpx;
+  background: #F8FAFF;
+  border: 1rpx solid #E6ECFA;
+}
+
+.trend-detail-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.trend-detail-date {
+  font-size: 26rpx;
+  color: #647084;
+  font-weight: 600;
+}
+
+.trend-detail-balance {
+  min-width: 0;
+  font-size: 34rpx;
+  color: #1F2937;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.trend-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12rpx;
 }
 
-.zoom-btn {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 50%;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rpx;
-  color: #666;
-  transition: background 0.2s;
-}
-
-.zoom-btn:active {
-  background: #e0e0e0;
-}
-
-.zoom-btn.reset {
-  font-size: 28rpx;
-}
-
-.zoom-info {
-  font-size: 24rpx;
-  color: #667eea;
-  font-weight: 600;
-  padding: 8rpx 16rpx;
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 20rpx;
-}
-
-.chart-wrapper {
-  display: flex;
-  position: relative;
-  overflow: visible;
-}
-
-.y-axis {
-  width: 80rpx;
+.trend-detail-item {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 10rpx 0;
-  flex-shrink: 0;
+  gap: 6rpx;
 }
 
-.y-label {
-  font-size: 20rpx;
-  color: #999;
-  text-align: right;
-  padding-right: 10rpx;
+.detail-label {
+  font-size: 22rpx;
+  color: #98A1B2;
 }
 
-.chart-area {
-  flex: 1;
-  height: 280rpx;
-  position: relative;
-  border-left: 1rpx solid #f0f0f0;
-  border-bottom: 1rpx solid #f0f0f0;
-  margin-left: 10rpx;
-  overflow: visible;
-}
-
-.grid-lines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  pointer-events: none;
-}
-
-.grid-line {
-  height: 1rpx;
-  background: #f0f0f0;
-}
-
-.chart-lines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.line-segment {
-  position: absolute;
-  height: 4rpx;
-  background: #667eea;
-  pointer-events: none;
-}
-
-.data-point {
-  position: absolute;
-  width: 80rpx;
-  height: 80rpx;
-  transform: translate(-50%, -50%);
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.point-dot {
-  width: 28rpx;
-  height: 28rpx;
-  border-radius: 50%;
-  background: #667eea;
-  border: 4rpx solid white;
-  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.4);
-}
-
-/* 固定位置的tooltip */
-.fixed-tooltip {
-  margin-top: 20rpx;
-  padding: 24rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16rpx;
-  color: white;
-  text-align: center;
-}
-
-.fixed-tooltip .tooltip-label {
-  font-size: 26rpx;
-  margin-bottom: 8rpx;
-  opacity: 0.9;
-}
-
-.fixed-tooltip .tooltip-value {
-  font-size: 32rpx;
+.detail-value {
+  min-width: 0;
+  font-size: 24rpx;
+  color: #2F3442;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .trend-footer {

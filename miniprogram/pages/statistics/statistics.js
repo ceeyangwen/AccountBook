@@ -13,33 +13,19 @@ Page({
     assetTrend: [],
     maxBalance: 0,
     halfBalance: 0,
-    chartPoints: [],
-    chartSegments: [],
-    zoomLevel: 1,
-    zoomLevelDisplay: '1.0',
-    selectedPointIndex: -1,
+    selectedTrendIndex: -1,
+    selectedTrend: null,
+    assetTrendLatest: '0.00',
+    assetTrendDelta: '+¥0.00',
+    assetTrendDeltaClass: 'income',
     loading: true
   },
 
   onLoad: function () {
-    const savedZoomLevel = wx.getStorageSync('statisticsZoomLevel');
-    if (savedZoomLevel) {
-      this.setData({ 
-        zoomLevel: savedZoomLevel,
-        zoomLevelDisplay: savedZoomLevel.toFixed(1)
-      });
-    }
     this.loadStatistics();
   },
 
   onShow: function () {
-    const savedZoomLevel = wx.getStorageSync('statisticsZoomLevel');
-    if (savedZoomLevel && savedZoomLevel !== this.data.zoomLevel) {
-      this.setData({ 
-        zoomLevel: savedZoomLevel,
-        zoomLevelDisplay: savedZoomLevel.toFixed(1)
-      });
-    }
     this.loadStatistics();
   },
 
@@ -158,8 +144,9 @@ Page({
     const maxAbsBalance = Math.max(Math.abs(maxBalance), Math.abs(minBalance));
     const yAxisTop = maxAbsBalance;
     const yAxisBottom = -maxAbsBalance;
-    
-    const { chartPoints, chartSegments } = this.calculateChartPositions(assetTrend, maxAbsBalance);
+    const selectedTrendIndex = assetTrend.length > 0 ? assetTrend.length - 1 : -1;
+    const trendSelection = this.createSelectedTrend(assetTrend, selectedTrendIndex);
+    const trendDelta = this.createAssetTrendDelta(assetTrend);
     
     this.setData({
       totalIncome: totalIncome.toFixed(2),
@@ -171,10 +158,14 @@ Page({
       assetTrend,
       yAxisTop: yAxisTop.toFixed(2),
       yAxisBottom: yAxisBottom.toFixed(2),
-      chartPoints: chartPoints,
-      chartSegments: chartSegments,
-      zoomLevelDisplay: this.data.zoomLevel.toFixed(1),
+      selectedTrendIndex,
+      selectedTrend: trendSelection,
+      assetTrendLatest: assetTrend.length > 0 ? assetTrend[assetTrend.length - 1].balance : '0.00',
+      assetTrendDelta: trendDelta.text,
+      assetTrendDeltaClass: trendDelta.className,
       loading: false
+    }, () => {
+      this.drawAssetTrendChart();
     });
   },
 
@@ -220,58 +211,211 @@ Page({
     });
   },
 
-  calculateChartPositions: function(trend, maxBalance) {
-    if (!trend || trend.length === 0) {
-      return { chartPoints: [], chartSegments: [] };
-    }
-    
-    const chartWidth = 260 * this.data.zoomLevel;
-    const chartHeight = 140;
-    const padding = 10;
-    
-    const balances = trend.map(t => parseFloat(t.balance)).filter(b => !isNaN(b));
-    const actualMinBalance = balances.length > 0 ? Math.min(...balances) : 0;
-    const actualMaxBalance = balances.length > 0 ? Math.max(...balances) : 0;
-    
-    const maxAbsBalance = Math.max(Math.abs(actualMinBalance), Math.abs(actualMaxBalance));
-    
-    const minBalance = -maxAbsBalance;
-    const maxBal = maxAbsBalance;
-    const range = maxBal - minBalance || 1;
-    
-    const points = trend.map((data, i) => {
-      const x = padding + (i / (trend.length - 1 || 1)) * (chartWidth - 2 * padding);
-      const balance = parseFloat(data.balance);
-      const normalizedY = (balance - minBalance) / range;
-      const y = (chartHeight - padding) - normalizedY * (chartHeight - 2 * padding);
-      
+  formatSignedAmount: function(value) {
+    const amount = parseFloat(value) || 0;
+    const prefix = amount >= 0 ? '+¥' : '-¥';
+    return prefix + Math.abs(amount).toFixed(2);
+  },
+
+  createAssetTrendDelta: function(trend) {
+    if (!trend || trend.length < 2) {
       return {
-        x: x,
-        y: y,
-        data: data,
-        active: false
+        text: '+¥0.00',
+        className: 'income'
+      };
+    }
+
+    const firstBalance = parseFloat(trend[0].balance) || 0;
+    const lastBalance = parseFloat(trend[trend.length - 1].balance) || 0;
+    const delta = lastBalance - firstBalance;
+
+    return {
+      text: this.formatSignedAmount(delta),
+      className: delta >= 0 ? 'income' : 'expense'
+    };
+  },
+
+  createSelectedTrend: function(trend, index) {
+    if (!trend || trend.length === 0 || index < 0) {
+      return null;
+    }
+
+    const safeIndex = Math.min(index, trend.length - 1);
+    const item = trend[safeIndex];
+    const currentBalance = parseFloat(item.balance) || 0;
+    const previousBalance = safeIndex > 0 ? (parseFloat(trend[safeIndex - 1].balance) || 0) : currentBalance;
+    const change = currentBalance - previousBalance;
+
+    return {
+      ...item,
+      changeText: this.formatSignedAmount(change),
+      changeClass: change >= 0 ? 'income' : 'expense'
+    };
+  },
+
+  getTrendScale: function(trend) {
+    const balances = (trend || []).map(item => parseFloat(item.balance)).filter(value => !isNaN(value));
+    if (balances.length === 0) {
+      return { min: -1, max: 1 };
+    }
+
+    let min = Math.min(...balances);
+    let max = Math.max(...balances);
+
+    if (min === max) {
+      const offset = Math.max(Math.abs(max) * 0.05, 1);
+      min -= offset;
+      max += offset;
+    } else {
+      const padding = (max - min) * 0.16;
+      min -= padding;
+      max += padding;
+    }
+
+    return { min, max };
+  },
+
+  getTrendPoints: function(trend, width, height, padding, scale) {
+    const plotLeft = padding.left;
+    const plotRight = width - padding.right;
+    const plotTop = padding.top;
+    const plotBottom = height - padding.bottom;
+    const plotWidth = plotRight - plotLeft;
+    const plotHeight = plotBottom - plotTop;
+    const range = scale.max - scale.min || 1;
+
+    return trend.map((item, index) => {
+      const balance = parseFloat(item.balance) || 0;
+      const x = trend.length === 1
+        ? plotLeft + plotWidth / 2
+        : plotLeft + (index / (trend.length - 1)) * plotWidth;
+      const y = plotBottom - ((balance - scale.min) / range) * plotHeight;
+
+      return {
+        x,
+        y,
+        index,
+        data: item
       };
     });
-    
-    const segments = [];
-    for (let i = 0; i < points.length - 1; i++) {
-      const p1 = points[i];
-      const p2 = points[i + 1];
-      
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const width = Math.sqrt(dx * dx + dy * dy);
-      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-      
-      segments.push({
-        x1: p1.x,
-        y1: p1.y,
-        width: width,
-        angle: angle
-      });
+  },
+
+  drawSmoothPath: function(ctx, points) {
+    if (!points || points.length === 0) return;
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+
+    if (points.length === 1) {
+      return;
     }
-    
-    return { chartPoints: points, chartSegments: segments };
+
+    for (let i = 1; i < points.length; i++) {
+      const previous = points[i - 1];
+      const current = points[i];
+      const midX = (previous.x + current.x) / 2;
+      const midY = (previous.y + current.y) / 2;
+      ctx.quadraticCurveTo(previous.x, previous.y, midX, midY);
+    }
+
+    const last = points[points.length - 1];
+    ctx.lineTo(last.x, last.y);
+  },
+
+  drawAssetTrendChart: function() {
+    const trend = this.data.assetTrend || [];
+    if (trend.length === 0) return;
+
+    const query = wx.createSelectorQuery().in(this);
+    query.select('.asset-trend-canvas').boundingClientRect(rect => {
+      if (!rect || !rect.width || !rect.height) return;
+
+      const width = rect.width;
+      const height = rect.height;
+      const padding = { left: 48, right: 18, top: 28, bottom: 34 };
+      const scale = this.getTrendScale(trend);
+      const points = this.getTrendPoints(trend, width, height, padding, scale);
+      const ctx = wx.createCanvasContext('assetTrendCanvas', this);
+      const plotLeft = padding.left;
+      const plotRight = width - padding.right;
+      const plotTop = padding.top;
+      const plotBottom = height - padding.bottom;
+      const selectedIndex = this.data.selectedTrendIndex >= 0 ? this.data.selectedTrendIndex : trend.length - 1;
+      const selectedPoint = points[selectedIndex] || points[points.length - 1];
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.setFillStyle('#FFFFFF');
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.setFontSize(10);
+      ctx.setTextAlign('right');
+      ctx.setFillStyle('#A0A7B5');
+      ctx.setStrokeStyle('#EEF1F6');
+      ctx.setLineWidth(1);
+
+      const gridCount = 4;
+      for (let i = 0; i <= gridCount; i++) {
+        const y = plotTop + (i / gridCount) * (plotBottom - plotTop);
+        const value = scale.max - (i / gridCount) * (scale.max - scale.min);
+        ctx.beginPath();
+        ctx.moveTo(plotLeft, y);
+        ctx.lineTo(plotRight, y);
+        ctx.stroke();
+        ctx.fillText(value.toFixed(0), plotLeft - 8, y + 3);
+      }
+
+      if (points.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, plotBottom);
+        this.drawSmoothPath(ctx, points);
+        ctx.lineTo(points[points.length - 1].x, plotBottom);
+        ctx.closePath();
+        ctx.setFillStyle('rgba(37, 99, 235, 0.10)');
+        ctx.fill();
+      }
+
+      this.drawSmoothPath(ctx, points);
+      ctx.setStrokeStyle('#2563EB');
+      ctx.setLineWidth(3);
+      ctx.setLineCap('round');
+      ctx.setLineJoin('round');
+      ctx.stroke();
+
+      ctx.setStrokeStyle('rgba(37, 99, 235, 0.28)');
+      ctx.setLineWidth(1);
+      ctx.beginPath();
+      ctx.moveTo(selectedPoint.x, plotTop);
+      ctx.lineTo(selectedPoint.x, plotBottom);
+      ctx.stroke();
+
+      ctx.setFillStyle('#2563EB');
+      ctx.beginPath();
+      ctx.arc(selectedPoint.x, selectedPoint.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.setStrokeStyle('#FFFFFF');
+      ctx.setLineWidth(3);
+      ctx.stroke();
+
+      ctx.setFontSize(10);
+      ctx.setTextAlign('center');
+      ctx.setFillStyle('#8A93A3');
+      const firstPoint = points[0];
+      const lastPoint = points[points.length - 1];
+      ctx.fillText(firstPoint.data.label, firstPoint.x, height - 8);
+      if (lastPoint.index !== firstPoint.index) {
+        ctx.fillText(lastPoint.data.label, lastPoint.x, height - 8);
+      }
+
+      this.assetTrendChartMetrics = {
+        points,
+        plotLeft,
+        plotRight,
+        width,
+        height
+      };
+
+      ctx.draw();
+    }).exec();
   },
 
   calculateAssetTrend: function(records, accounts, year, month) {
@@ -504,66 +648,46 @@ Page({
     return totalBalance;
   },
 
-  onPointTap: function(e) {
-    const index = e.currentTarget.dataset.index;
-    console.log('点击数据点:', index);
-    
-    // 切换选中状态
-    const newIndex = this.data.selectedPointIndex === index ? -1 : index;
-    this.setData({ selectedPointIndex: newIndex });
-    
-    // 如果选中了，5秒后自动关闭
-    if (newIndex >= 0) {
-      setTimeout(() => {
-        if (this.data.selectedPointIndex === newIndex) {
-          this.setData({ selectedPointIndex: -1 });
-        }
-      }, 5000);
+  onTrendTouch: function(e) {
+    const touch = e.touches && e.touches.length > 0 ? e.touches[0] : null;
+    const x = e.detail && typeof e.detail.x === 'number'
+      ? e.detail.x
+      : (touch && typeof touch.x === 'number' ? touch.x : null);
+
+    if (x === null) return;
+    this.selectTrendPointByX(x);
+  },
+
+  selectTrendPointByX: function(x) {
+    const metrics = this.assetTrendChartMetrics;
+    if (!metrics || !metrics.points || metrics.points.length === 0) {
+      return;
     }
-  },
 
-  zoomIn: function() {
-    const newZoom = Math.min(this.data.zoomLevel + 0.25, 3);
-    this.setData({ zoomLevel: newZoom, zoomLevelDisplay: newZoom.toFixed(1) });
-    wx.setStorageSync('statisticsZoomLevel', newZoom);
-    
-    const balances = this.data.assetTrend.map(t => parseFloat(t.balance));
-    const maxBalance = balances.length > 0 ? Math.max(...balances) : 0;
-    const { chartPoints, chartSegments } = this.calculateChartPositions(this.data.assetTrend, maxBalance);
-    
-    this.setData({
-      chartPoints: chartPoints,
-      chartSegments: chartSegments
+    let nearest = metrics.points[0];
+    let nearestDistance = Math.abs(x - nearest.x);
+
+    metrics.points.forEach(point => {
+      const distance = Math.abs(x - point.x);
+      if (distance < nearestDistance) {
+        nearest = point;
+        nearestDistance = distance;
+      }
     });
+
+    this.updateSelectedTrend(nearest.index);
   },
 
-  zoomOut: function() {
-    const newZoom = Math.max(this.data.zoomLevel - 0.25, 0.5);
-    this.setData({ zoomLevel: newZoom, zoomLevelDisplay: newZoom.toFixed(1) });
-    wx.setStorageSync('statisticsZoomLevel', newZoom);
-    
-    const balances = this.data.assetTrend.map(t => parseFloat(t.balance));
-    const maxBalance = balances.length > 0 ? Math.max(...balances) : 0;
-    const { chartPoints, chartSegments } = this.calculateChartPositions(this.data.assetTrend, maxBalance);
-    
-    this.setData({
-      chartPoints: chartPoints,
-      chartSegments: chartSegments
-    });
-  },
+  updateSelectedTrend: function(index) {
+    if (index === this.data.selectedTrendIndex) {
+      return;
+    }
 
-  resetZoom: function() {
-    const newZoom = 1;
-    this.setData({ zoomLevel: newZoom, zoomLevelDisplay: newZoom.toFixed(1) });
-    wx.setStorageSync('statisticsZoomLevel', newZoom);
-    
-    const balances = this.data.assetTrend.map(t => parseFloat(t.balance));
-    const maxBalance = balances.length > 0 ? Math.max(...balances) : 0;
-    const { chartPoints, chartSegments } = this.calculateChartPositions(this.data.assetTrend, maxBalance);
-    
     this.setData({
-      chartPoints: chartPoints,
-      chartSegments: chartSegments
+      selectedTrendIndex: index,
+      selectedTrend: this.createSelectedTrend(this.data.assetTrend, index)
+    }, () => {
+      this.drawAssetTrendChart();
     });
   },
 

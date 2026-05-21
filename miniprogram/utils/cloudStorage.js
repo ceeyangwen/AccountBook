@@ -17,6 +17,45 @@ const getUserDataPath = function (dataType) {
   return 'users/' + openid + '/' + dataType + '.json';
 };
 
+const formatBackupTimestamp = function (date) {
+  const pad = function (value) {
+    return String(value).padStart(2, '0');
+  };
+
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate())
+  ].join('') + '-' + [
+    pad(date.getHours()),
+    pad(date.getMinutes()),
+    pad(date.getSeconds())
+  ].join('');
+};
+
+const getUserBackupPath = function (timestamp, dataType) {
+  const openid = wx.getStorageSync('openid');
+  if (!openid) {
+    logger.warn('cloudStorage', 'openid不存在');
+    return null;
+  }
+
+  return 'users/' + openid + '/backups/' + timestamp + '/' + dataType + '.json';
+};
+
+const getBackupBasePath = function (timestamp) {
+  const recordsPath = getUserBackupPath(timestamp, 'records');
+  return recordsPath ? recordsPath.replace('/records.json', '') : null;
+};
+
+const getBackupItems = function (backupData) {
+  return [
+    { dataType: 'records', data: backupData.records || [] },
+    { dataType: 'accounts', data: backupData.accounts || [] },
+    { dataType: 'categories', data: backupData.categories || {} }
+  ];
+};
+
 const addCandidate = function (candidates, fileID) {
   if (fileID && !candidates.includes(fileID)) {
     candidates.push(fileID);
@@ -252,6 +291,40 @@ const writeDataByCloudFunction = async function (dataType, data) {
   }
 };
 
+const createBackupByCloudFunction = async function (backupData) {
+  try {
+    logger.info('cloudStorage', '尝试通过云函数创建独立备份文件');
+
+    const res = await wx.cloud.callFunction({
+      name: 'quickstartFunctions',
+      data: {
+        type: 'createBackupData',
+        data: backupData
+      }
+    });
+
+    if (res.result && res.result.success && Array.isArray(res.result.files) && res.result.files.length === getBackupItems(backupData).length) {
+      logger.info('cloudStorage', '云函数创建备份成功: ' + ((res.result.files && res.result.files.length) || 0) + ' 个文件');
+      return {
+        success: true,
+        backupPath: res.result.backupPath,
+        files: res.result.files || []
+      };
+    }
+
+    if (res.result && res.result.success) {
+      logger.warn('cloudStorage', '云函数备份返回格式不是独立文件列表，可能未部署最新版云函数');
+      return { success: false, errMsg: '云函数版本过旧，请重新部署' };
+    }
+
+    logger.warn('cloudStorage', '云函数创建备份失败: ' + (res.result && res.result.errMsg ? res.result.errMsg : '未知错误'));
+    return { success: false, errMsg: res.result && res.result.errMsg };
+  } catch (e) {
+    logger.warn('cloudStorage', '云函数创建备份异常: ' + (e.errMsg || e.message || e));
+    return { success: false, errMsg: e.errMsg || e.message || e };
+  }
+};
+
 // 测试云存储是否可用
 const testCloudStorage = async function () {
   try {
@@ -302,6 +375,76 @@ const testCloudStorage = async function () {
       success: false,
       message: '测试异常: ' + (e.message || e),
       error: e
+    };
+  }
+};
+
+const createBackupInCloud = async function (backupData) {
+  try {
+    const timestamp = formatBackupTimestamp(new Date());
+    const backupPath = getBackupBasePath(timestamp);
+    if (!backupPath) {
+      const openid = wx.getStorageSync('openid');
+      logger.error('cloudStorage', '无法获取用户备份路径', { openid: openid });
+
+      wx.showModal({
+        title: '备份失败',
+        content: '无法获取用户信息 (openid: ' + (openid || 'null') + ')，请重新打开小程序',
+        showCancel: false
+      });
+
+      return { success: false, errMsg: '无法获取用户信息' };
+    }
+
+    logger.info('cloudStorage', '创建备份目录: ' + backupPath);
+
+    const functionResult = await createBackupByCloudFunction(backupData);
+    if (functionResult.success) {
+      return functionResult;
+    }
+
+    const backupItems = getBackupItems(backupData);
+    const fs = wx.getFileSystemManager();
+    const uploadedFiles = [];
+
+    for (let i = 0; i < backupItems.length; i++) {
+      const item = backupItems[i];
+      const cloudPath = getUserBackupPath(timestamp, item.dataType);
+      const jsonData = JSON.stringify(item.data, null, 2);
+      const tempFilePath = wx.env.USER_DATA_PATH + '/backup_' + item.dataType + '_' + Date.now() + '.json';
+
+      logger.info('cloudStorage', '创建备份文件: ' + cloudPath + ', 数据长度: ' + jsonData.length + ' 字符');
+      fs.writeFileSync(tempFilePath, jsonData, 'utf8');
+
+      const uploadRes = await wx.cloud.uploadFile({
+        cloudPath: cloudPath,
+        filePath: tempFilePath
+      });
+
+      uploadedFiles.push({
+        dataType: item.dataType,
+        fileID: uploadRes.fileID,
+        cloudPath: cloudPath
+      });
+
+      try {
+        fs.unlinkSync(tempFilePath);
+      } catch (e) {}
+    }
+
+    logger.info('cloudStorage', '备份文件创建成功: ' + uploadedFiles.length + ' 个文件');
+
+    return {
+      success: true,
+      backupPath: backupPath,
+      files: uploadedFiles
+    };
+  } catch (e) {
+    logger.error('cloudStorage', '创建备份文件失败', e);
+
+    return {
+      success: false,
+      errMsg: e.errMsg || e.message || e
     };
   }
 };
@@ -387,30 +530,12 @@ const writeDataToCloud = async function (dataType, data) {
     if (functionResult.success) {
       return functionResult;
     }
-    
-    const jsonData = JSON.stringify(data, null, 2);
-    logger.info('cloudStorage', '要写入的数据长度: ' + jsonData.length + ' 字符');
-    
-    const fs = wx.getFileSystemManager();
-    const tempFilePath = wx.env.USER_DATA_PATH + '/temp_' + Date.now() + '.json';
-    fs.writeFileSync(tempFilePath, jsonData, 'utf8');
-    
-    logger.info('cloudStorage', '临时文件已创建: ' + tempFilePath);
-    
-    const uploadRes = await wx.cloud.uploadFile({
-      cloudPath: cloudPath,
-      filePath: tempFilePath
-    });
-    
-    logger.info('cloudStorage', '文件写入成功: ' + cloudPath + ', fileID: ' + uploadRes.fileID);
-    wx.setStorageSync('fileID_' + dataType, uploadRes.fileID);
-    await saveFileIDToDB(dataType, uploadRes.fileID, cloudPath);
-    
-    try {
-      fs.unlinkSync(tempFilePath);
-    } catch (e) {}
-    
-    return { success: true, fileID: uploadRes.fileID };
+
+    logger.error('cloudStorage', '云函数写入失败，已停止前端直传以避免正式版云存储权限错误: ' + (functionResult.errMsg || '未知错误'));
+    return {
+      success: false,
+      errMsg: functionResult.errMsg || '云函数写入失败，请检查 quickstartFunctions 是否已部署到当前环境'
+    };
   } catch (e) {
     logger.error('cloudStorage', '写入文件失败', e);
     
@@ -427,5 +552,6 @@ const writeDataToCloud = async function (dataType, data) {
 module.exports = {
   testCloudStorage,
   readDataFromCloud,
-  writeDataToCloud
+  writeDataToCloud,
+  createBackupInCloud
 };
