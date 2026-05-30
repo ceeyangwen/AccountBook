@@ -146,6 +146,18 @@
               <view class="bar-fill" style="width: {{item.percent}}%; background: {{item.color}};"></view>
             </view>
           </view>
+          <view class="category-child-list" wx:if="{{item.children.length > 0}}">
+            <view wx:for="{{item.children}}" wx:key="id" wx:for-item="child" class="category-child-row">
+              <view class="category-child-left">
+                <view class="category-child-dot" style="background: {{child.color}};"></view>
+                <text class="category-child-name">{{child.name}}</text>
+              </view>
+              <view class="category-child-right">
+                <text class="category-child-percent">{{child.percent}}%</text>
+                <text class="category-child-amount">¥{{child.amount}}</text>
+              </view>
+            </view>
+          </view>
         </view>
       </view>
     </view>

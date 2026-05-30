@@ -138,18 +138,36 @@ Page({
       }
     });
     
-    const expenseCategoryMap = {};
+    const expenseCategoryGroupMap = {};
+    const expenseCategoryById = {};
+    let fallbackExpenseCategory = null;
     
     const expenseCategories = app.globalData.categories.expense;
     
     if (expenseCategories && expenseCategories.groups) {
       expenseCategories.groups.forEach(group => {
+        const childMap = {};
         (group.children || []).forEach(cat => {
-          expenseCategoryMap[cat.id] = {
+          childMap[cat.id] = {
             ...cat,
             amount: 0
           };
+          expenseCategoryById[cat.id] = {
+            groupId: group.id,
+            categoryId: cat.id
+          };
+          if (cat.id === 'expense-11-2') {
+            fallbackExpenseCategory = {
+              groupId: group.id,
+              categoryId: cat.id
+            };
+          }
         });
+        expenseCategoryGroupMap[group.id] = {
+          ...group,
+          amount: 0,
+          childMap
+        };
       });
     }
     
@@ -176,13 +194,15 @@ Page({
         totalExpense += parseFloat(record.amount);
         
         const categoryId = record.categoryId;
+        const categoryRef = expenseCategoryById[categoryId] || fallbackExpenseCategory;
         
-        if (expenseCategoryMap[categoryId]) {
-          expenseCategoryMap[categoryId].amount += parseFloat(record.amount);
-        } else {
-          const otherCat = expenseCategoryMap['expense-11-2'];
-          if (otherCat) {
-            otherCat.amount += parseFloat(record.amount);
+        if (categoryRef) {
+          const group = expenseCategoryGroupMap[categoryRef.groupId];
+          const child = group && group.childMap[categoryRef.categoryId];
+          if (group && child) {
+            const amount = parseFloat(record.amount);
+            group.amount += amount;
+            child.amount += amount;
           }
         }
       }
@@ -194,14 +214,26 @@ Page({
       '#BB8FCE', '#85C1E9', '#F8B195', '#C06C84'
     ];
     
-    let expenseCategoryList = Object.values(expenseCategoryMap).filter(cat => cat.amount > 0);
+    let expenseCategoryList = Object.values(expenseCategoryGroupMap)
+      .filter(group => group.amount > 0)
+      .map(group => ({
+        ...group,
+        children: Object.values(group.childMap)
+          .filter(child => child.amount > 0)
+          .sort((a, b) => b.amount - a.amount)
+      }));
     expenseCategoryList.sort((a, b) => b.amount - a.amount);
     
-    expenseCategoryList = expenseCategoryList.map((cat, index) => ({
-      ...cat,
+    expenseCategoryList = expenseCategoryList.map((group, index) => ({
+      ...group,
       color: colors[index % colors.length],
-      amount: cat.amount.toFixed(2),
-      percent: totalExpense > 0 ? ((cat.amount / totalExpense) * 100).toFixed(1) : '0.0'
+      amount: group.amount.toFixed(2),
+      percent: totalExpense > 0 ? ((group.amount / totalExpense) * 100).toFixed(1) : '0.0',
+      children: group.children.map(child => ({
+        ...child,
+        amount: child.amount.toFixed(2),
+        percent: group.amount > 0 ? ((child.amount / group.amount) * 100).toFixed(1) : '0.0'
+      }))
     }));
     
     // 生成圆锥渐变字符串

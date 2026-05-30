@@ -79,6 +79,16 @@ test('统计页应提供 Canvas 绘制和触摸吸附逻辑', () => {
   assertNotMatches(js, /onPointTap:\s*function/, '不应保留旧点选逻辑');
 });
 
+test('支出分类统计应按大类展示并在卡片内展示小类明细', () => {
+  assertMatches(js, /expenseCategoryGroupMap/, '统计逻辑应先构建支出大类映射');
+  assertMatches(js, /childMap/, '统计逻辑应保留大类下的小类金额');
+  assertMatches(wxml, /wx:for="\{\{item\.children\}\}"/, '大类卡片内应遍历小类明细');
+  assertMatches(wxml, /class="category-child-list"/, '应有小类明细列表容器');
+  assertMatches(wxml, /class="category-child-name"/, '应展示小类名称');
+  assertMatches(wxml, /class="category-child-amount"/, '应展示小类金额');
+  assertMatches(wxss, /\.category-child-list\s*\{/, '小类明细列表应有样式');
+});
+
 console.log('\n========================================');
 console.log(`测试完成: ${passed} 通过, ${failed} 失败`);
 console.log('========================================');
