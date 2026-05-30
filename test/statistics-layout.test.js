@@ -89,6 +89,19 @@ test('支出分类统计应按大类展示并在卡片内展示小类明细', ()
   assertMatches(wxss, /\.category-child-list\s*\{/, '小类明细列表应有样式');
 });
 
+test('支出分类统计应提供大类和小类明细下钻入口', () => {
+  assertMatches(js, /toggleCategoryDrilldown:\s*function/, '应有大类明细展开方法');
+  assertMatches(js, /toggleChildDrilldown:\s*function/, '应有小类明细筛选方法');
+  assertMatches(js, /goToDrilldownRecord:\s*function/, '明细记录应可进入编辑页');
+  assertMatches(wxml, /bindtap="toggleCategoryDrilldown"/, '大类卡片应可点击展开明细');
+  assertMatches(wxml, /catchtap="toggleChildDrilldown"/, '小类行应可点击筛选明细');
+  assertMatches(wxml, /wx:for="\{\{item\.drillRecords\}\}"/, '展开后应遍历明细记录');
+  assertMatches(wxml, /class="category-drilldown"/, '应有分类明细容器');
+  assertMatches(wxml, /class="drill-record-row"/, '应有明细记录行');
+  assertMatches(wxss, /\.category-drilldown\s*\{/, '分类明细区域应有样式');
+  assertMatches(wxss, /\.drill-record-row\s*\{/, '明细记录行应有样式');
+});
+
 console.log('\n========================================');
 console.log(`测试完成: ${passed} 通过, ${failed} 失败`);
 console.log('========================================');

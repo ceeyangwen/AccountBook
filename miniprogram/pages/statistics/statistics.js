@@ -1,4 +1,5 @@
 const app = getApp();
+const accountVisibility = require('../../utils/accountVisibility.js');
 
 const getAccountCategoryInfo = function(account) {
   if (!account) return null;
@@ -132,7 +133,10 @@ Page({
     
     // 收集需要统计的账户 ID
     const includedAccountIds = new Set();
+    const accountMap = {};
+    const showHiddenAccounts = accountVisibility.getShowHiddenAccounts();
     accounts.forEach(account => {
+      accountMap[account.id] = account;
       if (account.includeInTotal !== false) {
         includedAccountIds.add(account.id);
       }
@@ -150,7 +154,8 @@ Page({
         (group.children || []).forEach(cat => {
           childMap[cat.id] = {
             ...cat,
-            amount: 0
+            amount: 0,
+            records: []
           };
           expenseCategoryById[cat.id] = {
             groupId: group.id,
@@ -166,6 +171,7 @@ Page({
         expenseCategoryGroupMap[group.id] = {
           ...group,
           amount: 0,
+          records: [],
           childMap
         };
       });
@@ -189,9 +195,9 @@ Page({
       if (!record.accountId || !includedAccountIds.has(record.accountId)) return;
       
       if (record.type === 'income') {
-        totalIncome += parseFloat(record.amount);
+        totalIncome += parseFloat(record.amount) || 0;
       } else if (record.type === 'expense') {
-        totalExpense += parseFloat(record.amount);
+        totalExpense += parseFloat(record.amount) || 0;
         
         const categoryId = record.categoryId;
         const categoryRef = expenseCategoryById[categoryId] || fallbackExpenseCategory;
@@ -200,9 +206,18 @@ Page({
           const group = expenseCategoryGroupMap[categoryRef.groupId];
           const child = group && group.childMap[categoryRef.categoryId];
           if (group && child) {
-            const amount = parseFloat(record.amount);
+            const amount = parseFloat(record.amount) || 0;
+            const drillRecord = this.createDrilldownRecord(
+              record,
+              amount,
+              accountMap[record.accountId],
+              child,
+              showHiddenAccounts
+            );
             group.amount += amount;
+            group.records.push(drillRecord);
             child.amount += amount;
+            child.records.push(drillRecord);
           }
         }
       }
@@ -229,10 +244,16 @@ Page({
       color: colors[index % colors.length],
       amount: group.amount.toFixed(2),
       percent: totalExpense > 0 ? ((group.amount / totalExpense) * 100).toFixed(1) : '0.0',
+      records: this.sortDrilldownRecords(group.records || []),
+      isExpanded: false,
+      activeChildCategoryId: '',
+      drilldownTitle: '',
+      drillRecords: [],
       children: group.children.map(child => ({
         ...child,
         amount: child.amount.toFixed(2),
-        percent: group.amount > 0 ? ((child.amount / group.amount) * 100).toFixed(1) : '0.0'
+        percent: group.amount > 0 ? ((child.amount / group.amount) * 100).toFixed(1) : '0.0',
+        records: this.sortDrilldownRecords(child.records || [])
       }))
     }));
     
@@ -271,6 +292,109 @@ Page({
       loading: false
     }, () => {
       this.drawAssetTrendChart();
+    });
+  },
+
+  formatDrilldownDate: function(dateValue) {
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  },
+
+  createDrilldownRecord: function(record, amount, account, category, showHiddenAccounts) {
+    return {
+      id: record.id,
+      date: record.date,
+      createdAt: record.createdAt || '',
+      dateText: this.formatDrilldownDate(record.date),
+      accountName: account
+        ? accountVisibility.getDisplayAccountName(account, showHiddenAccounts)
+        : (record.accountName || '未知账户'),
+      categoryId: category.id,
+      categoryName: category.name,
+      note: record.note || '',
+      amount: amount.toFixed(2)
+    };
+  },
+
+  sortDrilldownRecords: function(records) {
+    return [...records].sort((a, b) => {
+      const dateDiff = new Date(b.date) - new Date(a.date);
+      if (dateDiff !== 0) return dateDiff;
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
+  },
+
+  toggleCategoryDrilldown: function(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const current = this.data.expenseCategoryList[index];
+    if (!current) return;
+
+    const shouldCollapse = current.isExpanded === true && !current.activeChildCategoryId;
+    const expenseCategoryList = this.data.expenseCategoryList.map((item, itemIndex) => {
+      if (itemIndex !== index || shouldCollapse) {
+        return {
+          ...item,
+          isExpanded: false,
+          activeChildCategoryId: '',
+          drilldownTitle: '',
+          drillRecords: []
+        };
+      }
+
+      return {
+        ...item,
+        isExpanded: true,
+        activeChildCategoryId: '',
+        drilldownTitle: `${item.name}明细`,
+        drillRecords: item.records || []
+      };
+    });
+
+    this.setData({ expenseCategoryList });
+  },
+
+  toggleChildDrilldown: function(e) {
+    const categoryIndex = Number(e.currentTarget.dataset.categoryIndex);
+    const childId = e.currentTarget.dataset.childId;
+    const current = this.data.expenseCategoryList[categoryIndex];
+    if (!current) return;
+
+    const child = (current.children || []).find(item => item.id === childId);
+    if (!child) return;
+
+    const shouldCollapse = current.isExpanded === true && current.activeChildCategoryId === childId;
+    const expenseCategoryList = this.data.expenseCategoryList.map((item, itemIndex) => {
+      if (itemIndex !== categoryIndex || shouldCollapse) {
+        return {
+          ...item,
+          isExpanded: false,
+          activeChildCategoryId: '',
+          drilldownTitle: '',
+          drillRecords: []
+        };
+      }
+
+      return {
+        ...item,
+        isExpanded: true,
+        activeChildCategoryId: childId,
+        drilldownTitle: `${child.name}明细`,
+        drillRecords: child.records || []
+      };
+    });
+
+    this.setData({ expenseCategoryList });
+  },
+
+  goToDrilldownRecord: function(e) {
+    const recordId = e.currentTarget.dataset.recordId;
+    if (!recordId) return;
+
+    wx.navigateTo({
+      url: '/pages/add-record/add-record?recordId=' + recordId
     });
   },
 

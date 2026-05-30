@@ -130,24 +130,29 @@
       </view>
       
       <view class="category-list mt-20">
-        <view wx:for="{{expenseCategoryList}}" wx:key="id" class="category-card card p-20">
-          <view class="category-header">
-            <view class="category-icon-wrapper" style="background: {{item.color}}20;">
-              <text class="category-emoji">{{item.icon}}</text>
+        <view wx:for="{{expenseCategoryList}}" wx:key="id" wx:for-index="categoryIndex" class="category-card card p-20">
+          <view class="category-main" bindtap="toggleCategoryDrilldown" data-index="{{categoryIndex}}">
+            <view class="category-header">
+              <view class="category-icon-wrapper" style="background: {{item.color}}20;">
+                <text class="category-emoji">{{item.icon}}</text>
+              </view>
+              <view class="category-info">
+                <view class="category-name">{{item.name}}</view>
+                <view class="category-percent">{{item.percent}}%</view>
+              </view>
+              <view class="category-actions">
+                <view class="category-amount">¥{{item.amount}}</view>
+                <view class="category-drill-toggle">{{item.isExpanded ? '收起' : '查看明细'}}</view>
+              </view>
             </view>
-            <view class="category-info">
-              <view class="category-name">{{item.name}}</view>
-              <view class="category-percent">{{item.percent}}%</view>
-            </view>
-            <view class="category-amount">¥{{item.amount}}</view>
-          </view>
-          <view class="category-bar">
-            <view class="bar-track">
-              <view class="bar-fill" style="width: {{item.percent}}%; background: {{item.color}};"></view>
+            <view class="category-bar">
+              <view class="bar-track">
+                <view class="bar-fill" style="width: {{item.percent}}%; background: {{item.color}};"></view>
+              </view>
             </view>
           </view>
           <view class="category-child-list" wx:if="{{item.children.length > 0}}">
-            <view wx:for="{{item.children}}" wx:key="id" wx:for-item="child" class="category-child-row">
+            <view wx:for="{{item.children}}" wx:key="id" wx:for-item="child" class="category-child-row {{item.activeChildCategoryId === child.id ? 'active' : ''}}" catchtap="toggleChildDrilldown" data-category-index="{{categoryIndex}}" data-child-id="{{child.id}}">
               <view class="category-child-left">
                 <view class="category-child-dot" style="background: {{child.color}};"></view>
                 <text class="category-child-name">{{child.name}}</text>
@@ -155,6 +160,24 @@
               <view class="category-child-right">
                 <text class="category-child-percent">{{child.percent}}%</text>
                 <text class="category-child-amount">¥{{child.amount}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="category-drilldown" wx:if="{{item.isExpanded}}">
+            <view class="drilldown-header">
+              <text class="drilldown-title">{{item.drilldownTitle}}</text>
+              <text class="drilldown-count">{{item.drillRecords.length}}笔</text>
+            </view>
+            <view class="drill-record-list">
+              <view wx:for="{{item.drillRecords}}" wx:key="id" wx:for-item="drillRecord" class="drill-record-row" catchtap="goToDrilldownRecord" data-record-id="{{drillRecord.id}}">
+                <view class="drill-record-left">
+                  <view class="drill-record-date">{{drillRecord.dateText}}</view>
+                  <view class="drill-record-meta">
+                    <text>{{drillRecord.accountName}}</text>
+                    <text wx:if="{{drillRecord.note}}"> · {{drillRecord.note}}</text>
+                  </view>
+                </view>
+                <view class="drill-record-amount">¥{{drillRecord.amount}}</view>
               </view>
             </view>
           </view>
