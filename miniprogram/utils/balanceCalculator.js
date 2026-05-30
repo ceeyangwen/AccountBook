@@ -87,8 +87,8 @@ function getAccountType(categoryName) {
  */
 function calculateDebtAccountBalance(oldBalance, amount, isTransferIn) {
   if (isTransferIn) {
-    // 转账转入：减少负债（余额减少）
-    return (oldBalance - Math.abs(amount)).toFixed(2);
+    // 转账转入：正数减少负债；反向冲销时传入负数，需恢复负债。
+    return (oldBalance - amount).toFixed(2);
   } else {
     // 对于负债/信用类账户，普通操作需要取反：
     // 支出（amount为负）→ 负债增加（余额增加）

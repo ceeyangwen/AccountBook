@@ -1,5 +1,78 @@
 const app = getApp();
 
+const getAccountCategoryInfo = function(account) {
+  if (!account) return null;
+  const accountCategories = app.globalData.accountCategories || [];
+  return accountCategories.find(cat => cat.name === account.category) || null;
+};
+
+const isDebtOrCreditAccount = function(account) {
+  const categoryInfo = getAccountCategoryInfo(account);
+  return !!categoryInfo && (categoryInfo.type === 'debt' || categoryInfo.type === 'credit');
+};
+
+const calculateTotalBalanceFromAccountBalances = function(accountBalances, accountMap) {
+  let totalBalance = 0;
+
+  Object.entries(accountBalances).forEach(([accountId, balance]) => {
+    const account = accountMap[accountId];
+    const categoryInfo = getAccountCategoryInfo(account);
+
+    if (!categoryInfo) return;
+
+    if (categoryInfo.type === 'debt' || categoryInfo.type === 'credit') {
+      totalBalance -= balance;
+    } else {
+      totalBalance += balance;
+    }
+  });
+
+  return totalBalance;
+};
+
+const reverseNormalRecordBalance = function(accountBalances, account, recordType, amount) {
+  if (!account || accountBalances[account.id] === undefined) return;
+
+  const isDebtOrCredit = isDebtOrCreditAccount(account);
+
+  if (recordType === 'income') {
+    accountBalances[account.id] += isDebtOrCredit ? amount : -amount;
+  } else if (recordType === 'expense') {
+    accountBalances[account.id] += isDebtOrCredit ? -amount : amount;
+  }
+};
+
+const reverseTransferRecordBalance = function(accountBalances, fromAccount, toAccount, amount) {
+  if (fromAccount && accountBalances[fromAccount.id] !== undefined) {
+    accountBalances[fromAccount.id] += isDebtOrCreditAccount(fromAccount) ? -amount : amount;
+  }
+
+  if (toAccount && accountBalances[toAccount.id] !== undefined) {
+    accountBalances[toAccount.id] += isDebtOrCreditAccount(toAccount) ? amount : -amount;
+  }
+};
+
+const reverseRecordBalances = function(accountBalances, record, accountMap, includedAccountIds) {
+  const amount = parseFloat(record.amount) || 0;
+
+  if (record.type === 'income' || record.type === 'expense') {
+    if (record.accountId && includedAccountIds.has(record.accountId)) {
+      reverseNormalRecordBalance(accountBalances, accountMap[record.accountId], record.type, amount);
+    }
+    return;
+  }
+
+  if (record.type === 'transfer') {
+    const fromAccount = record.fromAccountId && includedAccountIds.has(record.fromAccountId)
+      ? accountMap[record.fromAccountId]
+      : null;
+    const toAccount = record.toAccountId && includedAccountIds.has(record.toAccountId)
+      ? accountMap[record.toAccountId]
+      : null;
+    reverseTransferRecordBalance(accountBalances, fromAccount, toAccount, amount);
+  }
+};
+
 Page({
   data: {
     period: 'month',
@@ -422,7 +495,6 @@ Page({
     const trend = [];
     const now = new Date();
     const isMonthView = this.data.period === 'month';
-    const accountCategories = app.globalData.accountCategories || [];
     
     // 收集需要统计的账户 ID
     const includedAccountIds = new Set();
@@ -463,19 +535,7 @@ Page({
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
         // 先计算这一天结束时的总资产
-        let totalBalance = 0;
-        Object.entries(accountBalances).forEach(([accountId, balance]) => {
-          const account = accountMap[accountId];
-          const categoryInfo = accountCategories.find(cat => cat.name === account.category);
-          
-          if (categoryInfo) {
-            if (categoryInfo.type === 'debt' || categoryInfo.type === 'credit') {
-              totalBalance -= balance;
-            } else {
-              totalBalance += balance;
-            }
-          }
-        });
+        const totalBalance = calculateTotalBalanceFromAccountBalances(accountBalances, accountMap);
         
         // 保存这一天的数据
         dailyData[day] = {
@@ -492,22 +552,15 @@ Page({
           const recordDay = recordDate.getDate();
           
           if (recordYear === year && recordMonth === month && recordDay === day) {
-            const amount = parseFloat(record.amount);
+            const amount = parseFloat(record.amount) || 0;
             
             if (record.type === 'income' && record.accountId && includedAccountIds.has(record.accountId)) {
-              accountBalances[record.accountId] -= amount;
               dailyData[day].income += amount;
             } else if (record.type === 'expense' && record.accountId && includedAccountIds.has(record.accountId)) {
-              accountBalances[record.accountId] += amount;
               dailyData[day].expense += amount;
-            } else if (record.type === 'transfer') {
-              if (record.fromAccountId && includedAccountIds.has(record.fromAccountId)) {
-                accountBalances[record.fromAccountId] += amount;
-              }
-              if (record.toAccountId && includedAccountIds.has(record.toAccountId)) {
-                accountBalances[record.toAccountId] -= amount;
-              }
             }
+
+            reverseRecordBalances(accountBalances, record, accountMap, includedAccountIds);
           }
         });
       });
@@ -566,7 +619,6 @@ Page({
 
   calculateInitialBalance: function(records, accounts, year, month, day) {
     const beforeDate = new Date(year, month, day);
-    const accountCategories = app.globalData.accountCategories || [];
     
     // 收集需要统计的账户 ID
     const includedAccountIds = new Set();
@@ -604,48 +656,10 @@ Page({
         return;
       }
       
-      const amount = parseFloat(record.amount);
-      
-      // 普通记录
-      if (record.type === 'income' && record.accountId && includedAccountIds.has(record.accountId)) {
-        // 收入：倒推时减去
-        accountBalances[record.accountId] -= amount;
-      } else if (record.type === 'expense' && record.accountId && includedAccountIds.has(record.accountId)) {
-        // 支出：倒推时加上
-        accountBalances[record.accountId] += amount;
-      } else if (record.type === 'transfer') {
-        // 转账
-        if (record.fromAccountId && includedAccountIds.has(record.fromAccountId)) {
-          // 转出账户：倒推时加上
-          accountBalances[record.fromAccountId] += amount;
-        }
-        if (record.toAccountId && includedAccountIds.has(record.toAccountId)) {
-          // 转入账户：倒推时减去
-          accountBalances[record.toAccountId] -= amount;
-        }
-      }
+      reverseRecordBalances(accountBalances, record, accountMap, includedAccountIds);
     });
     
-    // 根据账户类型计算最终的总资产
-    let totalBalance = 0;
-    
-    Object.entries(accountBalances).forEach(([accountId, balance]) => {
-      const account = accountMap[accountId];
-      const categoryInfo = accountCategories.find(cat => cat.name === account.category);
-      
-      if (categoryInfo) {
-        // 根据账户类型处理余额
-        if (categoryInfo.type === 'debt' || categoryInfo.type === 'credit') {
-          // 负债和信用类账户，余额应该扣除
-          totalBalance -= balance;
-        } else {
-          // 其他类型账户，余额累加
-          totalBalance += balance;
-        }
-      }
-    });
-    
-    return totalBalance;
+    return calculateTotalBalanceFromAccountBalances(accountBalances, accountMap);
   },
 
   onTrendTouch: function(e) {

@@ -1,6 +1,7 @@
 const logger = require('./utils/logger.js');
 const cloudStorage = require('./utils/cloudStorage.js');
 const balanceCalculator = require('./utils/balanceCalculator.js');
+const localCache = require('./utils/localCache.js');
 
 App({
   onLaunch: function () {
@@ -47,7 +48,8 @@ App({
               { id: 'expense-3-5', name: '维修保养', icon: '🔧', color: '#FFF09D' },
               { id: 'expense-3-6', name: '柴米油盐', icon: '🍚', color: '#FFF6C4' },
               { id: 'expense-3-7', name: '装修', icon: '🪜', color: '#FFE66D' },
-              { id: 'expense-3-8', name: '购房', icon: '🏡', color: '#FFF09D' }
+              { id: 'expense-3-8', name: '购房', icon: '🏡', color: '#FFF09D' },
+              { id: 'expense-3-9', name: '养娃', icon: '🍼', color: '#FFF6C4' }
             ]
           },
           {
@@ -187,6 +189,7 @@ App({
       records: [],
       accounts: [],
       categories: JSON.parse(JSON.stringify(this.DEFAULT_CATEGORIES)),
+      categoriesLoaded: false,
       accountCategories: [
         { id: 1, name: '现金', icon: '💵', color: '#FF6B6B', type: 'asset' },
         { id: 2, name: '信用卡', icon: '💳', color: '#4ECDC4', type: 'credit' },
@@ -359,6 +362,90 @@ App({
     });
   },
 
+  sortRecordsByTime: function(records) {
+    return (records || []).sort((a, b) => {
+      if (a.date !== b.date) {
+        return new Date(b.date) - new Date(a.date);
+      }
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
+  },
+
+  writeDataCache: function(dataType, data) {
+    localCache.writeDataCache(dataType, data);
+  },
+
+  applyRecordsData: function(data) {
+    if (Array.isArray(data)) {
+      this.globalData.records = this.sortRecordsByTime(data);
+      this.writeDataCache('records', this.globalData.records);
+      logger.info('App', '记账记录已更新到内存和本地缓存', { count: this.globalData.records.length });
+      return true;
+    }
+
+    return false;
+  },
+
+  applyAccountsData: function(data) {
+    if (Array.isArray(data)) {
+      this.globalData.accounts = data;
+      this.writeDataCache('accounts', data);
+      logger.info('App', '账户数据已更新到内存和本地缓存', { count: data.length });
+      return true;
+    }
+
+    return false;
+  },
+
+  applyCategoriesData: function(data, saveWhenDefaultChanged = true) {
+    if (data && data.expense && data.income) {
+      this.globalData.categories = data;
+      this.globalData.categoriesLoaded = true;
+      const changed = this.ensureDefaultCategories();
+      this.writeDataCache('categories', this.globalData.categories);
+      if (changed && saveWhenDefaultChanged) {
+        logger.info('App', '分类数据已补齐默认分类，准备同步到云端');
+        this.saveCategories();
+      }
+      return true;
+    }
+
+    return false;
+  },
+
+  refreshDataFromCloud: function(dataType) {
+    logger.info('App', '后台刷新云端数据', { dataType });
+
+    return cloudStorage.readDataFromCloud(dataType)
+      .then(data => {
+        if (dataType === 'records') {
+          if (Array.isArray(data) && data.length === 0 && (this.globalData.records || []).length > 0) {
+            logger.warn('App', '后台刷新记录为空，保留现有本地缓存数据');
+            return false;
+          }
+          return this.applyRecordsData(data);
+        }
+
+        if (dataType === 'accounts') {
+          if (Array.isArray(data) && data.length === 0 && (this.globalData.accounts || []).length > 0) {
+            logger.warn('App', '后台刷新账户为空，保留现有本地缓存数据');
+            return false;
+          }
+          return this.applyAccountsData(data);
+        }
+
+        if (dataType === 'categories') {
+          return this.applyCategoriesData(data);
+        }
+
+        return false;
+      })
+      .catch(err => {
+        logger.warn('App', '后台刷新云端数据失败: ' + dataType, err);
+        return false;
+      });
+  },
+
   loadRecords: function(callback, forceRefresh = false) {
     logger.info('App', '开始加载记账记录', { forceRefresh });
     
@@ -381,17 +468,21 @@ App({
       return;
     }
     
+    if (!forceRefresh) {
+      const cachedRecords = localCache.readDataCache('records');
+      if (Array.isArray(cachedRecords)) {
+        this.globalData.records = this.sortRecordsByTime(cachedRecords);
+        logger.info('App', '使用本地缓存记账记录', { count: this.globalData.records.length });
+        if (callback) callback();
+        this.refreshDataFromCloud('records');
+        return;
+      }
+    }
+
     cloudStorage.readDataFromCloud('records')
       .then(data => {
-        if (data && data.length > 0) {
-          data.sort((a, b) => {
-            if (a.date !== b.date) {
-              return new Date(b.date) - new Date(a.date);
-            }
-            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-          });
-          
-          this.globalData.records = data;
+        if (Array.isArray(data)) {
+          this.applyRecordsData(data);
           logger.info('App', '记账记录加载成功', { count: data.length });
         } else {
           logger.info('App', '云存储没有记账记录，保持现有数据', { 
@@ -427,6 +518,7 @@ App({
       .then(result => {
         if (result.success) {
           this.globalData.records = records;
+          this.writeDataCache('records', records);
           logger.info('App', '记账记录添加成功');
           if (callback) callback(true);
         } else {
@@ -463,6 +555,7 @@ App({
       cloudStorage.writeDataToCloud('accounts', accounts)
         .then(result => {
           if (result.success) {
+            this.writeDataCache('accounts', accounts);
             logger.info('App', '账户余额更新成功');
           } else {
             logger.error('App', '账户余额更新失败', result.errMsg);
@@ -498,6 +591,7 @@ App({
       .then(result => {
         if (result.success) {
           this.globalData.records = records;
+          this.writeDataCache('records', records);
           logger.info('App', '转账记录添加成功');
           if (callback) callback(true);
         } else {
@@ -542,6 +636,7 @@ App({
       .then(result => {
         if (result.success) {
           this.globalData.records = records;
+          this.writeDataCache('records', records);
           logger.info('App', '记录删除成功');
           if (callback) callback(true);
         } else {
@@ -610,6 +705,7 @@ App({
       .then(result => {
         if (result.success) {
           this.globalData.records = records;
+          this.writeDataCache('records', records);
           logger.info('App', '记录更新成功');
           if (callback) callback(true);
         } else {
@@ -645,10 +741,21 @@ App({
       return;
     }
     
+    if (!forceRefresh) {
+      const cachedAccounts = localCache.readDataCache('accounts');
+      if (Array.isArray(cachedAccounts)) {
+        this.globalData.accounts = cachedAccounts;
+        logger.info('App', '使用本地缓存账户数据', { count: cachedAccounts.length });
+        if (callback) callback();
+        this.refreshDataFromCloud('accounts');
+        return;
+      }
+    }
+
     cloudStorage.readDataFromCloud('accounts')
       .then(data => {
-        if (data && data.length > 0) {
-          this.globalData.accounts = data;
+        if (Array.isArray(data)) {
+          this.applyAccountsData(data);
           logger.info('App', '账户加载成功', { count: data.length });
         } else {
           logger.info('App', '云存储没有账户数据或读取失败，使用空数组');
@@ -681,6 +788,7 @@ App({
       .then(result => {
         if (result.success) {
           this.globalData.accounts = accounts;
+          this.writeDataCache('accounts', accounts);
           logger.info('App', '账户添加成功', { count: accounts.length });
           
           wx.showToast({
@@ -719,6 +827,7 @@ App({
       .then(result => {
         if (result.success) {
           this.globalData.accounts = accounts;
+          this.writeDataCache('accounts', accounts);
           logger.info('App', '账户更新成功');
           if (callback) callback(true);
         } else {
@@ -741,6 +850,7 @@ App({
       .then(result => {
         if (result.success) {
           this.globalData.accounts = accounts;
+          this.writeDataCache('accounts', accounts);
           logger.info('App', '账户删除成功');
           if (callback) callback(true);
         } else {
@@ -754,10 +864,57 @@ App({
       });
   },
 
+  cloneDefaultCategories: function() {
+    return JSON.parse(JSON.stringify(this.DEFAULT_CATEGORIES));
+  },
+
+  ensureDefaultCategories: function() {
+    let changed = false;
+
+    if (!this.globalData.categories || !this.globalData.categories.expense || !this.globalData.categories.income) {
+      this.globalData.categories = this.cloneDefaultCategories();
+      return true;
+    }
+
+    ['expense', 'income'].forEach(categoryType => {
+      const defaultCategoryType = this.DEFAULT_CATEGORIES[categoryType];
+      const currentCategoryType = this.globalData.categories[categoryType];
+
+      if (!currentCategoryType.groups || !Array.isArray(currentCategoryType.groups)) {
+        currentCategoryType.groups = [];
+        changed = true;
+      }
+
+      defaultCategoryType.groups.forEach(defaultGroup => {
+        let group = currentCategoryType.groups.find(item => item.id === defaultGroup.id);
+        if (!group) {
+          currentCategoryType.groups.push(JSON.parse(JSON.stringify(defaultGroup)));
+          changed = true;
+          return;
+        }
+
+        if (!group.children || !Array.isArray(group.children)) {
+          group.children = [];
+          changed = true;
+        }
+
+        defaultGroup.children.forEach(defaultCategory => {
+          const exists = group.children.some(item => item.id === defaultCategory.id);
+          if (!exists) {
+            group.children.push(JSON.parse(JSON.stringify(defaultCategory)));
+            changed = true;
+          }
+        });
+      });
+    });
+
+    return changed;
+  },
+
   loadCategories: function(callback, forceRefresh = false) {
     logger.info('App', '开始加载分类', { forceRefresh });
     
-    if (!forceRefresh) {
+    if (!forceRefresh && this.globalData.categoriesLoaded) {
       logger.info('App', '使用内存中已有分类数据');
       if (callback) callback();
       return;
@@ -776,19 +933,35 @@ App({
       return;
     }
     
+    if (!forceRefresh) {
+      const cachedCategories = localCache.readDataCache('categories');
+      if (cachedCategories && cachedCategories.expense && cachedCategories.income) {
+        this.applyCategoriesData(cachedCategories, false);
+        logger.info('App', '使用本地缓存分类数据');
+        if (callback) callback();
+        this.refreshDataFromCloud('categories');
+        return;
+      }
+    }
+
     cloudStorage.readDataFromCloud('categories')
       .then(data => {
-        if (data && data.expense && data.income) {
-          this.globalData.categories = data;
+        if (this.applyCategoriesData(data)) {
           logger.info('App', '分类数据从云存储加载成功');
         } else {
           logger.info('App', '云存储没有分类数据或格式不对，使用默认数据并保存到云端');
+          this.globalData.categories = this.cloneDefaultCategories();
+          this.globalData.categoriesLoaded = true;
+          this.writeDataCache('categories', this.globalData.categories);
           this.saveCategories();
         }
         if (callback) callback();
       })
       .catch(err => {
         logger.error('App', '加载分类失败，使用默认数据', err);
+        this.globalData.categoriesLoaded = true;
+        this.ensureDefaultCategories();
+        this.writeDataCache('categories', this.globalData.categories);
         this.saveCategories();
         if (callback) callback();
       });
@@ -800,6 +973,7 @@ App({
     cloudStorage.writeDataToCloud('categories', this.globalData.categories)
       .then(result => {
         if (result.success) {
+          this.writeDataCache('categories', this.globalData.categories);
           logger.info('App', '分类数据保存到云端成功');
           if (callback) callback(true);
         } else {
@@ -819,6 +993,7 @@ App({
     cloudStorage.writeDataToCloud('accounts', this.globalData.accounts)
       .then(result => {
         if (result.success) {
+          this.writeDataCache('accounts', this.globalData.accounts);
           logger.info('App', '账户数据保存到云端成功');
           if (callback) callback(true);
         } else {
@@ -918,6 +1093,7 @@ App({
         .then(result => {
           if (result.success) {
             this.globalData.records = records;
+            this.writeDataCache('records', records);
             logger.info('App', '旧数据迁移完成并保存到云端');
           }
         })
@@ -928,9 +1104,11 @@ App({
       logger.info('App', '没有需要迁移的数据');
     }
     
-    // 无论是否有记录需要迁移，都强制更新分类数据到云端
-    this.globalData.categories = JSON.parse(JSON.stringify(this.DEFAULT_CATEGORIES));
-    this.saveCategories();
+    const categoriesChanged = this.ensureDefaultCategories();
+    if (categoriesChanged) {
+      logger.info('App', '分类默认数据已补齐，准备保存到云端');
+      this.saveCategories();
+    }
   },
 
   clearAllData: function(callback) {
@@ -944,6 +1122,8 @@ App({
       if (recordsResult.success && accountsResult.success) {
         this.globalData.records = [];
         this.globalData.accounts = [];
+        this.writeDataCache('records', []);
+        this.writeDataCache('accounts', []);
         logger.info('App', '所有数据清空成功');
         if (callback) callback(true);
       } else {
@@ -985,6 +1165,12 @@ App({
         this.globalData.accounts = importData.accounts || [];
         if (importData.categories) {
           this.globalData.categories = importData.categories;
+          this.globalData.categoriesLoaded = true;
+        }
+        this.writeDataCache('records', this.globalData.records);
+        this.writeDataCache('accounts', this.globalData.accounts);
+        if (importData.categories) {
+          this.writeDataCache('categories', this.globalData.categories);
         }
         logger.info('App', '数据导入成功');
         if (callback) callback(true);

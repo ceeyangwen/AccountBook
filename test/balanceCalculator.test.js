@@ -147,7 +147,7 @@ test('债务账户普通操作（非转账）应正确取反', () => {
 
 test('债务账户转账转入应减少负债', () => {
   assertEqual(calculateDebtAccountBalance(100, 30, true), '70.00', '债务转入');
-  assertEqual(calculateDebtAccountBalance(50, -30, true), '20.00', '债务转入负数处理');
+  assertEqual(calculateDebtAccountBalance(50, -30, true), '80.00', '债务转入反向冲销');
 });
 
 console.log('\n6. 测试边界情况\n');

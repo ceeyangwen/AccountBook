@@ -63,11 +63,13 @@ Page({
       const recordYear = recordDate.getFullYear();
       const recordMonth = recordDate.getMonth();
       
-      // 只统计支出和收入，转账不计入月度统计
+      const shouldIncludeInSummary = this.shouldIncludeRecordInSummary(record, accountMap);
+
+      // 只统计计入总资产账号的支出和收入，转账不计入月度统计
       if (recordYear === currentYear && recordMonth === currentMonth) {
-        if (record.type === 'expense') {
+        if (record.type === 'expense' && shouldIncludeInSummary) {
           monthlyExpense += parseFloat(record.amount);
-        } else if (record.type === 'income') {
+        } else if (record.type === 'income' && shouldIncludeInSummary) {
           monthlyIncome += parseFloat(record.amount);
         }
       }
@@ -112,9 +114,9 @@ Page({
 
       dateMap[dateKey].records.push(processedRecord);
       
-      if (record.type === 'expense') {
+      if (record.type === 'expense' && shouldIncludeInSummary) {
         dateMap[dateKey].dayExpense += parseFloat(record.amount);
-      } else if (record.type === 'income') {
+      } else if (record.type === 'income' && shouldIncludeInSummary) {
         dateMap[dateKey].dayIncome += parseFloat(record.amount);
       }
     });
@@ -132,6 +134,19 @@ Page({
       balance: (monthlyIncome - monthlyExpense).toFixed(2),
       loading: false
     });
+  },
+
+  shouldIncludeRecordInSummary: function(record, accountMap) {
+    if (!record || (record.type !== 'expense' && record.type !== 'income')) {
+      return false;
+    }
+
+    const account = accountMap[record.accountId];
+    if (!account) {
+      return false;
+    }
+
+    return account.includeInTotal !== false;
   },
 
   getCategory: function (categoryId, type) {

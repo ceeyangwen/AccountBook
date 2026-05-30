@@ -119,24 +119,36 @@ Page({
 
     if (this.data.isGroup) {
       if (this.data.isNew) {
-        app.addCategoryGroup(this.data.type, data, () => {
-          wx.navigateBack();
+        app.addCategoryGroup(this.data.type, data, (success) => {
+          this.handleSaveResult(success);
         });
       } else {
-        app.updateCategoryGroup(this.data.type, this.data.groupId, data, () => {
-          wx.navigateBack();
+        app.updateCategoryGroup(this.data.type, this.data.groupId, data, (success) => {
+          this.handleSaveResult(success);
         });
       }
     } else {
       if (this.data.isNew) {
-        app.addCategory(this.data.type, this.data.groupId, data, () => {
-          wx.navigateBack();
+        app.addCategory(this.data.type, this.data.groupId, data, (success) => {
+          this.handleSaveResult(success);
         });
       } else {
-        app.updateCategory(this.data.type, this.data.groupId, this.data.categoryId, data, () => {
-          wx.navigateBack();
+        app.updateCategory(this.data.type, this.data.groupId, this.data.categoryId, data, (success) => {
+          this.handleSaveResult(success);
         });
       }
     }
+  },
+
+  handleSaveResult: function(success) {
+    if (success !== false) {
+      wx.navigateBack();
+      return;
+    }
+
+    wx.showToast({
+      title: '保存失败，请稍后重试',
+      icon: 'none'
+    });
   }
 });

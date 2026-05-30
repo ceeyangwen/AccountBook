@@ -18,8 +18,10 @@ Page({
   },
 
   loadCategories: function() {
-    this.setData({
-      categories: app.globalData.categories[this.data.currentTab]
+    app.loadCategories(() => {
+      this.setData({
+        categories: app.globalData.categories[this.data.currentTab]
+      });
     });
   },
 
