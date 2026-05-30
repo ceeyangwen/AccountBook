@@ -15,6 +15,20 @@
     </view>
   </view>
 
+  <view class="quick-action-section card p-20 mt-20">
+    <view class="quick-action-title">⚡ 快捷操作</view>
+    <view class="quick-action-list">
+      <view class="quick-action-button record" bindtap="goToQuickRecord">
+        <text class="quick-action-icon">＋</text>
+        <text class="quick-action-text">记一笔</text>
+      </view>
+      <view class="quick-action-button transfer" bindtap="goToQuickTransfer">
+        <text class="quick-action-icon">↔</text>
+        <text class="quick-action-text">转账</text>
+      </view>
+    </view>
+  </view>
+
   <view class="summary-section mt-20">
     <view class="summary-title">📊 操作统计</view>
     <view class="summary-grid">

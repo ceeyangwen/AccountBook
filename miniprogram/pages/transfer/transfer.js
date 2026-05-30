@@ -51,11 +51,17 @@ Page({
       // 新增模式
       const now = new Date();
       const date = this.formatDate(now);
+      const fromAccountId = options.fromAccountId;
       
-      this.setData({
+      const newState = {
         date,
         dateText: this.formatDateText(now)
-      });
+      };
+      if (fromAccountId) {
+        newState.fromAccountId = fromAccountId;
+      }
+
+      this.setData(newState);
     }
     
     this.loadAccounts();

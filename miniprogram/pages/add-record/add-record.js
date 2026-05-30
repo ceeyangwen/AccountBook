@@ -54,11 +54,17 @@ Page({
       // 新增模式
       const now = new Date();
       const date = this.formatDate(now);
+      const accountId = options.accountId;
       
-      this.setData({
+      const newState = {
         date,
         dateText: this.formatDateText(now)
-      });
+      };
+      if (accountId) {
+        newState.selectedAccountId = accountId;
+      }
+
+      this.setData(newState);
     }
     
     this.updateCategories();

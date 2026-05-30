@@ -242,6 +242,24 @@ Page({
     }
   },
 
+  goToQuickRecord: function() {
+    const account = this.data.account;
+    if (!account || !account.id) return;
+
+    wx.navigateTo({
+      url: '/pages/add-record/add-record?accountId=' + encodeURIComponent(account.id)
+    });
+  },
+
+  goToQuickTransfer: function() {
+    const account = this.data.account;
+    if (!account || !account.id) return;
+
+    wx.navigateTo({
+      url: '/pages/transfer/transfer?fromAccountId=' + encodeURIComponent(account.id)
+    });
+  },
+
   deleteRecord: function(e) {
     const record = e.currentTarget.dataset.record;
     const that = this;

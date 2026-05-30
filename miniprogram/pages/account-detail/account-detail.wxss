@@ -66,6 +66,54 @@
   color: #FF6B6B;
 }
 
+.quick-action-section {
+  margin-bottom: 20rpx;
+}
+
+.quick-action-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.quick-action-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.quick-action-button {
+  height: 88rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.quick-action-button.record {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  color: #FFFFFF;
+  box-shadow: 0 6rpx 16rpx rgba(255, 107, 107, 0.22);
+}
+
+.quick-action-button.transfer {
+  background: #EAFBFA;
+  color: #2AA7A2;
+}
+
+.quick-action-icon {
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.quick-action-text {
+  line-height: 1;
+}
+
 .summary-section {
   background: white;
   border-radius: 16rpx;
