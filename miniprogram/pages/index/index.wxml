@@ -7,17 +7,17 @@
     <view class="summary-data flex flex-between mt-20">
       <view class="summary-item">
         <view class="summary-label">支出</view>
-        <view class="summary-value expense">-¥{{monthlyExpense}}</view>
+        <view class="summary-value expense {{monthlyExpenseAmountSizeClass}}">-¥{{monthlyExpense}}</view>
       </view>
       <view class="summary-divider"></view>
       <view class="summary-item">
         <view class="summary-label">收入</view>
-        <view class="summary-value income">+¥{{monthlyIncome}}</view>
+        <view class="summary-value income {{monthlyIncomeAmountSizeClass}}">+¥{{monthlyIncome}}</view>
       </view>
       <view class="summary-divider"></view>
       <view class="summary-item">
         <view class="summary-label">结余</view>
-        <view class="summary-value {{balance >= 0 ? 'income' : 'expense'}}">{{balance >= 0 ? '+' : ''}}¥{{balance}}</view>
+        <view class="summary-value {{balance >= 0 ? 'income' : 'expense'}} {{balanceAmountSizeClass}}">{{balance >= 0 ? '+' : ''}}¥{{balance}}</view>
       </view>
     </view>
   </view>
@@ -53,7 +53,7 @@
           </view>
         </view>
         <view class="record-right">
-          <view class="record-amount {{record.type === 'expense' ? 'expense' : record.type === 'income' ? 'income' : 'transfer'}}">
+          <view class="record-amount {{record.type === 'expense' ? 'expense' : record.type === 'income' ? 'income' : 'transfer'}} {{record.amountSizeClass}}">
             <block wx:if="{{record.type === 'transfer'}}">¥{{record.amount}}</block>
             <block wx:else>{{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}</block>
           </view>

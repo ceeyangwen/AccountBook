@@ -41,6 +41,7 @@ function getRule(css, selector) {
 }
 
 const root = path.join(__dirname, '..');
+const wxml = fs.readFileSync(path.join(root, 'miniprogram/pages/index/index.wxml'), 'utf8');
 const wxss = fs.readFileSync(path.join(root, 'miniprogram/pages/index/index.wxss'), 'utf8');
 
 test('记录右侧操作列应固定宽度并右对齐，避免金额长度影响 CTA 位置', () => {
@@ -59,6 +60,23 @@ test('记录更多按钮应使用固定点击区域并居中显示三个点', ()
   assertMatches(recordMore, /align-items:\s*center;/, 'record-more 应垂直居中');
   assertMatches(recordMore, /justify-content:\s*center;/, 'record-more 应水平居中');
   assertMatches(recordMore, /margin-left:\s*0;/, 'record-more 不应通过左边距偏移');
+});
+
+test('首页金额应绑定长度字号类并保持单行显示', () => {
+  assertMatches(wxml, /summary-value expense \{\{monthlyExpenseAmountSizeClass\}\}/, '本月支出金额应绑定自适应字号类');
+  assertMatches(wxml, /summary-value income \{\{monthlyIncomeAmountSizeClass\}\}/, '本月收入金额应绑定自适应字号类');
+  assertMatches(wxml, /summary-value \{\{balance >= 0 \? 'income' : 'expense'\}\} \{\{balanceAmountSizeClass\}\}/, '本月结余金额应绑定自适应字号类');
+  assertMatches(wxml, /record-amount \{\{record\.type === 'expense' \? 'expense' : record\.type === 'income' \? 'income' : 'transfer'\}\} \{\{record\.amountSizeClass\}\}/, '记录金额应绑定自适应字号类');
+
+  const summaryValue = getRule(wxss, '.summary-value');
+  assertMatches(summaryValue, /white-space:\s*nowrap;/, 'summary-value 应保持单行');
+  assertMatches(summaryValue, /overflow:\s*hidden;/, 'summary-value 超长内容应留在容器内');
+
+  const amountSizeSm = getRule(wxss, '.amount-size-sm');
+  assertMatches(amountSizeSm, /font-size:\s*32rpx;/, '中等长度金额应降低字号');
+
+  const amountSizeXs = getRule(wxss, '.amount-size-xs');
+  assertMatches(amountSizeXs, /font-size:\s*28rpx;/, '超长金额应进一步降低字号');
 });
 
 console.log('\n========================================');

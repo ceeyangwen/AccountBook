@@ -11,6 +11,7 @@
     "pages/category-manage/category-manage",
     "pages/category-edit/category-edit"
   ],
+  "entryPagePath": "pages/index/index",
   "window": {
     "backgroundColor": "#FDF8F3",
     "backgroundTextStyle": "light",

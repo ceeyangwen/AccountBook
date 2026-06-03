@@ -7,6 +7,9 @@ Page({
     monthlyExpense: '0.00',
     monthlyIncome: '0.00',
     balance: '0.00',
+    monthlyExpenseAmountSizeClass: '',
+    monthlyIncomeAmountSizeClass: '',
+    balanceAmountSizeClass: '',
     groupedRecords: [],
     loading: true,
     showActionSheet: false,
@@ -99,7 +102,8 @@ Page({
       
       const processedRecord = {
         ...record,
-        category
+        category,
+        amountSizeClass: this.getAmountSizeClass(this.formatRecordAmountText(record))
       };
 
       if (record.type === 'transfer') {
@@ -127,13 +131,42 @@ Page({
       groupedRecords.push(dateMap[key]);
     }
 
+    const monthlyExpenseText = monthlyExpense.toFixed(2);
+    const monthlyIncomeText = monthlyIncome.toFixed(2);
+    const balanceText = (monthlyIncome - monthlyExpense).toFixed(2);
+
     this.setData({
       groupedRecords,
-      monthlyExpense: monthlyExpense.toFixed(2),
-      monthlyIncome: monthlyIncome.toFixed(2),
-      balance: (monthlyIncome - monthlyExpense).toFixed(2),
+      monthlyExpense: monthlyExpenseText,
+      monthlyIncome: monthlyIncomeText,
+      balance: balanceText,
+      monthlyExpenseAmountSizeClass: this.getAmountSizeClass('-¥' + monthlyExpenseText),
+      monthlyIncomeAmountSizeClass: this.getAmountSizeClass('+¥' + monthlyIncomeText),
+      balanceAmountSizeClass: this.getAmountSizeClass((parseFloat(balanceText) >= 0 ? '+' : '') + '¥' + balanceText),
       loading: false
     });
+  },
+
+  formatRecordAmountText: function(record) {
+    if (record.type === 'transfer') {
+      return '¥' + record.amount;
+    }
+
+    return (record.type === 'expense' ? '-' : '+') + '¥' + record.amount;
+  },
+
+  getAmountSizeClass: function(amountText) {
+    const length = String(amountText || '').length;
+
+    if (length >= 12) {
+      return 'amount-size-xs';
+    }
+
+    if (length >= 10) {
+      return 'amount-size-sm';
+    }
+
+    return '';
   },
 
   shouldIncludeRecordInSummary: function(record, accountMap) {

@@ -28,6 +28,7 @@
 
 .summary-item {
   flex: 1;
+  min-width: 0;
   text-align: center;
 }
 
@@ -40,6 +41,9 @@
 .summary-value {
   font-size: 36rpx;
   font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .summary-value.expense {
@@ -184,6 +188,15 @@
   line-height: 1.15;
   text-align: right;
   white-space: nowrap;
+  overflow: hidden;
+}
+
+.amount-size-sm {
+  font-size: 32rpx;
+}
+
+.amount-size-xs {
+  font-size: 28rpx;
 }
 
 .record-amount.expense {
