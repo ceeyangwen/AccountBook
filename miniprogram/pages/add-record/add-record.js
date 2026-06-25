@@ -23,7 +23,8 @@ Page({
     showHiddenAccounts: false,
     showAccountPicker: false,
     isEdit: false,
-    recordId: null
+    recordId: null,
+    isSaving: false
   },
 
   onLoad: function (options) {
@@ -327,6 +328,10 @@ Page({
   },
 
   saveRecord: function () {
+    if (this.data.isSaving) {
+      return;
+    }
+
     if (!this.data.amount) {
       wx.showToast({
         title: '请输入有效金额',
@@ -383,6 +388,10 @@ Page({
 
     logger.info('add-record', isEdit ? '更新记录' : '保存记录', record);
 
+    this.setData({
+      isSaving: true
+    });
+
     wx.showLoading({
       title: isEdit ? '更新中...' : '保存中...'
     });
@@ -401,6 +410,9 @@ Page({
           wx.navigateBack();
         }, 1500);
       } else {
+        this.setData({
+          isSaving: false
+        });
         wx.showToast({
           title: isEdit ? '更新失败' : '保存失败',
           icon: 'none'

@@ -117,7 +117,7 @@
   </view>
 
   <view class="btn-group mt-40">
-    <button class="save-btn btn-primary" bindtap="saveRecord">
+    <button class="save-btn btn-primary" bindtap="saveRecord" disabled="{{isSaving}}">
       {{isEdit ? '✏️ 更新记录' : '💾 保存记录'}}
     </button>
   </view>

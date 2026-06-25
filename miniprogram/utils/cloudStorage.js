@@ -56,6 +56,22 @@ const getBackupItems = function (backupData) {
   ];
 };
 
+const getDataCount = function (data) {
+  if (Array.isArray(data)) {
+    return data.length;
+  }
+
+  if (data && typeof data === 'object') {
+    return Object.keys(data).length;
+  }
+
+  return 0;
+};
+
+const now = function () {
+  return Date.now ? Date.now() : new Date().getTime();
+};
+
 const addCandidate = function (candidates, fileID) {
   if (fileID && !candidates.includes(fileID)) {
     candidates.push(fileID);
@@ -279,7 +295,8 @@ const writeDataByCloudFunction = async function (dataType, data) {
       }
       return {
         success: true,
-        fileID: res.result.fileID
+        fileID: res.result.fileID,
+        performance: res.result.performance || null
       };
     }
     
@@ -289,6 +306,47 @@ const writeDataByCloudFunction = async function (dataType, data) {
     logger.warn('cloudStorage', '云函数写入异常: ' + (e.errMsg || e.message || e));
     return { success: false, errMsg: e.errMsg || e.message || e };
   }
+};
+
+const appendPerformanceLogByCloudFunction = function (log) {
+  try {
+    wx.cloud.callFunction({
+      name: 'quickstartFunctions',
+      data: {
+        type: 'appendPerformanceLog',
+        log: log
+      }
+    })
+    .then(res => {
+      if (res.result && res.result.success) {
+        logger.info('cloudStorage', '保存性能日志已上传', {
+          retainedCount: res.result.retainedCount,
+          deletedCount: res.result.deletedCount
+        });
+      } else {
+        logger.warn('cloudStorage', '保存性能日志上传失败: ' + (res.result && res.result.errMsg ? res.result.errMsg : '未知错误'));
+      }
+    })
+    .catch(e => {
+      logger.warn('cloudStorage', '保存性能日志上传异常: ' + (e.errMsg || e.message || e));
+    });
+  } catch (e) {
+    logger.warn('cloudStorage', '保存性能日志调用异常: ' + (e.errMsg || e.message || e));
+  }
+};
+
+const reportWritePerformance = function (dataType, startedAt, data, result) {
+  appendPerformanceLogByCloudFunction({
+    timestamp: new Date().toISOString(),
+    source: 'miniprogram',
+    operation: 'writeDataToCloud',
+    dataType: dataType,
+    success: !!(result && result.success),
+    durationMs: now() - startedAt,
+    dataCount: getDataCount(data),
+    errMsg: result && result.errMsg ? String(result.errMsg) : '',
+    serverPerformance: result && result.performance ? result.performance : null
+  });
 };
 
 const createBackupByCloudFunction = async function (backupData) {
@@ -509,6 +567,7 @@ const readDataFromCloud = async function (dataType) {
 
 // 写入数据到云存储
 const writeDataToCloud = async function (dataType, data) {
+  const startedAt = now();
   try {
     const cloudPath = getUserDataPath(dataType);
     if (!cloudPath) {
@@ -528,14 +587,17 @@ const writeDataToCloud = async function (dataType, data) {
 
     const functionResult = await writeDataByCloudFunction(dataType, data);
     if (functionResult.success) {
+      reportWritePerformance(dataType, startedAt, data, functionResult);
       return functionResult;
     }
 
     logger.error('cloudStorage', '云函数写入失败，已停止前端直传以避免正式版云存储权限错误: ' + (functionResult.errMsg || '未知错误'));
-    return {
+    const failedResult = {
       success: false,
       errMsg: functionResult.errMsg || '云函数写入失败，请检查 quickstartFunctions 是否已部署到当前环境'
     };
+    reportWritePerformance(dataType, startedAt, data, failedResult);
+    return failedResult;
   } catch (e) {
     logger.error('cloudStorage', '写入文件失败', e);
     
@@ -545,7 +607,9 @@ const writeDataToCloud = async function (dataType, data) {
       showCancel: false
     });
     
-    return { success: false, errMsg: e.errMsg || e.message };
+    const failedResult = { success: false, errMsg: e.errMsg || e.message };
+    reportWritePerformance(dataType, startedAt, data, failedResult);
+    return failedResult;
   }
 };
 

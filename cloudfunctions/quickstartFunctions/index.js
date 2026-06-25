@@ -16,6 +16,8 @@ const formatFileTimestamp = (date = new Date()) => {
 
 const CLOUD_ENV_ID = "cloud1-d3gvv57hn4dfa5588";
 const CLOUD_STORAGE_RESOURCE_ID = "636c-cloud1-d3gvv57hn4dfa5588-1433781415";
+const PERFORMANCE_LOG_RETENTION_DAYS = 7;
+const PERFORMANCE_LOG_MAX_ENTRIES = 200;
 
 console.log(`[${formatTime()}] 云函数服务启动`);
 
@@ -45,6 +47,122 @@ const isValidDataType = (dataType) => {
   return ["records", "accounts", "categories"].includes(dataType);
 };
 
+const getDataCount = (data) => {
+  if (Array.isArray(data)) {
+    return data.length;
+  }
+
+  if (data && typeof data === "object") {
+    return Object.keys(data).length;
+  }
+
+  return 0;
+};
+
+const getStorageFileIDCandidates = (cloudPath) => {
+  return [
+    `cloud://${CLOUD_ENV_ID}.${CLOUD_STORAGE_RESOURCE_ID}/${cloudPath}`,
+    `cloud://${CLOUD_ENV_ID}/${cloudPath}`
+  ];
+};
+
+const toFiniteNumber = (value) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? Math.round(numberValue) : null;
+};
+
+const truncateText = (value, maxLength) => {
+  return String(value || "").slice(0, maxLength);
+};
+
+const sanitizePerformanceLog = (log) => {
+  const sourceLog = log && typeof log === "object" && !Array.isArray(log) ? log : {};
+  const serverPerformance = sourceLog.serverPerformance && typeof sourceLog.serverPerformance === "object"
+    ? sourceLog.serverPerformance
+    : {};
+
+  return {
+    timestamp: sourceLog.timestamp || formatTime(),
+    source: truncateText(sourceLog.source || "miniprogram", 40),
+    operation: truncateText(sourceLog.operation || "unknown", 60),
+    dataType: truncateText(sourceLog.dataType || "", 40),
+    success: sourceLog.success !== false,
+    durationMs: toFiniteNumber(sourceLog.durationMs),
+    dataCount: toFiniteNumber(sourceLog.dataCount),
+    errMsg: truncateText(sourceLog.errMsg || "", 160),
+    serverPerformance: {
+      totalMs: toFiniteNumber(serverPerformance.totalMs),
+      stringifyMs: toFiniteNumber(serverPerformance.stringifyMs),
+      uploadMs: toFiniteNumber(serverPerformance.uploadMs),
+      byteLength: toFiniteNumber(serverPerformance.byteLength)
+    }
+  };
+};
+
+const readPerformanceLogEntries = async (cloudPath) => {
+  const fileIDCandidates = getStorageFileIDCandidates(cloudPath);
+
+  for (const fileID of fileIDCandidates) {
+    try {
+      const downloadRes = await cloud.downloadFile({ fileID });
+      const parsed = JSON.parse(downloadRes.fileContent.toString("utf8"));
+
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+
+      if (parsed && Array.isArray(parsed.entries)) {
+        return parsed.entries;
+      }
+    } catch (e) {
+      console.warn(`[${formatTime()}] 性能日志读取失败: ${fileID}`, e.message);
+    }
+  }
+
+  return [];
+};
+
+const appendPerformanceLog = async (log) => {
+  const wxContext = cloud.getWXContext();
+  const cloudPath = `users/${wxContext.OPENID}/performance-logs/save-performance.json`;
+  const existingEntries = await readPerformanceLogEntries(cloudPath);
+  const cutoffTime = Date.now() - PERFORMANCE_LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+  const retainedEntries = existingEntries.filter(entry => {
+    const entryTime = Date.parse(entry && entry.timestamp);
+    return Number.isFinite(entryTime) && entryTime >= cutoffTime;
+  });
+  const deletedByAge = existingEntries.length - retainedEntries.length;
+
+  retainedEntries.push(sanitizePerformanceLog(log));
+  retainedEntries.sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
+
+  const overflowCount = Math.max(0, retainedEntries.length - PERFORMANCE_LOG_MAX_ENTRIES);
+  const entries = overflowCount > 0
+    ? retainedEntries.slice(overflowCount)
+    : retainedEntries;
+  const fileContent = Buffer.from(JSON.stringify({
+    updatedAt: formatTime(),
+    retentionDays: PERFORMANCE_LOG_RETENTION_DAYS,
+    maxEntries: PERFORMANCE_LOG_MAX_ENTRIES,
+    entries
+  }), "utf8");
+
+  const uploadRes = await cloud.uploadFile({
+    cloudPath,
+    fileContent
+  });
+
+  console.log(`[${formatTime()}] 性能日志写入成功: ${entries.length} 条, 删除 ${deletedByAge + overflowCount} 条`);
+
+  return {
+    success: true,
+    fileID: uploadRes.fileID,
+    cloudPath,
+    retainedCount: entries.length,
+    deletedCount: deletedByAge + overflowCount
+  };
+};
+
 const readStorageData = async (dataType) => {
   if (!isValidDataType(dataType)) {
     return { success: false, errMsg: "Invalid dataType" };
@@ -52,10 +170,7 @@ const readStorageData = async (dataType) => {
 
   const wxContext = cloud.getWXContext();
   const cloudPath = `users/${wxContext.OPENID}/${dataType}.json`;
-  const fileIDCandidates = [
-    `cloud://${CLOUD_ENV_ID}.${CLOUD_STORAGE_RESOURCE_ID}/${cloudPath}`,
-    `cloud://${CLOUD_ENV_ID}/${cloudPath}`
-  ];
+  const fileIDCandidates = getStorageFileIDCandidates(cloudPath);
 
   let lastErr = null;
 
@@ -92,23 +207,36 @@ const writeStorageData = async (dataType, data) => {
     return { success: false, errMsg: "Invalid dataType" };
   }
 
+  const startedAt = Date.now();
   const wxContext = cloud.getWXContext();
   const cloudPath = `users/${wxContext.OPENID}/${dataType}.json`;
-  const fileContent = Buffer.from(JSON.stringify(data, null, 2), "utf8");
+  const stringifyStartedAt = Date.now();
+  const jsonData = JSON.stringify(data);
+  const stringifyMs = Date.now() - stringifyStartedAt;
+  const fileContent = Buffer.from(jsonData, "utf8");
 
-  console.log(`[${formatTime()}] 写入云存储文件: ${cloudPath}, 字节数: ${fileContent.length}`);
+  console.log(`[${formatTime()}] 写入云存储文件: ${cloudPath}, 数量: ${getDataCount(data)}, 字节数: ${fileContent.length}`);
 
+  const uploadStartedAt = Date.now();
   const uploadRes = await cloud.uploadFile({
     cloudPath,
     fileContent
   });
+  const uploadMs = Date.now() - uploadStartedAt;
 
   console.log(`[${formatTime()}] 云存储写入成功: ${uploadRes.fileID}`);
 
   return {
     success: true,
     fileID: uploadRes.fileID,
-    cloudPath
+    cloudPath,
+    performance: {
+      totalMs: Date.now() - startedAt,
+      stringifyMs,
+      uploadMs,
+      byteLength: fileContent.length,
+      dataCount: getDataCount(data)
+    }
   };
 };
 
@@ -160,7 +288,11 @@ const createBackupData = async (data) => {
 
 exports.main = async (event, context) => {
   console.log(`[${formatTime()}] 云函数被调用, type: ${event.type}`);
-  console.log(`[${formatTime()}] 请求数据:`, JSON.stringify(event));
+  console.log(`[${formatTime()}] 请求摘要:`, JSON.stringify({
+    type: event.type,
+    dataType: event.dataType,
+    dataCount: getDataCount(event.data)
+  }));
   
   try {
     let result;
@@ -176,6 +308,9 @@ exports.main = async (event, context) => {
         break;
       case "createBackupData":
         result = await createBackupData(event.data);
+        break;
+      case "appendPerformanceLog":
+        result = await appendPerformanceLog(event.log);
         break;
       default:
         console.error(`[${formatTime()}] 未知类型:`, event.type);
