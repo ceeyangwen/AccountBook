@@ -16,11 +16,14 @@
   </view>
 
   <view class="account-section mt-20">
-    <view class="section-title">📤 转出账户</view>
+    <view class="section-title">转出账户</view>
     <view class="account-selector card p-15" bindtap="showFromPicker">
       <view class="account-display" wx:if="{{fromAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === fromAccountId}}">
-          <text class="account-icon">{{item.icon}}</text>
+          <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+            <text class="badge-glyph">{{item.badge.symbol}}</text>
+            <text class="badge-mark-text">{{item.badge.label}}</text>
+          </view>
           <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
         </view>
@@ -37,11 +40,14 @@
   </view>
 
   <view class="account-section">
-    <view class="section-title">📥 转入账户</view>
+    <view class="section-title">转入账户</view>
     <view class="account-selector card p-15" bindtap="showToPicker">
       <view class="account-display" wx:if="{{toAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === toAccountId}}">
-          <text class="account-icon">{{item.icon}}</text>
+          <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+            <text class="badge-glyph">{{item.badge.symbol}}</text>
+            <text class="badge-mark-text">{{item.badge.label}}</text>
+          </view>
           <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
         </view>
@@ -54,14 +60,14 @@
   </view>
 
   <view class="date-card card p-20 mt-20">
-    <view class="date-label">📅 日期</view>
+    <view class="date-label">日期</view>
     <picker mode="date" value="{{date}}" bindchange="onDateChange">
       <view class="date-value">{{dateText}}</view>
     </picker>
   </view>
 
   <view class="note-card card p-20 mt-20">
-    <view class="note-label">✏️ 备注</view>
+    <view class="note-label">备注</view>
     <textarea 
       class="note-input" 
       placeholder="添加备注（选填）"
@@ -74,7 +80,7 @@
 
   <view class="btn-group mt-40">
     <button class="save-btn btn-primary" bindtap="saveTransfer">
-      {{isEdit ? '✏️ 更新转账' : '💾 确认转账'}}
+      {{isEdit ? '更新转账' : '确认转账'}}
     </button>
   </view>
 
@@ -95,8 +101,9 @@
             bindtap="selectFromAccountCategory"
             data-category="{{item}}"
           >
-            <view class="category-option-icon">
-              <text class="category-option-emoji">{{item.icon}}</text>
+            <view class="category-option-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
             </view>
             <view class="category-option-info">
               <text class="category-option-name">{{item.name}}</text>
@@ -120,7 +127,10 @@
             bindtap="selectFromAccount"
             data-id="{{item.id}}"
           >
-            <text class="account-icon">{{item.icon}}</text>
+            <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
+            </view>
             <view class="account-info">
               <text class="account-name-text">{{item.displayName}}</text>
               <text class="account-category">{{item.category}}</text>
@@ -154,8 +164,9 @@
             bindtap="selectToAccountCategory"
             data-category="{{item}}"
           >
-            <view class="category-option-icon">
-              <text class="category-option-emoji">{{item.icon}}</text>
+            <view class="category-option-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
             </view>
             <view class="category-option-info">
               <text class="category-option-name">{{item.name}}</text>
@@ -179,7 +190,10 @@
             bindtap="selectToAccount"
             data-id="{{item.id}}"
           >
-            <text class="account-icon">{{item.icon}}</text>
+            <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
+            </view>
             <view class="account-info">
               <text class="account-name-text">{{item.displayName}}</text>
               <text class="account-category">{{item.category}}</text>

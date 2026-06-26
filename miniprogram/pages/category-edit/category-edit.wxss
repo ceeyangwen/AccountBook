@@ -166,3 +166,50 @@
   font-weight: bold;
   text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
 }
+
+/* Dark fintech category edit overrides */
+.container {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.12), transparent 34%),
+    linear-gradient(180deg, #07101D 0%, #070B14 100%);
+}
+
+.title,
+.picker-title {
+  color: #E5EEF8;
+}
+
+.form,
+.picker-panel {
+  background: #0B1020;
+  border: 1rpx solid rgba(148, 163, 184, 0.16);
+}
+
+.label,
+.arrow,
+.picker-close,
+.selected-icon.placeholder {
+  color: #8EA0B8;
+}
+
+.input,
+.icon-selector,
+.color-selector {
+  background: rgba(2, 6, 23, 0.26);
+  border-color: rgba(148, 163, 184, 0.16);
+  color: #E5EEF8;
+}
+
+.icon-item {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1rpx solid rgba(148, 163, 184, 0.12);
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #22D3EE 0%, #14B8A6 100%);
+  color: #06111F;
+}
+
+.picker-overlay {
+  background-color: rgba(2, 6, 23, 0.72);
+}

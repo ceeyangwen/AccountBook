@@ -137,3 +137,61 @@
   border: none;
   border-radius: 24rpx;
 }
+
+/* Dark fintech account edit overrides */
+.page-container {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 80rpx;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.12), transparent 34%),
+    linear-gradient(180deg, #07101D 0%, #070B14 100%);
+}
+
+.form-card {
+  background: rgba(15, 23, 42, 0.82);
+  border: 1rpx solid rgba(148, 163, 184, 0.16);
+  box-shadow: none;
+}
+
+.form-title {
+  color: #E5EEF8;
+}
+
+.form-label,
+.note-count {
+  color: #8EA0B8;
+}
+
+.form-input,
+.picker-value,
+.amount-input-wrapper,
+.form-textarea {
+  background: rgba(2, 6, 23, 0.26);
+  border: 1rpx solid rgba(148, 163, 184, 0.14);
+  color: #E5EEF8;
+}
+
+.amount-symbol {
+  color: #67E8F9;
+}
+
+.amount-input {
+  color: #E5EEF8;
+}
+
+.icon-item {
+  background: rgba(15, 23, 42, 0.78);
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+.icon-item.selected {
+  border-color: #22D3EE;
+  background: rgba(34, 211, 238, 0.10);
+}
+
+.delete-btn {
+  color: #F87171;
+  background: rgba(248, 113, 113, 0.10);
+  border: 1rpx solid rgba(248, 113, 113, 0.20);
+}

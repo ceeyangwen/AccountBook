@@ -1,6 +1,7 @@
 const app = getApp();
 const logger = require('../../utils/logger.js');
 const accountVisibility = require('../../utils/accountVisibility.js');
+const iconResolver = require('../../utils/iconResolver.js');
 
 Page({
   data: {
@@ -62,7 +63,10 @@ Page({
     
     accountCategories.forEach(cat => {
       grouped[cat.name] = {
-        categoryInfo: cat,
+        categoryInfo: {
+          ...cat,
+          badge: iconResolver.resolveAccountBadge({ name: cat.name, category: cat.name, icon: cat.icon, color: cat.color })
+        },
         accounts: [],
         totalBalance: 0
       };
@@ -87,6 +91,7 @@ Page({
       const categoryInfo = accountCategories.find(cat => cat.name === account.category);
       if (categoryInfo) {
         account.categoryInfo = categoryInfo;
+        account.badge = iconResolver.resolveAccountBadge(account);
         grouped[account.category].accounts.push(account);
         
         const balance = parseFloat(account.balance) || 0;
@@ -182,7 +187,10 @@ Page({
   showQuickAdd: function(e) {
     const category = e.currentTarget.dataset.category;
     const defaultAccounts = app.globalData.defaultAccounts || {};
-    const quickAccounts = defaultAccounts[category] || [];
+    const quickAccounts = (defaultAccounts[category] || []).map(account => ({
+      ...account,
+      badge: iconResolver.resolveAccountBadge({ ...account, category })
+    }));
     
     if (quickAccounts.length === 0) {
       this.addAccount();

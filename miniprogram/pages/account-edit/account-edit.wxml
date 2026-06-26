@@ -72,7 +72,7 @@
       <switch 
         checked="{{isHidden}}" 
         bindchange="onHiddenChange"
-        color="#FF6B6B"
+        color="#22D3EE"
       />
     </view>
   </view>

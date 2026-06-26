@@ -11,7 +11,7 @@
 
   <view class="summary-card card p-20 mt-20">
     <view class="summary-header">
-      <view class="summary-title">📊 {{period === 'month' ? '本月' : '本年'}}收支概览</view>
+      <view class="summary-title">{{period === 'month' ? '本月' : '本年'}}收支概览</view>
     </view>
     <view class="summary-data flex flex-between mt-20">
       <view class="summary-item">
@@ -33,10 +33,10 @@
   </view>
 
   <view class="trend-section mt-20">
-    <view class="section-title">📈 总资产趋势</view>
+    <view class="section-title">总资产趋势</view>
     <view class="trend-card card p-20">
       <view wx:if="{{assetTrend.length === 0}}" class="empty-state">
-        <view class="empty-icon">📊</view>
+        <view class="empty-icon">AST</view>
         <view class="empty-text">暂无资产数据</view>
       </view>
       <view wx:else class="line-chart">
@@ -99,10 +99,10 @@
   </view>
 
   <view class="category-section mt-20">
-    <view class="section-title">💰 支出分类统计</view>
+    <view class="section-title">支出分类统计</view>
     
     <view wx:if="{{expenseCategoryList.length === 0}}" class="empty-state card p-20">
-      <view class="empty-icon">📊</view>
+      <view class="empty-icon">CAT</view>
       <view class="empty-text">{{period === 'month' ? '本月' : '本年'}}暂无支出记录</view>
     </view>
     
@@ -133,8 +133,9 @@
         <view wx:for="{{expenseCategoryList}}" wx:key="id" wx:for-index="categoryIndex" class="category-card card p-20">
           <view class="category-main" bindtap="toggleCategoryDrilldown" data-index="{{categoryIndex}}">
             <view class="category-header">
-              <view class="category-icon-wrapper" style="background: {{item.color}}20;">
-                <text class="category-emoji">{{item.icon}}</text>
+              <view class="category-icon-wrapper badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+                <text class="badge-glyph">{{item.badge.symbol}}</text>
+                <text class="badge-mark-text">{{item.badge.label}}</text>
               </view>
               <view class="category-info">
                 <view class="category-name">{{item.name}}</view>

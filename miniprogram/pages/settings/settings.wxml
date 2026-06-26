@@ -1,7 +1,7 @@
 <view class="page-container">
   <view class="user-card card p-20">
     <view class="user-avatar">
-      <text class="avatar-icon">📒</text>
+      <text class="avatar-icon">AB</text>
     </view>
     <view class="user-info">
       <view class="user-name">手账记账</view>
@@ -13,7 +13,7 @@
     <view class="menu-item card" bindtap="goToCategoryManage">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper category">
-          <text class="menu-icon">📂</text>
+          <text class="menu-icon">CAT</text>
         </view>
         <view class="menu-text">管理分类</view>
       </view>
@@ -23,21 +23,21 @@
     <view class="menu-item card mt-15">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper privacy">
-          <text class="menu-icon">🙈</text>
+          <text class="menu-icon">SEC</text>
         </view>
         <view class="menu-text">显示隐藏账号</view>
       </view>
       <switch 
         checked="{{showHiddenAccounts}}" 
         bindchange="onShowHiddenAccountsChange"
-        color="#FF6B6B"
+        color="#22D3EE"
       />
     </view>
     
     <view class="menu-item card mt-15" bindtap="exportData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper export">
-          <text class="menu-icon">📤</text>
+          <text class="menu-icon">BK</text>
         </view>
         <view class="menu-text">备份到云端</view>
       </view>
@@ -47,7 +47,7 @@
     <view class="menu-item card mt-15" bindtap="importData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper import">
-          <text class="menu-icon">☁️</text>
+          <text class="menu-icon">CLD</text>
         </view>
         <view class="menu-text">从云端导入</view>
       </view>
@@ -57,7 +57,7 @@
     <view class="menu-item card mt-15" bindtap="importFromClipboard">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper import">
-          <text class="menu-icon">📋</text>
+          <text class="menu-icon">IMP</text>
         </view>
         <view class="menu-text">粘贴数据导入</view>
       </view>
@@ -67,7 +67,7 @@
     <view class="menu-item card mt-15" bindtap="refreshData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper refresh">
-          <text class="menu-icon">🔄</text>
+          <text class="menu-icon">SYNC</text>
         </view>
         <view class="menu-text">刷新数据</view>
       </view>
@@ -77,7 +77,7 @@
     <view class="menu-item card mt-15" bindtap="testCloudStorage">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper debug">
-          <text class="menu-icon">☁️</text>
+          <text class="menu-icon">TST</text>
         </view>
         <view class="menu-text">测试云存储</view>
       </view>
@@ -87,7 +87,7 @@
     <view class="menu-item card mt-15" bindtap="debugData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper debug">
-          <text class="menu-icon">🔍</text>
+          <text class="menu-icon">DBG</text>
         </view>
         <view class="menu-text">调试数据</view>
       </view>
@@ -97,7 +97,7 @@
     <view class="menu-item card mt-15" bindtap="exportLogs">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper debug">
-          <text class="menu-icon">📋</text>
+          <text class="menu-icon">LOG</text>
         </view>
         <view class="menu-text">导出日志</view>
       </view>
@@ -107,7 +107,7 @@
     <view class="menu-item card mt-15" bindtap="clearLogs">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper clear">
-          <text class="menu-icon">🧹</text>
+          <text class="menu-icon">CLR</text>
         </view>
         <view class="menu-text">清空日志</view>
       </view>
@@ -117,7 +117,7 @@
     <view class="menu-item card mt-15" bindtap="clearData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper clear">
-          <text class="menu-icon">🗑️</text>
+          <text class="menu-icon">DEL</text>
         </view>
         <view class="menu-text text-danger">清空数据</view>
       </view>
@@ -127,7 +127,7 @@
 
   <view class="info-section mt-40">
     <view class="info-card card p-20">
-      <view class="info-title">💡 使用说明</view>
+      <view class="info-title">使用说明</view>
       <view class="info-content">
         <text>• 所有数据自动存储在微信云端，换手机自动同步</text>
         <text>• 数据按账号隔离，个人隐私有保障</text>

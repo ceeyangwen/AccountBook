@@ -1,4 +1,4 @@
-/**app.wxss - 手账式风格**/
+/**app.wxss - dark fintech dashboard style**/
 .container {
   display: flex;
   flex-direction: column;
@@ -19,7 +19,8 @@ button::after{
 }
 
 page {
-  background: #FDF8F3;
+  background: #070B14;
+  color: #E5EEF8;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   box-sizing: border-box;
 }
@@ -29,10 +30,10 @@ view, text {
 }
 
 .card {
-  background: #FFFFFF;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(255, 107, 107, 0.08);
-  border: 2px solid #FFE8E8;
+  background: linear-gradient(180deg, rgba(17, 28, 46, 0.96), rgba(12, 18, 32, 0.96));
+  border-radius: 16rpx;
+  box-shadow: 0 18rpx 42rpx rgba(0, 0, 0, 0.28);
+  border: 1rpx solid rgba(148, 163, 184, 0.18);
   position: relative;
   overflow: hidden;
 }
@@ -43,36 +44,181 @@ view, text {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #FF6B6B, #FFD6D6, #FF6B6B);
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.9), rgba(20, 184, 166, 0.8), transparent);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
-  color: white;
-  border-radius: 24px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  background: linear-gradient(135deg, #22D3EE 0%, #14B8A6 100%);
+  color: #06111F;
+  border-radius: 16rpx;
+  font-weight: 700;
+  box-shadow: 0 10rpx 28rpx rgba(34, 211, 238, 0.24);
 }
 
 .btn-secondary {
-  background: #FFFFFF;
-  color: #FF6B6B;
-  border: 2px solid #FFD6D6;
-  border-radius: 24px;
-  font-weight: 500;
+  background: rgba(15, 23, 42, 0.92);
+  color: #67E8F9;
+  border: 1rpx solid rgba(34, 211, 238, 0.28);
+  border-radius: 16rpx;
+  font-weight: 600;
 }
 
 .text-primary {
-  color: #FF6B6B;
+  color: #67E8F9;
 }
 
 .text-secondary {
-  color: #999999;
+  color: #8EA0B8;
 }
 
 .text-dark {
-  color: #333333;
+  color: #E5EEF8;
+}
+
+.badge-mark {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 18rpx;
+  border: 1rpx solid rgba(148, 163, 184, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 24rpx rgba(255, 255, 255, 0.04);
+  position: relative;
+  overflow: hidden;
+  color: #67E8F9;
+}
+
+.badge-mark::before {
+  content: '';
+  position: absolute;
+  left: 15rpx;
+  top: 14rpx;
+  width: 34rpx;
+  height: 34rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 12rpx;
+  opacity: 0.32;
+  transform: rotate(45deg);
+}
+
+.badge-mark::after {
+  content: '';
+  position: absolute;
+  left: 30rpx;
+  top: 20rpx;
+  width: 18rpx;
+  height: 30rpx;
+  border-left: 4rpx solid currentColor;
+  border-bottom: 4rpx solid currentColor;
+  border-radius: 0 0 0 10rpx;
+  opacity: 0.42;
+  transform: rotate(-40deg);
+}
+
+.badge-glyph {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 17rpx;
+  text-align: center;
+  color: currentColor;
+  font-size: 32rpx;
+  font-weight: 900;
+  line-height: 1;
+  opacity: 0.92;
+  z-index: 1;
+}
+
+.badge-mark-text {
+  position: absolute;
+  right: 7rpx;
+  bottom: 6rpx;
+  min-width: 26rpx;
+  height: 24rpx;
+  padding: 0 5rpx;
+  border-radius: 8rpx;
+  background: rgba(2, 6, 23, 0.66);
+  border: 1rpx solid rgba(255, 255, 255, 0.16);
+  color: currentColor;
+  font-size: 17rpx;
+  font-weight: 900;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.badge-mark.brand-alipay::before,
+.badge-mark.brand-wechat::before,
+.badge-mark.brand-qq::before,
+.badge-mark.account-virtual::before,
+.badge-mark.cat-signal::before {
+  border-radius: 50%;
+  transform: none;
+}
+
+.badge-mark.bank-cmb::before,
+.badge-mark.bank-icbc::before,
+.badge-mark.bank-ccb::before,
+.badge-mark.bank-abc::before,
+.badge-mark.bank-boc::before,
+.badge-mark.bank-bocom::before,
+.badge-mark.bank-psbc::before,
+.badge-mark.bank-spdb::before,
+.badge-mark.bank-cmbc::before,
+.badge-mark.bank-cib::before,
+.badge-mark.bank-cgb::before,
+.badge-mark.bank-pab::before,
+.badge-mark.account-bank::before {
+  width: 40rpx;
+  height: 24rpx;
+  left: 14rpx;
+  top: 20rpx;
+  border-radius: 8rpx;
+  transform: none;
+}
+
+.badge-mark.cat-mobility::after,
+.badge-mark.account-stock::after,
+.badge-mark.cat-invest::after,
+.badge-mark.type-transfer::after,
+.badge-mark.type-transfer-out::after,
+.badge-mark.type-transfer-in::after {
+  left: 24rpx;
+  top: 23rpx;
+  width: 24rpx;
+  height: 24rpx;
+  border-left: 0;
+  border-bottom: 0;
+  border-top: 4rpx solid currentColor;
+  border-right: 4rpx solid currentColor;
+  border-radius: 0 8rpx 0 0;
+  transform: rotate(45deg);
+}
+
+.expense {
+  color: #22C55E;
+}
+
+.income {
+  color: #EF4444;
+}
+
+.transfer,
+.transfer-in,
+.transfer-out {
+  color: #22D3EE;
+}
+
+.dashboard-surface {
+  background:
+    radial-gradient(circle at 24% 0%, rgba(34, 211, 238, 0.12), transparent 36%),
+    radial-gradient(circle at 92% 14%, rgba(20, 184, 166, 0.10), transparent 30%),
+    linear-gradient(180deg, #07101D 0%, #070B14 100%);
 }
 
 .flex {

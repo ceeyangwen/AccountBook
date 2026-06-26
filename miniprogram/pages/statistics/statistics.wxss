@@ -458,7 +458,7 @@
   margin-right: 20rpx;
 }
 
-.category-emoji {
+.category-icon-wrapper .badge-glyph {
   font-size: 40rpx;
 }
 
@@ -643,4 +643,188 @@
   font-weight: 700;
   color: #FF6B6B;
   flex-shrink: 0;
+}
+
+/* Dark fintech statistics overrides */
+.page-container {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 150rpx;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.12), transparent 34%),
+    radial-gradient(circle at 92% 8%, rgba(20, 184, 166, 0.10), transparent 30%),
+    linear-gradient(180deg, #07101D 0%, #070B14 100%);
+}
+
+.period-selector,
+.summary-card,
+.trend-card,
+.pie-chart-section,
+.category-card {
+  background: rgba(15, 23, 42, 0.82);
+  border: 1rpx solid rgba(148, 163, 184, 0.16);
+  box-shadow: none;
+}
+
+.period-selector {
+  border-radius: 18rpx;
+}
+
+.period-item {
+  color: #8EA0B8;
+}
+
+.period-item.active {
+  background: linear-gradient(135deg, #22D3EE 0%, #14B8A6 100%);
+  color: #06111F;
+}
+
+.period-divider,
+.summary-divider {
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.summary-title,
+.section-title,
+.chart-label,
+.trend-current-value,
+.trend-detail-balance,
+.category-name,
+.category-child-amount,
+.drilldown-title,
+.drill-record-date {
+  color: #E5EEF8;
+}
+
+.summary-label,
+.balance-label,
+.chart-subtitle,
+.trend-current-label,
+.trend-detail-date,
+.detail-label,
+.category-percent,
+.legend-text,
+.legend-percent,
+.category-child-percent,
+.drilldown-count,
+.drill-record-meta,
+.empty-text {
+  color: #8EA0B8;
+}
+
+.summary-value.expense,
+.balance-value.expense,
+.trend-change.expense,
+.detail-value.expense {
+  color: #22C55E;
+}
+
+.summary-value.income,
+.balance-value.income,
+.trend-change.income,
+.detail-value.income,
+.drill-record-amount {
+  color: #EF4444;
+}
+
+.balance-section,
+.category-child-list,
+.category-drilldown {
+  border-top-color: rgba(148, 163, 184, 0.14);
+}
+
+.asset-chart-shell {
+  background: #101827;
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.trend-detail-panel {
+  background: rgba(2, 6, 23, 0.22);
+  border-color: rgba(34, 211, 238, 0.16);
+}
+
+.trend-footer {
+  border-top-color: rgba(148, 163, 184, 0.14);
+}
+
+.footer-divider {
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.x-label,
+.summary-text {
+  color: #8EA0B8;
+}
+
+.summary-amount {
+  color: #E5EEF8;
+}
+
+.pie-center {
+  background: #0B1020;
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.pie-total-label {
+  color: #8EA0B8;
+}
+
+.pie-total-value {
+  color: #E5EEF8;
+}
+
+.legend-item {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1rpx solid rgba(148, 163, 184, 0.12);
+}
+
+.legend-item.selected {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.28);
+}
+
+.category-icon-wrapper {
+  border: 1rpx solid rgba(148, 163, 184, 0.22);
+  border-radius: 18rpx;
+  box-shadow: inset 0 0 20rpx rgba(255, 255, 255, 0.04);
+}
+
+.category-icon-wrapper .badge-glyph {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.category-drill-toggle {
+  color: #67E8F9;
+}
+
+.bar-track {
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.category-child-row.active {
+  background: rgba(34, 211, 238, 0.08);
+}
+
+.category-child-name {
+  color: #CBD5E1;
+}
+
+.drill-record-row {
+  border-bottom-color: rgba(148, 163, 184, 0.10);
+}
+
+.empty-icon {
+  width: 96rpx;
+  height: 96rpx;
+  margin: 0 auto 20rpx;
+  border-radius: 22rpx;
+  border: 1rpx solid rgba(34, 211, 238, 0.28);
+  background: rgba(34, 211, 238, 0.10);
+  color: #67E8F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 900;
 }

@@ -1,7 +1,7 @@
 <view class="page-container">
   <view class="summary-card card p-20">
     <view class="summary-header flex flex-between">
-      <view class="summary-title">💰 账户总资产</view>
+      <view class="summary-title">账户总资产</view>
       <view class="edit-btn" bindtap="toggleEdit">
         {{isEditing ? '完成' : '排序'}}
       </view>
@@ -21,7 +21,10 @@
     <view wx:for="{{groupedAccounts}}" wx:key="category" class="category-group" wx:for-index="groupIndex">
       <view class="category-header flex flex-between">
         <view class="category-name">
-          <text class="category-icon">{{item.categoryInfo.icon}}</text>
+          <view class="category-icon badge-mark {{item.categoryInfo.badge.className}}" style="background: {{item.categoryInfo.badge.background}}; border-color: {{item.categoryInfo.badge.color}}; color: {{item.categoryInfo.badge.color}};">
+            <text class="badge-glyph">{{item.categoryInfo.badge.symbol}}</text>
+            <text class="badge-mark-text">{{item.categoryInfo.badge.label}}</text>
+          </view>
           {{item.categoryInfo.name}}
         </view>
         <view class="category-total">¥{{item.totalBalance}}</view>
@@ -38,8 +41,9 @@
         </view>
         <view class="account-content" bindtap="{{isEditing ? '' : 'viewAccountDetail'}}" data-account="{{account}}">
           <view class="account-left flex flex-center">
-            <view class="account-icon-wrapper" style="background: {{account.color}}20;">
-              <text class="account-icon">{{account.icon}}</text>
+            <view class="account-icon-wrapper badge-mark {{account.badge.className}}" style="background: {{account.badge.background}}; border-color: {{account.badge.color}}; color: {{account.badge.color}};">
+              <text class="badge-glyph">{{account.badge.symbol}}</text>
+              <text class="badge-mark-text">{{account.badge.label}}</text>
             </view>
             <view class="account-info">
               <view class="account-name-row">
@@ -92,7 +96,10 @@
       <view class="quick-add-title">快速添加 {{currentCategory}}</view>
       <view class="quick-account-list">
         <view wx:for="{{quickAccounts}}" wx:key="name" class="quick-account-item" bindtap="quickAddAccount" data-account="{{item}}">
-          <text class="quick-icon">{{item.icon}}</text>
+          <view class="quick-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+            <text class="badge-glyph">{{item.badge.symbol}}</text>
+            <text class="badge-mark-text">{{item.badge.label}}</text>
+          </view>
           <text class="quick-name">{{item.name}}</text>
         </view>
       </view>

@@ -348,3 +348,144 @@
   font-size: 30rpx;
   font-weight: 500;
 }
+
+/* Dark fintech dashboard overrides */
+.page-container {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 150rpx;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(34, 211, 238, 0.14), transparent 34%),
+    radial-gradient(circle at 88% 10%, rgba(20, 184, 166, 0.12), transparent 30%),
+    linear-gradient(180deg, #07101D 0%, #070B14 100%);
+}
+
+.summary-card {
+  padding: 28rpx;
+  border-radius: 18rpx;
+}
+
+.summary-title,
+.section-title {
+  color: #E5EEF8;
+  letter-spacing: 0;
+}
+
+.summary-month,
+.summary-label,
+.date-text,
+.record-note,
+.record-account,
+.empty-hint {
+  color: #8EA0B8;
+}
+
+.summary-divider {
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.summary-value.expense,
+.date-expense,
+.record-amount.expense {
+  color: #22C55E;
+}
+
+.summary-value.income,
+.date-income,
+.record-amount.income,
+.record-amount.transfer {
+  color: #EF4444;
+}
+
+.record-card {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1rpx solid rgba(148, 163, 184, 0.16);
+  border-radius: 16rpx;
+  box-shadow: none;
+}
+
+.category-icon {
+  border: 1rpx solid rgba(148, 163, 184, 0.22);
+  border-radius: 18rpx;
+  box-shadow: inset 0 0 20rpx rgba(255, 255, 255, 0.04);
+}
+
+.category-icon .badge-glyph {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.record-category {
+  color: #E5EEF8;
+}
+
+.record-more {
+  color: #67E8F9;
+}
+
+.empty-text {
+  color: #CBD5E1;
+}
+
+.empty-icon {
+  width: 96rpx;
+  height: 96rpx;
+  margin: 0 auto 20rpx;
+  border-radius: 22rpx;
+  border: 1rpx solid rgba(34, 211, 238, 0.28);
+  background: rgba(34, 211, 238, 0.10);
+  color: #67E8F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.action-mask {
+  background: rgba(2, 6, 23, 0.72);
+}
+
+.action-sheet {
+  background: #0B1020;
+  border: 1rpx solid rgba(148, 163, 184, 0.18);
+}
+
+.action-sheet-header {
+  border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+.action-sheet-title,
+.action-text {
+  color: #E5EEF8;
+}
+
+.action-sheet-close {
+  color: #8EA0B8;
+}
+
+.action-icon {
+  min-width: 58rpx;
+  color: #67E8F9;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.action-item:active {
+  background: rgba(34, 211, 238, 0.08);
+}
+
+.action-item.delete .action-text,
+.action-item.delete .action-icon {
+  color: #F87171;
+}
+
+.floating-btn {
+  background: linear-gradient(135deg, #22D3EE 0%, #14B8A6 100%);
+  box-shadow: 0 16rpx 34rpx rgba(34, 211, 238, 0.28);
+}
+
+.floating-btn.transfer-btn {
+  background: linear-gradient(135deg, #2563EB 0%, #22D3EE 100%);
+  box-shadow: 0 12rpx 28rpx rgba(37, 99, 235, 0.25);
+}

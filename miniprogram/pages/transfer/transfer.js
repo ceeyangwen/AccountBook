@@ -2,6 +2,7 @@ const app = getApp();
 const logger = require('../../utils/logger.js');
 const amountExpression = require('../../utils/amountExpression.js');
 const accountVisibility = require('../../utils/accountVisibility.js');
+const iconResolver = require('../../utils/iconResolver.js');
 
 Page({
   data: {
@@ -100,7 +101,11 @@ Page({
       showHidden: showHiddenAccounts,
       keepIds: [fromAccountId, toAccountId]
     });
-    const accounts = accountVisibility.decorateAccounts(visibleAccounts, showHiddenAccounts);
+    const accounts = accountVisibility.decorateAccounts(visibleAccounts, showHiddenAccounts)
+      .map(account => ({
+        ...account,
+        badge: iconResolver.resolveAccountBadge(account)
+      }));
     const groupedAccounts = this.groupAccountsByCategory(accounts);
     
     this.setData({
@@ -122,6 +127,7 @@ Page({
           id: category,
           name: category,
           icon: this.getCategoryIcon(category),
+          badge: iconResolver.resolveAccountBadge({ name: category, category, icon: this.getCategoryIcon(category) }),
           children: []
         };
       }

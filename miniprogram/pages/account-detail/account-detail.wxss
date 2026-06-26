@@ -304,3 +304,128 @@
 .action-text:active {
   color: #FF6B6B;
 }
+
+/* Dark fintech account detail overrides */
+.page-container {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 150rpx;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(34, 211, 238, 0.12), transparent 34%),
+    linear-gradient(180deg, #07101D 0%, #070B14 100%);
+}
+
+.account-header,
+.quick-action-section,
+.record-section {
+  background: rgba(15, 23, 42, 0.82);
+  border: 1rpx solid rgba(148, 163, 184, 0.16);
+  box-shadow: none;
+}
+
+.account-icon-wrapper,
+.record-icon {
+  border: 1rpx solid rgba(148, 163, 184, 0.22);
+  border-radius: 18rpx;
+  box-shadow: inset 0 0 20rpx rgba(255, 255, 255, 0.04);
+}
+
+.record-icon .badge-glyph,
+.account-icon-wrapper .badge-glyph {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.record-icon .badge-mark-text,
+.account-icon-wrapper .badge-mark-text {
+  font-size: 17rpx;
+}
+
+.account-name,
+.quick-action-title,
+.summary-title,
+.section-title,
+.record-type {
+  color: #E5EEF8;
+}
+
+.account-category,
+.balance-label,
+.summary-label,
+.date-text,
+.record-note,
+.empty-text,
+.action-text {
+  color: #8EA0B8;
+}
+
+.balance-value {
+  color: #67E8F9;
+}
+
+.account-balance.debt .balance-value {
+  color: #EF4444;
+}
+
+.quick-action-button {
+  border: 1rpx solid rgba(148, 163, 184, 0.16);
+}
+
+.quick-action-button.record {
+  background: rgba(34, 197, 94, 0.10);
+}
+
+.quick-action-button.transfer {
+  background: rgba(34, 211, 238, 0.10);
+}
+
+.quick-action-icon {
+  color: #67E8F9;
+}
+
+.summary-item {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1rpx solid rgba(148, 163, 184, 0.14);
+}
+
+.summary-value.expense,
+.record-amount.expense {
+  color: #22C55E;
+}
+
+.summary-value.income,
+.record-amount.income,
+.record-amount.transfer-in {
+  color: #EF4444;
+}
+
+.summary-value.transfer,
+.summary-value.transfer-in,
+.record-amount.transfer-out {
+  color: #22D3EE;
+}
+
+.record-card {
+  background: rgba(2, 6, 23, 0.24);
+  border: 1rpx solid rgba(148, 163, 184, 0.12);
+  box-shadow: none;
+}
+
+.empty-icon {
+  width: 96rpx;
+  height: 96rpx;
+  margin: 0 auto 20rpx;
+  border-radius: 22rpx;
+  border: 1rpx solid rgba(34, 211, 238, 0.28);
+  background: rgba(34, 211, 238, 0.10);
+  color: #67E8F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.action-text:active {
+  color: #F87171;
+}

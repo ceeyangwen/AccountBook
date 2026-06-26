@@ -1,5 +1,24 @@
 const app = getApp();
 const logger = require('../../utils/logger.js');
+const iconResolver = require('../../utils/iconResolver.js');
+
+const TRANSFER_OUT_BADGE = {
+  label: '出',
+  symbol: '↗',
+  className: 'type-transfer-out',
+  color: '#22D3EE',
+  background: 'rgba(34, 211, 238, 0.16)',
+  source: 'resolved'
+};
+
+const TRANSFER_IN_BADGE = {
+  label: '入',
+  symbol: '↙',
+  className: 'type-transfer-in',
+  color: '#14B8A6',
+  background: 'rgba(20, 184, 166, 0.16)',
+  source: 'resolved'
+};
 
 Page({
   data: {
@@ -57,6 +76,10 @@ Page({
     const accountCategories = app.globalData.accountCategories || [];
     const categoryInfo = accountCategories.find(cat => cat.name === account.category);
     const accountType = categoryInfo ? categoryInfo.type : 'asset';
+    const accountDisplay = {
+      ...account,
+      badge: iconResolver.resolveAccountBadge(account)
+    };
     
     // 根据账户类型设置余额标签
     const balanceLabel = (accountType === 'credit' || accountType === 'debt') ? '当前负债' : '当前余额';
@@ -82,14 +105,17 @@ Page({
         if (record.fromAccountId === accountId) {
           processedRecord.recordType = 'transfer-out';
           processedRecord.recordIcon = '↗️';
+          processedRecord.recordBadge = TRANSFER_OUT_BADGE;
         } else {
           processedRecord.recordType = 'transfer-in';
           processedRecord.recordIcon = '↙️';
+          processedRecord.recordBadge = TRANSFER_IN_BADGE;
         }
       } else {
         processedRecord.recordType = record.type;
         const category = this.getCategory(record.categoryId, record.type);
         processedRecord.recordIcon = category ? category.icon : '📝';
+        processedRecord.recordBadge = iconResolver.resolveCategoryBadge(category, category && category.groupName);
       }
       
       return processedRecord;
@@ -102,7 +128,7 @@ Page({
     const summary = this.calculateSummary(accountRecords, accountId);
 
     this.setData({
-      account,
+      account: accountDisplay,
       accountType,
       balanceLabel,
       records: accountRecords,
@@ -126,7 +152,10 @@ Page({
       for (const group of categoriesData.groups) {
         const found = group.children && group.children.find(c => c.id === categoryId);
         if (found) {
-          category = found;
+          category = {
+            ...found,
+            groupName: group.name
+          };
           break;
         }
       }

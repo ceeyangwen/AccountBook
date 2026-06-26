@@ -15,18 +15,21 @@
       <!-- 组标题 -->
       <view class="group-header" data-id="{{item.id}}" bindtap="toggleGroup">
         <view class="group-left">
-          <view class="group-icon" style="color: {{item.color}}">{{item.icon}}</view>
+          <view class="group-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+            <text class="badge-glyph">{{item.badge.symbol}}</text>
+            <text class="badge-mark-text">{{item.badge.label}}</text>
+          </view>
           <view class="group-name">{{item.name}}</view>
         </view>
         <view class="group-right">
           <view class="group-action" catchtap="editGroup" data-groupid="{{item.id}}">
-            <text class="icon">✏️</text>
+            <text class="icon">ED</text>
           </view>
           <view class="group-action" catchtap="deleteGroup" data-groupid="{{item.id}}">
-            <text class="icon">🗑️</text>
+            <text class="icon">DEL</text>
           </view>
           <view class="group-action" catchtap="addCategory" data-groupid="{{item.id}}">
-            <text class="icon">➕</text>
+            <text class="icon">ADD</text>
           </view>
           <view class="expand-icon">
             {{expandedGroups[item.id] ? '▼' : '▶'}}
@@ -39,12 +42,15 @@
         <view class="category-list">
           <view wx:for="{{item.children}}" wx:for-item="category" wx:key="id" class="category-item">
             <view class="category-left" bindtap="editCategory" data-groupid="{{item.id}}" data-categoryid="{{category.id}}">
-              <view class="category-icon" style="color: {{category.color}}">{{category.icon}}</view>
+              <view class="category-icon badge-mark {{category.badge.className}}" style="background: {{category.badge.background}}; border-color: {{category.badge.color}}; color: {{category.badge.color}};">
+                <text class="badge-glyph">{{category.badge.symbol}}</text>
+                <text class="badge-mark-text">{{category.badge.label}}</text>
+              </view>
               <view class="category-name">{{category.name}}</view>
             </view>
             <view class="category-right">
               <view class="category-action" catchtap="deleteCategory" data-groupid="{{item.id}}" data-categoryid="{{category.id}}">
-                <text class="icon">🗑️</text>
+                <text class="icon">DEL</text>
               </view>
             </view>
           </view>
@@ -54,7 +60,7 @@
 
     <!-- 添加新组按钮 -->
     <view class="add-group-btn" bindtap="addGroup">
-      <text class="btn-icon">➕</text>
+      <text class="btn-icon">ADD</text>
       <text class="btn-text">添加分类组</text>
     </view>
   </scroll-view>

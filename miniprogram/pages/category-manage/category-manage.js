@@ -1,4 +1,5 @@
 const app = getApp();
+const iconResolver = require('../../utils/iconResolver.js');
 
 Page({
   data: {
@@ -22,7 +23,28 @@ Page({
       this.setData({
         categories: app.globalData.categories[this.data.currentTab]
       });
+      this.setData({
+        categories: this.decorateCategories(this.data.categories)
+      });
     });
+  },
+
+  decorateCategories: function(categories) {
+    if (!categories || !Array.isArray(categories.groups)) {
+      return categories;
+    }
+
+    return {
+      ...categories,
+      groups: categories.groups.map(group => ({
+        ...group,
+        badge: iconResolver.resolveCategoryBadge(group, group.name),
+        children: (group.children || []).map(category => ({
+          ...category,
+          badge: iconResolver.resolveCategoryBadge(category, group.name)
+        }))
+      }))
+    };
   },
 
   switchTab: function(e) {

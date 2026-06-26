@@ -1,5 +1,15 @@
 const app = getApp();
 const accountVisibility = require('../../utils/accountVisibility.js');
+const iconResolver = require('../../utils/iconResolver.js');
+
+const TRANSFER_BADGE = {
+  label: '转',
+  symbol: '↔',
+  className: 'type-transfer',
+  color: '#22D3EE',
+  background: 'rgba(34, 211, 238, 0.16)',
+  source: 'resolved'
+};
 
 Page({
   data: {
@@ -103,6 +113,9 @@ Page({
       const processedRecord = {
         ...record,
         category,
+        categoryBadge: record.type === 'transfer'
+          ? TRANSFER_BADGE
+          : iconResolver.resolveCategoryBadge(category, category.groupName),
         amountSizeClass: this.getAmountSizeClass(this.formatRecordAmountText(record))
       };
 
@@ -190,7 +203,10 @@ Page({
       for (const group of categoriesData.groups) {
         const found = group.children && group.children.find(c => c.id === categoryId);
         if (found) {
-          category = found;
+          category = {
+            ...found,
+            groupName: group.name
+          };
           break;
         }
       }

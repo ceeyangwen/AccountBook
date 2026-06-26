@@ -1,7 +1,7 @@
 <view class="page-container">
   <view class="summary-card card p-20">
     <view class="summary-header flex flex-between">
-      <view class="summary-title">📅 本月账单</view>
+      <view class="summary-title">本月账单</view>
       <view class="summary-month">{{currentMonth}}</view>
     </view>
     <view class="summary-data flex flex-between mt-20">
@@ -24,11 +24,11 @@
 
   <view class="record-list">
     <view class="section-header flex flex-between">
-      <view class="section-title">📝 记账记录</view>
+      <view class="section-title">交易流水</view>
     </view>
     
     <view wx:if="{{groupedRecords.length === 0}}" class="empty-state">
-      <view class="empty-icon">📒</view>
+      <view class="empty-icon">TXN</view>
       <view class="empty-text">还没有记账记录哦</view>
       <view class="empty-hint">点击下方按钮开始记账吧～</view>
     </view>
@@ -44,7 +44,10 @@
       
       <view wx:for="{{item.records}}" wx:for-item="record" wx:for-index="recordIndex" wx:key="id" class="record-card card" bindtap="showRecordActions" data-record="{{record}}">
         <view class="record-left">
-          <view class="category-icon" style="background: {{record.category.color}}20;">{{record.category.icon}}</view>
+          <view class="category-icon badge-mark {{record.categoryBadge.className}}" style="background: {{record.categoryBadge.background}}; border-color: {{record.categoryBadge.color}}; color: {{record.categoryBadge.color}};">
+            <text class="badge-glyph">{{record.categoryBadge.symbol}}</text>
+            <text class="badge-mark-text">{{record.categoryBadge.label}}</text>
+          </view>
           <view class="record-info">
             <view class="record-category" wx:if="{{record.type !== 'transfer'}}">{{record.category.name}}</view>
             <view class="record-category" wx:else>{{record.fromAccountDisplayName}} → {{record.toAccountDisplayName}}</view>
@@ -72,11 +75,11 @@
       </view>
       <view class="action-list">
         <view class="action-item" bindtap="editRecord">
-          <text class="action-icon">✏️</text>
+          <text class="action-icon">ED</text>
           <text class="action-text">编辑记录</text>
         </view>
         <view class="action-item delete" bindtap="deleteRecord">
-          <text class="action-icon">🗑️</text>
+          <text class="action-icon">DEL</text>
           <text class="action-text">删除记录</text>
         </view>
       </view>

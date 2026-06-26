@@ -136,7 +136,7 @@
   margin-right: 20rpx;
 }
 
-.group-option-emoji {
+.group-option-icon .badge-glyph {
   font-size: 40rpx;
 }
 
@@ -226,7 +226,7 @@
   margin-bottom: 12rpx;
 }
 
-.category-emoji {
+.category-icon-wrapper .badge-glyph {
   font-size: 48rpx;
 }
 
@@ -491,7 +491,7 @@
   margin-right: 20rpx;
 }
 
-.category-option-emoji {
+.category-option-icon .badge-glyph {
   font-size: 36rpx;
 }
 
@@ -537,4 +537,183 @@
   font-size: 30rpx;
   font-weight: 600;
   color: #333;
+}
+
+/* Dark fintech form overrides */
+.page-container {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 150rpx;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.12), transparent 34%),
+    linear-gradient(180deg, #07101D 0%, #070B14 100%);
+}
+
+.type-toggle,
+.amount-card,
+.date-card,
+.note-card,
+.account-selector {
+  background: rgba(15, 23, 42, 0.82);
+  border: 1rpx solid rgba(148, 163, 184, 0.16);
+  box-shadow: none;
+}
+
+.type-toggle {
+  border-radius: 18rpx;
+}
+
+.toggle-item {
+  color: #8EA0B8;
+}
+
+.toggle-item.expense.active {
+  background: rgba(34, 197, 94, 0.16);
+  color: #22C55E;
+}
+
+.toggle-item.income.active {
+  background: rgba(239, 68, 68, 0.16);
+  color: #EF4444;
+}
+
+.toggle-divider {
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.amount-label,
+.section-title,
+.date-label,
+.note-label,
+.group-option-text,
+.category-name,
+.selected-label,
+.account-name-text,
+.popup-title,
+.step-title,
+.category-option-name {
+  color: #E5EEF8;
+}
+
+.amount-symbol.expense,
+.selected-text.expense {
+  color: #22C55E;
+}
+
+.amount-symbol.income,
+.selected-text.income {
+  color: #EF4444;
+}
+
+.amount-input,
+.date-value,
+.note-input {
+  color: #E5EEF8;
+}
+
+.note-input,
+.amount-input-wrapper {
+  background: rgba(2, 6, 23, 0.20);
+}
+
+.note-count,
+.account-balance,
+.account-category,
+.category-option-count,
+.placeholder-text,
+.no-account {
+  color: #8EA0B8;
+}
+
+.category-group-option,
+.category-item,
+.account-category-option,
+.account-option {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1rpx solid rgba(148, 163, 184, 0.14);
+}
+
+.category-group-option:active,
+.account-category-option:active {
+  background: rgba(34, 211, 238, 0.08);
+}
+
+.category-item.selected.expense {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.10);
+}
+
+.category-item.selected.income {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.10);
+}
+
+.group-option-icon,
+.category-icon-wrapper,
+.category-option-icon,
+.account-icon,
+.selected-icon {
+  border: 1rpx solid rgba(148, 163, 184, 0.22);
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 20rpx rgba(255, 255, 255, 0.04);
+}
+
+.group-option-icon .badge-glyph,
+.category-icon-wrapper .badge-glyph,
+.category-option-icon .badge-glyph,
+.account-icon .badge-glyph,
+.selected-icon .badge-glyph {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.selected-category {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1rpx solid rgba(148, 163, 184, 0.14);
+}
+
+.selected-display {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.account-picker-mask {
+  background: rgba(2, 6, 23, 0.72);
+}
+
+.account-picker-popup {
+  background: #0B1020;
+  border: 1rpx solid rgba(148, 163, 184, 0.18);
+}
+
+.popup-header,
+.account-step-header,
+.category-step-header {
+  border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+.popup-close,
+.arrow,
+.group-option-arrow,
+.category-option-arrow,
+.back-btn {
+  color: #67E8F9;
+}
+
+.check-icon.expense {
+  background: #22C55E;
+  color: #06111F;
+}
+
+.check-icon.income {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.save-btn[disabled] {
+  opacity: 0.58;
 }

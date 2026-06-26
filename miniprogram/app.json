@@ -13,17 +13,17 @@
   ],
   "entryPagePath": "pages/index/index",
   "window": {
-    "backgroundColor": "#FDF8F3",
+    "backgroundColor": "#070B14",
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#FFD6D6",
+    "navigationBarBackgroundColor": "#070B14",
     "navigationBarTitleText": "手账记账",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "white"
   },
   "tabBar": {
-    "color": "#999",
-    "selectedColor": "#FF6B6B",
-    "backgroundColor": "#FFF",
-    "borderStyle": "white",
+    "color": "#64748B",
+    "selectedColor": "#22D3EE",
+    "backgroundColor": "#0B1020",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",

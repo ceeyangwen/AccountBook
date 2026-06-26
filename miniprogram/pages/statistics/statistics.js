@@ -1,5 +1,6 @@
 const app = getApp();
 const accountVisibility = require('../../utils/accountVisibility.js');
+const iconResolver = require('../../utils/iconResolver.js');
 
 const getAccountCategoryInfo = function(account) {
   if (!account) return null;
@@ -154,6 +155,8 @@ Page({
         (group.children || []).forEach(cat => {
           childMap[cat.id] = {
             ...cat,
+            groupName: group.name,
+            badge: iconResolver.resolveCategoryBadge(cat, group.name),
             amount: 0,
             records: []
           };
@@ -170,6 +173,7 @@ Page({
         });
         expenseCategoryGroupMap[group.id] = {
           ...group,
+          badge: iconResolver.resolveCategoryBadge(group, group.name),
           amount: 0,
           records: [],
           childMap
@@ -224,9 +228,9 @@ Page({
     });
     
     const colors = [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
-      '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-      '#BB8FCE', '#85C1E9', '#F8B195', '#C06C84'
+      '#22D3EE', '#14B8A6', '#38BDF8', '#34D399',
+      '#F59E0B', '#818CF8', '#F472B6', '#F87171',
+      '#2DD4BF', '#60A5FA', '#A78BFA', '#94A3B8'
     ];
     
     let expenseCategoryList = Object.values(expenseCategoryGroupMap)
@@ -420,9 +424,9 @@ Page({
     
     const total = list.reduce((sum, item) => sum + parseFloat(item.amount), 0);
     const colors = [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
-      '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-      '#BB8FCE', '#85C1E9', '#F8B195', '#C06C84'
+      '#22D3EE', '#14B8A6', '#38BDF8', '#34D399',
+      '#F59E0B', '#818CF8', '#F472B6', '#F87171',
+      '#2DD4BF', '#60A5FA', '#A78BFA', '#94A3B8'
     ];
     
     let currentAngle = 0;
@@ -573,13 +577,13 @@ Page({
       const selectedPoint = points[selectedIndex] || points[points.length - 1];
 
       ctx.clearRect(0, 0, width, height);
-      ctx.setFillStyle('#FFFFFF');
+      ctx.setFillStyle('#101827');
       ctx.fillRect(0, 0, width, height);
 
       ctx.setFontSize(10);
       ctx.setTextAlign('right');
-      ctx.setFillStyle('#A0A7B5');
-      ctx.setStrokeStyle('#EEF1F6');
+      ctx.setFillStyle('#8EA0B8');
+      ctx.setStrokeStyle('rgba(148, 163, 184, 0.18)');
       ctx.setLineWidth(1);
 
       const gridCount = 4;
@@ -599,35 +603,35 @@ Page({
         this.drawSmoothPath(ctx, points);
         ctx.lineTo(points[points.length - 1].x, plotBottom);
         ctx.closePath();
-        ctx.setFillStyle('rgba(37, 99, 235, 0.10)');
+        ctx.setFillStyle('rgba(34, 211, 238, 0.12)');
         ctx.fill();
       }
 
       this.drawSmoothPath(ctx, points);
-      ctx.setStrokeStyle('#2563EB');
+      ctx.setStrokeStyle('#22D3EE');
       ctx.setLineWidth(3);
       ctx.setLineCap('round');
       ctx.setLineJoin('round');
       ctx.stroke();
 
-      ctx.setStrokeStyle('rgba(37, 99, 235, 0.28)');
+      ctx.setStrokeStyle('rgba(34, 211, 238, 0.28)');
       ctx.setLineWidth(1);
       ctx.beginPath();
       ctx.moveTo(selectedPoint.x, plotTop);
       ctx.lineTo(selectedPoint.x, plotBottom);
       ctx.stroke();
 
-      ctx.setFillStyle('#2563EB');
+      ctx.setFillStyle('#22D3EE');
       ctx.beginPath();
       ctx.arc(selectedPoint.x, selectedPoint.y, 5, 0, Math.PI * 2);
       ctx.fill();
-      ctx.setStrokeStyle('#FFFFFF');
+      ctx.setStrokeStyle('#0B1020');
       ctx.setLineWidth(3);
       ctx.stroke();
 
       ctx.setFontSize(10);
       ctx.setTextAlign('center');
-      ctx.setFillStyle('#8A93A3');
+      ctx.setFillStyle('#8EA0B8');
       const firstPoint = points[0];
       const lastPoint = points[points.length - 1];
       ctx.fillText(firstPoint.data.label, firstPoint.x, height - 8);

@@ -2,6 +2,7 @@ const app = getApp();
 const logger = require('../../utils/logger.js');
 const amountExpression = require('../../utils/amountExpression.js');
 const accountVisibility = require('../../utils/accountVisibility.js');
+const iconResolver = require('../../utils/iconResolver.js');
 
 Page({
   data: {
@@ -93,8 +94,11 @@ Page({
   },
 
   updateCategories: function () {
-    const categoryData = app.globalData.categories[this.data.recordType];
-    const categories = app.getFlatCategories(this.data.recordType);
+    const categoryData = this.decorateCategoryData(app.globalData.categories[this.data.recordType]);
+    const categories = app.getFlatCategories(this.data.recordType).map(category => ({
+      ...category,
+      badge: iconResolver.resolveCategoryBadge(category, category.groupName)
+    }));
     
     // 重置选择状态，但保留已选的类别
     let newState = {
@@ -134,13 +138,33 @@ Page({
           newState.selectedGroup = selectedGroup;
           newState.selectedCategoryDisplay = {
             ...selectedCategory,
-            groupName: selectedGroup.name
+            groupName: selectedGroup.name,
+            badge: iconResolver.resolveCategoryBadge(selectedCategory, selectedGroup.name)
           };
         }
       }
     }
     
     this.setData(newState);
+  },
+
+  decorateCategoryData: function(categoryData) {
+    if (!categoryData || !Array.isArray(categoryData.groups)) {
+      return categoryData;
+    }
+
+    return {
+      ...categoryData,
+      groups: categoryData.groups.map(group => ({
+        ...group,
+        badge: iconResolver.resolveCategoryBadge(group, group.name),
+        children: (group.children || []).map(child => ({
+          ...child,
+          groupName: group.name,
+          badge: iconResolver.resolveCategoryBadge(child, group.name)
+        }))
+      }))
+    };
   },
 
   selectGroup: function(e) {
@@ -165,7 +189,8 @@ Page({
       selectedCategoryId: id,
       selectedCategoryDisplay: {
         ...cat,
-        groupName: this.data.selectedGroup.name
+        groupName: this.data.selectedGroup.name,
+        badge: iconResolver.resolveCategoryBadge(cat, this.data.selectedGroup.name)
       }
     });
   },
@@ -180,7 +205,11 @@ Page({
       showHidden: showHiddenAccounts,
       keepIds: [selectedAccountId]
     });
-    const accounts = accountVisibility.decorateAccounts(visibleAccounts, showHiddenAccounts);
+    const accounts = accountVisibility.decorateAccounts(visibleAccounts, showHiddenAccounts)
+      .map(account => ({
+        ...account,
+        badge: iconResolver.resolveAccountBadge(account)
+      }));
     const finalSelectedAccountId = selectedAccountId || accounts[0]?.id;
     
     // 按账户分类分组
@@ -192,6 +221,7 @@ Page({
           id: category,
           name: category,
           icon: this.getCategoryIcon(category),
+          badge: iconResolver.resolveAccountBadge({ name: category, category, icon: this.getCategoryIcon(category) }),
           children: []
         };
       }

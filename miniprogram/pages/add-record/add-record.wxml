@@ -26,7 +26,7 @@
   </view>
 
   <view class="category-section mt-20">
-    <view class="section-title">📂 选择类别</view>
+    <view class="section-title">选择类别</view>
     
     <!-- 大类选择 -->
     <view class="category-step" wx:if="{{!selectedGroupId}}">
@@ -38,8 +38,9 @@
           bindtap="selectGroup"
           data-group="{{item}}"
         >
-          <view class="group-option-icon" style="background: {{item.color}}20;">
-            <text class="group-option-emoji">{{item.icon}}</text>
+          <view class="group-option-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+            <text class="badge-glyph">{{item.badge.symbol}}</text>
+            <text class="badge-mark-text">{{item.badge.label}}</text>
           </view>
           <view class="group-option-text">{{item.name}}</view>
           <view class="group-option-arrow">›</view>
@@ -62,8 +63,9 @@
           data-id="{{item.id}}"
           data-cat="{{item}}"
         >
-          <view class="category-icon-wrapper" style="background: {{item.color}}20;">
-            <text class="category-emoji">{{item.icon}}</text>
+          <view class="category-icon-wrapper badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+            <text class="badge-glyph">{{item.badge.symbol}}</text>
+            <text class="badge-mark-text">{{item.badge.label}}</text>
           </view>
           <view class="category-name">{{item.name}}</view>
         </view>
@@ -74,18 +76,24 @@
     <view class="selected-category" wx:if="{{selectedCategoryDisplay}}">
       <view class="selected-label">已选择：</view>
       <view class="selected-display">
-        <text class="selected-icon">{{selectedCategoryDisplay.icon}}</text>
+        <view class="selected-icon badge-mark {{selectedCategoryDisplay.badge.className}}" style="background: {{selectedCategoryDisplay.badge.background}}; border-color: {{selectedCategoryDisplay.badge.color}}; color: {{selectedCategoryDisplay.badge.color}};">
+          <text class="badge-glyph">{{selectedCategoryDisplay.badge.symbol}}</text>
+          <text class="badge-mark-text">{{selectedCategoryDisplay.badge.label}}</text>
+        </view>
         <text class="selected-text {{recordType}}">{{selectedCategoryDisplay.groupName}} - {{selectedCategoryDisplay.name}}</text>
       </view>
     </view>
   </view>
 
   <view class="account-section mt-20">
-    <view class="section-title">💳 选择账户</view>
+    <view class="section-title">选择账户</view>
     <view class="account-selector card p-15" bindtap="showAccountPicker">
       <view class="account-display" wx:if="{{selectedAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === selectedAccountId}}">
-          <text class="account-icon">{{item.icon}}</text>
+          <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+            <text class="badge-glyph">{{item.badge.symbol}}</text>
+            <text class="badge-mark-text">{{item.badge.label}}</text>
+          </view>
           <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
         </view>
@@ -98,14 +106,14 @@
   </view>
 
   <view class="date-card card p-20 mt-20">
-    <view class="date-label">📅 日期</view>
+    <view class="date-label">日期</view>
     <picker mode="date" value="{{date}}" bindchange="onDateChange">
       <view class="date-value">{{dateText}}</view>
     </picker>
   </view>
 
   <view class="note-card card p-20 mt-20">
-    <view class="note-label">✏️ 备注</view>
+    <view class="note-label">备注</view>
     <textarea 
       class="note-input" 
       placeholder="添加备注（选填）"
@@ -118,7 +126,7 @@
 
   <view class="btn-group mt-40">
     <button class="save-btn btn-primary" bindtap="saveRecord" disabled="{{isSaving}}">
-      {{isEdit ? '✏️ 更新记录' : '💾 保存记录'}}
+      {{isEdit ? '更新记录' : '保存记录'}}
     </button>
   </view>
 
@@ -140,8 +148,9 @@
             bindtap="selectAccountCategory"
             data-category="{{item}}"
           >
-            <view class="category-option-icon">
-              <text class="category-option-emoji">{{item.icon}}</text>
+            <view class="category-option-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
             </view>
             <view class="category-option-info">
               <text class="category-option-name">{{item.name}}</text>
@@ -166,7 +175,10 @@
             bindtap="selectAccount"
             data-id="{{item.id}}"
           >
-            <text class="account-icon">{{item.icon}}</text>
+            <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
+            </view>
             <view class="account-info">
               <text class="account-name-text">{{item.displayName}}</text>
               <text class="account-category">{{item.category}}</text>
