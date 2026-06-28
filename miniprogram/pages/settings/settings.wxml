@@ -1,7 +1,7 @@
 <view class="page-container">
   <view class="user-card card p-20">
     <view class="user-avatar">
-      <text class="avatar-icon">AB</text>
+      <image class="avatar-image" src="/images/settings-icons/app.png" mode="aspectFit"></image>
     </view>
     <view class="user-info">
       <view class="user-name">手账记账</view>
@@ -13,7 +13,7 @@
     <view class="menu-item card" bindtap="goToCategoryManage">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper category">
-          <text class="menu-icon">CAT</text>
+          <image class="menu-icon-image" src="/images/settings-icons/category.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">管理分类</view>
       </view>
@@ -23,7 +23,7 @@
     <view class="menu-item card mt-15">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper privacy">
-          <text class="menu-icon">SEC</text>
+          <image class="menu-icon-image" src="/images/settings-icons/privacy.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">显示隐藏账号</view>
       </view>
@@ -37,7 +37,7 @@
     <view class="menu-item card mt-15" bindtap="exportData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper export">
-          <text class="menu-icon">BK</text>
+          <image class="menu-icon-image" src="/images/settings-icons/backup-cloud.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">备份到云端</view>
       </view>
@@ -47,7 +47,7 @@
     <view class="menu-item card mt-15" bindtap="importData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper import">
-          <text class="menu-icon">CLD</text>
+          <image class="menu-icon-image" src="/images/settings-icons/cloud-import.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">从云端导入</view>
       </view>
@@ -57,7 +57,7 @@
     <view class="menu-item card mt-15" bindtap="importFromClipboard">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper import">
-          <text class="menu-icon">IMP</text>
+          <image class="menu-icon-image" src="/images/settings-icons/clipboard-import.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">粘贴数据导入</view>
       </view>
@@ -67,7 +67,7 @@
     <view class="menu-item card mt-15" bindtap="refreshData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper refresh">
-          <text class="menu-icon">SYNC</text>
+          <image class="menu-icon-image" src="/images/settings-icons/refresh.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">刷新数据</view>
       </view>
@@ -77,7 +77,7 @@
     <view class="menu-item card mt-15" bindtap="testCloudStorage">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper debug">
-          <text class="menu-icon">TST</text>
+          <image class="menu-icon-image" src="/images/settings-icons/cloud-test.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">测试云存储</view>
       </view>
@@ -87,7 +87,7 @@
     <view class="menu-item card mt-15" bindtap="debugData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper debug">
-          <text class="menu-icon">DBG</text>
+          <image class="menu-icon-image" src="/images/settings-icons/debug-bug.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">调试数据</view>
       </view>
@@ -97,7 +97,7 @@
     <view class="menu-item card mt-15" bindtap="exportLogs">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper debug">
-          <text class="menu-icon">LOG</text>
+          <image class="menu-icon-image" src="/images/settings-icons/logs.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">导出日志</view>
       </view>
@@ -107,7 +107,7 @@
     <view class="menu-item card mt-15" bindtap="clearLogs">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper clear">
-          <text class="menu-icon">CLR</text>
+          <image class="menu-icon-image" src="/images/settings-icons/clear-logs.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text">清空日志</view>
       </view>
@@ -117,7 +117,7 @@
     <view class="menu-item card mt-15" bindtap="clearData">
       <view class="menu-left flex flex-center">
         <view class="menu-icon-wrapper clear">
-          <text class="menu-icon">DEL</text>
+          <image class="menu-icon-image" src="/images/settings-icons/delete-data.png" mode="aspectFit"></image>
         </view>
         <view class="menu-text text-danger">清空数据</view>
       </view>

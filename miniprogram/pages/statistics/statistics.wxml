@@ -154,8 +154,11 @@
           <view class="category-main" bindtap="toggleCategoryDrilldown" data-index="{{categoryIndex}}">
             <view class="category-header">
               <view class="category-icon-wrapper badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-                <text class="badge-glyph">{{item.badge.symbol}}</text>
-                <text class="badge-mark-text">{{item.badge.label}}</text>
+                <image wx:if="{{item.badge.iconImage}}" class="badge-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+                <block wx:else>
+                  <text class="badge-glyph">{{item.badge.symbol}}</text>
+                  <text class="badge-mark-text">{{item.badge.label}}</text>
+                </block>
               </view>
               <view class="category-info">
                 <view class="category-name">{{item.name}}</view>
@@ -214,8 +217,11 @@
           <view class="ranking-left">
             <text class="ranking-index">{{rankIndex + 1}}</text>
             <view class="ranking-badge badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-              <text class="badge-glyph">{{item.badge.symbol}}</text>
-              <text class="badge-mark-text">{{item.badge.label}}</text>
+              <image wx:if="{{item.badge.iconImage}}" class="badge-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+              <block wx:else>
+                <text class="badge-glyph">{{item.badge.symbol}}</text>
+                <text class="badge-mark-text">{{item.badge.label}}</text>
+              </block>
             </view>
             <text class="ranking-name">{{item.name}}</text>
           </view>

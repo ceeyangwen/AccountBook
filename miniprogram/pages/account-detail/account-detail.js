@@ -2,23 +2,8 @@ const app = getApp();
 const logger = require('../../utils/logger.js');
 const iconResolver = require('../../utils/iconResolver.js');
 
-const TRANSFER_OUT_BADGE = {
-  label: '出',
-  symbol: '↗',
-  className: 'type-transfer-out',
-  color: '#22D3EE',
-  background: 'rgba(34, 211, 238, 0.16)',
-  source: 'resolved'
-};
-
-const TRANSFER_IN_BADGE = {
-  label: '入',
-  symbol: '↙',
-  className: 'type-transfer-in',
-  color: '#14B8A6',
-  background: 'rgba(20, 184, 166, 0.16)',
-  source: 'resolved'
-};
+const TRANSFER_OUT_BADGE = iconResolver.resolveTransferBadge('out');
+const TRANSFER_IN_BADGE = iconResolver.resolveTransferBadge('in');
 
 Page({
   data: {

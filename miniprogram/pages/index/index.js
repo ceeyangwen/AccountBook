@@ -2,19 +2,14 @@ const app = getApp();
 const accountVisibility = require('../../utils/accountVisibility.js');
 const iconResolver = require('../../utils/iconResolver.js');
 
-const TRANSFER_BADGE = {
-  label: '转',
-  symbol: '↔',
-  className: 'type-transfer',
-  color: '#22D3EE',
-  background: 'rgba(34, 211, 238, 0.16)',
-  source: 'resolved'
-};
+const TRANSFER_BADGE = iconResolver.resolveTransferBadge('transfer');
+const MONTH_PICKER_START = '2026-05';
 
 Page({
   data: {
     currentMonth: '',
     selectedMonthValue: '',
+    monthPickerStart: MONTH_PICKER_START,
     monthPickerEnd: '',
     monthlyExpense: '0.00',
     monthlyIncome: '0.00',
@@ -45,11 +40,12 @@ Page({
 
   updateCurrentMonth: function () {
     const now = new Date();
-    const monthValue = this.formatMonthValue(now);
+    const currentMonthValue = this.formatMonthValue(now);
+    const monthValue = this.normalizeMonthValue(currentMonthValue);
     this.setData({
       currentMonth: this.formatMonthText(monthValue),
       selectedMonthValue: monthValue,
-      monthPickerEnd: monthValue
+      monthPickerEnd: currentMonthValue
     });
   },
 
@@ -260,11 +256,14 @@ Page({
 
   normalizeMonthValue: function(monthValue) {
     const match = String(monthValue || '').match(/^(\d{4})-(\d{2})/);
+    let normalizedMonthValue;
     if (match) {
-      return `${match[1]}-${match[2]}`;
+      normalizedMonthValue = `${match[1]}-${match[2]}`;
+    } else {
+      normalizedMonthValue = this.formatMonthValue(new Date());
     }
 
-    return this.formatMonthValue(new Date());
+    return normalizedMonthValue < MONTH_PICKER_START ? MONTH_PICKER_START : normalizedMonthValue;
   },
 
   formatMonthText: function(monthValue) {

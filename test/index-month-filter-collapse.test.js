@@ -143,6 +143,17 @@ test('首页选择月份后应只汇总并展示该月份交易', () => {
   assertEqual(indexPage.data.groupedRecords[0].records[0].id, 'may-expense', '不应展示其他月份记录');
 });
 
+test('首页月份筛选不能早于2026年5月', () => {
+  const indexPage = loadPage('../miniprogram/pages/index/index.js', createAppData());
+
+  indexPage.onMonthChange({ detail: { value: '2026-04-01' } });
+
+  assertEqual(indexPage.data.selectedMonthValue, '2026-05', '首页选中月份应夹到最早可选月份');
+  assertEqual(indexPage.data.currentMonth, '2026年5月', '首页当前月份文案应显示最早可选月份');
+  assertEqual(indexPage.data.monthlyExpense, '25.00', '低于下限时应展示5月支出');
+  assertEqual(indexPage.data.monthlyIncome, '100.00', '低于下限时应展示5月收入');
+});
+
 test('首页日期分组应支持折叠和展开', () => {
   const indexPage = loadPage('../miniprogram/pages/index/index.js', createAppData());
 

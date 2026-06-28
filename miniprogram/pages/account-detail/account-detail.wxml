@@ -68,8 +68,11 @@
       <view wx:for="{{item.records}}" wx:for-item="record" wx:key="id" class="record-card card" bindtap="goToEditRecord" data-record="{{record}}">
         <view class="record-left">
           <view class="record-icon badge-mark {{record.recordType}} {{record.recordBadge.className}}" style="background: {{record.recordBadge.background}}; border-color: {{record.recordBadge.color}}; color: {{record.recordBadge.color}};">
-            <text class="badge-glyph">{{record.recordBadge.symbol}}</text>
-            <text class="badge-mark-text">{{record.recordBadge.label}}</text>
+            <image wx:if="{{record.recordBadge.iconImage}}" class="badge-image" src="{{record.recordBadge.iconImage}}" mode="aspectFit"></image>
+            <block wx:else>
+              <text class="badge-glyph">{{record.recordBadge.symbol}}</text>
+              <text class="badge-mark-text">{{record.recordBadge.label}}</text>
+            </block>
           </view>
           <view class="record-info">
             <view class="record-type">

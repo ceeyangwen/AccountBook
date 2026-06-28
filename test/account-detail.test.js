@@ -8,6 +8,8 @@ const {
   groupRecordsByDate,
   formatDateText
 } = require('./test-utils.js');
+const fs = require('fs');
+const path = require('path');
 
 console.log('========================================');
 console.log('      账号详情功能单元测试');
@@ -35,6 +37,15 @@ function assertEqual(actual, expected, message) {
     throw new Error(`${message} - 期望: ${expected}, 实际: ${actual}`);
   }
 }
+
+function assertMatches(actual, pattern, message) {
+  if (!pattern.test(actual)) {
+    throw new Error(`${message} - 未匹配: ${pattern}`);
+  }
+}
+
+const root = path.join(__dirname, '..');
+const accountDetailWxml = fs.readFileSync(path.join(root, 'miniprogram/pages/account-detail/account-detail.wxml'), 'utf8');
 
 // 测试数据
 const testCategories = {
@@ -120,6 +131,14 @@ const testRecords = [
 ];
 
 console.log('1. 测试 filterAndProcessRecords 函数\n');
+
+test('账号详情交易记录图标应优先渲染本地图片资产', () => {
+  assertMatches(
+    accountDetailWxml,
+    /<image[^>]*wx:if="\{\{record\.recordBadge\.iconImage\}\}"[^>]*class="badge-image"[^>]*src="\{\{record\.recordBadge\.iconImage\}\}"/,
+    '账号详情交易图标应使用 record.recordBadge.iconImage 渲染图片'
+  );
+});
 
 test('应正确过滤出账户1的所有记录', () => {
   const processed = filterAndProcessRecords(testRecords, 'acc1', testCategories);

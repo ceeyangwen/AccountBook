@@ -1,10 +1,13 @@
 .page-container {
   padding: 20rpx;
+  text-align: left;
 }
 
 .user-card {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .user-avatar {
@@ -18,12 +21,15 @@
   margin-right: 24rpx;
 }
 
-.avatar-icon {
-  font-size: 64rpx;
+.avatar-image {
+  width: 76rpx;
+  height: 76rpx;
+  display: block;
 }
 
 .user-info {
   flex: 1;
+  text-align: left;
 }
 
 .user-name {
@@ -46,7 +52,12 @@
 }
 
 .menu-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   flex: 1;
+  min-width: 0;
+  text-align: left;
 }
 
 .menu-icon-wrapper {
@@ -79,14 +90,17 @@
   background: rgba(102, 126, 234, 0.15);
 }
 
-.menu-icon {
-  font-size: 40rpx;
+.menu-icon-image {
+  width: 48rpx;
+  height: 48rpx;
+  display: block;
 }
 
 .menu-text {
   font-size: 30rpx;
   color: #333;
   font-weight: 500;
+  text-align: left;
 }
 
 .menu-text.text-danger {
@@ -124,7 +138,7 @@
 }
 
 .version-section {
-  text-align: center;
+  text-align: left;
   padding: 20rpx 0;
 }
 
@@ -157,12 +171,6 @@
   border: 1rpx solid rgba(34, 211, 238, 0.28);
 }
 
-.avatar-icon {
-  color: #67E8F9;
-  font-size: 34rpx;
-  font-weight: 900;
-}
-
 .user-name,
 .menu-text,
 .info-title {
@@ -193,13 +201,10 @@
   background: rgba(248, 113, 113, 0.10);
 }
 
-.menu-icon {
-  color: #67E8F9;
-  font-size: 24rpx;
-  font-weight: 900;
+.menu-icon-image {
+  opacity: 0.96;
 }
 
-.menu-icon-wrapper.clear .menu-icon,
 .menu-text.text-danger {
   color: #F87171;
 }

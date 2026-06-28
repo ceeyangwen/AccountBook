@@ -1,6 +1,6 @@
 <view class="page-container">
   <view class="month-dashboard-card card">
-    <picker class="summary-month-picker" mode="date" fields="month" value="{{selectedMonthValue}}" end="{{monthPickerEnd}}" bindchange="onMonthChange">
+    <picker class="summary-month-picker" mode="date" fields="month" value="{{selectedMonthValue}}" start="{{monthPickerStart}}" end="{{monthPickerEnd}}" bindchange="onMonthChange">
       <view class="summary-header flex flex-between">
         <view class="summary-month-selector">
           <text>{{currentMonth}}</text>
@@ -98,8 +98,11 @@
         <view wx:for="{{item.records}}" wx:for-item="record" wx:for-index="recordIndex" wx:key="id" class="record-card" bindtap="showRecordActions" data-record="{{record}}">
           <view class="record-left">
             <view class="category-icon badge-mark {{record.categoryBadge.className}}" style="background: {{record.categoryBadge.background}}; border-color: {{record.categoryBadge.color}}; color: {{record.categoryBadge.color}};">
-              <text class="badge-glyph">{{record.categoryBadge.symbol}}</text>
-              <text class="badge-mark-text">{{record.categoryBadge.label}}</text>
+              <image wx:if="{{record.categoryBadge.iconImage}}" class="badge-image" src="{{record.categoryBadge.iconImage}}" mode="aspectFit"></image>
+              <block wx:else>
+                <text class="badge-glyph">{{record.categoryBadge.symbol}}</text>
+                <text class="badge-mark-text">{{record.categoryBadge.label}}</text>
+              </block>
             </view>
             <view class="record-info">
               <view class="record-category" wx:if="{{record.type !== 'transfer'}}">{{record.category.name}}</view>

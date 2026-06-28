@@ -89,6 +89,14 @@ test('支出分类统计应按大类展示并在卡片内展示小类明细', ()
   assertMatches(wxss, /\.category-child-list\s*\{/, '小类明细列表应有样式');
 });
 
+test('统计页分类图标应优先渲染本地图片资产', () => {
+  assertMatches(
+    wxml,
+    /<image[^>]*wx:if="\{\{item\.badge\.iconImage\}\}"[^>]*class="badge-image"[^>]*src="\{\{item\.badge\.iconImage\}\}"/,
+    '分类统计卡片应使用 item.badge.iconImage 渲染图片'
+  );
+});
+
 test('支出分类统计应提供大类和小类明细下钻入口', () => {
   assertMatches(js, /toggleCategoryDrilldown:\s*function/, '应有大类明细展开方法');
   assertMatches(js, /toggleChildDrilldown:\s*function/, '应有小类明细筛选方法');
