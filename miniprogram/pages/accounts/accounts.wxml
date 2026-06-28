@@ -1,37 +1,52 @@
 <view class="page-container">
-  <view class="summary-card card p-20">
-    <view class="summary-header flex flex-between">
-      <view class="summary-title">账户总资产</view>
-      <view class="edit-btn" bindtap="toggleEdit">
-        {{isEditing ? '完成' : '排序'}}
+  <view class="asset-overview">
+    <view class="asset-overview-top">
+      <view class="asset-title-wrap">
+        <text class="asset-eye">◉</text>
+        <text class="asset-title">资产总览（元）</text>
       </view>
+      <view class="asset-analysis-link">资产分析 ›</view>
     </view>
-    <view class="total-amount text-primary" wx:if="{{totalBalance !== null}}">
-      ¥{{totalBalance}}
+
+    <view class="total-amount" wx:if="{{totalBalance !== null}}">
+      ¥{{netAssetBalance}}
     </view>
-    <view class="total-amount text-primary" wx:else>
+    <view class="total-amount" wx:else>
       加载中...
     </view>
-    <view class="debug-info" style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 8px; font-size: 12px; color: #666;">
-      {{debugInfo}}
+
+    <view class="asset-metric-grid">
+      <view class="asset-metric">
+        <view class="asset-metric-label">总资产</view>
+        <view class="asset-metric-value">¥{{totalAssetBalance}}</view>
+      </view>
+      <view class="asset-metric">
+        <view class="asset-metric-label">总负债</view>
+        <view class="asset-metric-value debt">-¥{{totalDebtBalance}}</view>
+      </view>
+      <view class="asset-metric">
+        <view class="asset-metric-label">净资产</view>
+        <view class="asset-metric-value net">¥{{netAssetBalance}}</view>
+      </view>
     </view>
   </view>
 
   <view class="account-list" id="accountList">
-    <view wx:for="{{groupedAccounts}}" wx:key="category" class="category-group" wx:for-index="groupIndex">
-      <view class="category-header flex flex-between">
+    <view wx:for="{{groupedAccounts}}" wx:key="category" class="account-group-card" wx:for-index="groupIndex">
+      <view class="category-header flex flex-between" bindtap="toggleCategoryCollapse" data-category="{{item.categoryInfo.name}}">
         <view class="category-name">
+          <view class="category-collapse-icon">{{item.isCollapsed ? '›' : '⌄'}}</view>
           <view class="category-icon badge-mark {{item.categoryInfo.badge.className}}" style="background: {{item.categoryInfo.badge.background}}; border-color: {{item.categoryInfo.badge.color}}; color: {{item.categoryInfo.badge.color}};">
-            <text class="badge-glyph">{{item.categoryInfo.badge.symbol}}</text>
+            <text class="badge-glyph">{{item.categoryInfo.badge.logoText || item.categoryInfo.badge.symbol}}</text>
             <text class="badge-mark-text">{{item.categoryInfo.badge.label}}</text>
           </view>
-          {{item.categoryInfo.name}}
+          {{item.categoryInfo.name}}（{{item.accounts.length}}）
         </view>
         <view class="category-total">¥{{item.totalBalance}}</view>
       </view>
       
-      <view wx:for="{{item.accounts}}" wx:for-item="account" wx:for-index="accountIndex" wx:key="id" 
-            class="account-item card {{isEditing ? 'editing' : ''}}"
+      <view wx:if="{{!item.isCollapsed}}" wx:for="{{item.accounts}}" wx:for-item="account" wx:for-index="accountIndex" wx:key="id" 
+            class="account-item {{account.categoryInfo.type === 'debt' || account.categoryInfo.type === 'credit' ? 'debt-account' : 'asset-account'}} {{isEditing ? 'editing' : ''}}"
             data-index="{{accountIndex}}" 
             data-category="{{item.categoryInfo.name}}"
             data-category-index="{{groupIndex}}"
@@ -42,8 +57,13 @@
         <view class="account-content" bindtap="{{isEditing ? '' : 'viewAccountDetail'}}" data-account="{{account}}">
           <view class="account-left flex flex-center">
             <view class="account-icon-wrapper badge-mark {{account.badge.className}}" style="background: {{account.badge.background}}; border-color: {{account.badge.color}}; color: {{account.badge.color}};">
-              <text class="badge-glyph">{{account.badge.symbol}}</text>
-              <text class="badge-mark-text">{{account.badge.label}}</text>
+              <block wx:if="{{account.badge.iconImage}}">
+                <image class="brand-logo-image" src="{{account.badge.iconImage}}" mode="aspectFit"></image>
+              </block>
+              <block wx:else>
+                <text class="badge-glyph">{{account.badge.symbol}}</text>
+                <text class="badge-mark-text">{{account.badge.label}}</text>
+              </block>
             </view>
             <view class="account-info">
               <view class="account-name-row">
@@ -52,11 +72,13 @@
                 <view class="exclude-total-label" wx:if="{{account.includeInTotal === false}}">不计入总资产</view>
               </view>
               <view class="account-note" wx:if="{{account.note}}">{{account.note}}</view>
+              <view class="account-note" wx:else>{{account.categoryInfo.type === 'debt' || account.categoryInfo.type === 'credit' ? '剩余应还' : '可用余额'}}</view>
             </view>
           </view>
           <view class="account-right">
-            <view class="account-balance {{account.categoryInfo.type === 'debt' ? 'debt' : ''}}">
-              ¥{{account.balance}}
+            <view class="account-balance {{account.categoryInfo.type === 'debt' || account.categoryInfo.type === 'credit' ? 'debt' : ''}}">
+              <block wx:if="{{account.categoryInfo.type === 'debt' || account.categoryInfo.type === 'credit'}}">-¥{{account.balance}}</block>
+              <block wx:else>¥{{account.balance}}</block>
             </view>
             <view class="account-actions" wx:if="{{!isEditing}}">
               <text class="action-btn" bindtap="editAccount" data-account="{{account}}">编辑</text>
@@ -72,11 +94,12 @@
                     data-group-index="{{groupIndex}}" 
                     data-index="{{accountIndex}}">↓</text>
             </view>
+            <view class="account-chevron" wx:if="{{!isEditing}}">›</view>
           </view>
         </view>
       </view>
       
-      <view class="add-quick-account" bindtap="showQuickAdd" data-category="{{item.categoryInfo.name}}">
+      <view wx:if="{{!item.isCollapsed}}" class="add-quick-account" bindtap="showQuickAdd" data-category="{{item.categoryInfo.name}}">
         <text class="add-icon">+</text> 快速添加
       </view>
     </view>
@@ -97,8 +120,13 @@
       <view class="quick-account-list">
         <view wx:for="{{quickAccounts}}" wx:key="name" class="quick-account-item" bindtap="quickAddAccount" data-account="{{item}}">
           <view class="quick-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-            <text class="badge-glyph">{{item.badge.symbol}}</text>
-            <text class="badge-mark-text">{{item.badge.label}}</text>
+            <block wx:if="{{item.badge.iconImage}}">
+              <image class="brand-logo-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
+            </block>
           </view>
           <text class="quick-name">{{item.name}}</text>
         </view>

@@ -14,13 +14,22 @@ const TRANSFER_BADGE = {
 Page({
   data: {
     currentMonth: '',
+    selectedMonthValue: '',
+    monthPickerEnd: '',
     monthlyExpense: '0.00',
     monthlyIncome: '0.00',
     balance: '0.00',
+    monthlyExpenseBudget: '18,000',
+    monthlyIncomeBudget: '20,000',
+    expenseBudgetRate: 0,
+    incomeBudgetRate: 0,
+    averageDailyBalance: '0',
+    balanceRate: '0.0',
     monthlyExpenseAmountSizeClass: '',
     monthlyIncomeAmountSizeClass: '',
     balanceAmountSizeClass: '',
     groupedRecords: [],
+    collapsedDateGroups: {},
     loading: true,
     showActionSheet: false,
     currentRecord: null
@@ -36,10 +45,11 @@ Page({
 
   updateCurrentMonth: function () {
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
+    const monthValue = this.formatMonthValue(now);
     this.setData({
-      currentMonth: `${year}年${month}月`
+      currentMonth: this.formatMonthText(monthValue),
+      selectedMonthValue: monthValue,
+      monthPickerEnd: monthValue
     });
   },
 
@@ -59,8 +69,9 @@ Page({
     const accountMap = {};
     const showHiddenAccounts = accountVisibility.getShowHiddenAccounts();
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
+    const selectedMonth = this.getSelectedMonthParts();
+    const currentYear = selectedMonth.year;
+    const currentMonth = selectedMonth.monthIndex;
     
     let monthlyExpense = 0;
     let monthlyIncome = 0;
@@ -75,23 +86,28 @@ Page({
       const recordDate = new Date(record.date);
       const recordYear = recordDate.getFullYear();
       const recordMonth = recordDate.getMonth();
+      const isSelectedMonth = recordYear === currentYear && recordMonth === currentMonth;
       
+      if (!isSelectedMonth) {
+        return;
+      }
+
       const shouldIncludeInSummary = this.shouldIncludeRecordInSummary(record, accountMap);
 
       // 只统计计入总资产账号的支出和收入，转账不计入月度统计
-      if (recordYear === currentYear && recordMonth === currentMonth) {
-        if (record.type === 'expense' && shouldIncludeInSummary) {
-          monthlyExpense += parseFloat(record.amount);
-        } else if (record.type === 'income' && shouldIncludeInSummary) {
-          monthlyIncome += parseFloat(record.amount);
-        }
+      if (record.type === 'expense' && shouldIncludeInSummary) {
+        monthlyExpense += parseFloat(record.amount);
+      } else if (record.type === 'income' && shouldIncludeInSummary) {
+        monthlyIncome += parseFloat(record.amount);
       }
 
       const dateKey = this.formatDateKey(recordDate);
       if (!dateMap[dateKey]) {
         dateMap[dateKey] = {
+          dateKey,
           date: recordDate,
           dateText: this.formatDateText(recordDate),
+          isCollapsed: !!this.data.collapsedDateGroups[dateKey],
           records: [],
           dayExpense: 0,
           dayIncome: 0
@@ -147,16 +163,59 @@ Page({
     const monthlyExpenseText = monthlyExpense.toFixed(2);
     const monthlyIncomeText = monthlyIncome.toFixed(2);
     const balanceText = (monthlyIncome - monthlyExpense).toFixed(2);
+    const dayOfMonth = this.getAverageDayCount(currentYear, currentMonth, now);
 
     this.setData({
       groupedRecords,
       monthlyExpense: monthlyExpenseText,
       monthlyIncome: monthlyIncomeText,
       balance: balanceText,
+      expenseBudgetRate: this.getBudgetRate(monthlyExpense, 18000),
+      incomeBudgetRate: this.getBudgetRate(monthlyIncome, 20000),
+      averageDailyBalance: this.formatIntegerAmount((monthlyIncome - monthlyExpense) / dayOfMonth),
+      balanceRate: monthlyIncome > 0 ? ((monthlyIncome - monthlyExpense) / monthlyIncome * 100).toFixed(1) : '0.0',
       monthlyExpenseAmountSizeClass: this.getAmountSizeClass('-¥' + monthlyExpenseText),
       monthlyIncomeAmountSizeClass: this.getAmountSizeClass('+¥' + monthlyIncomeText),
       balanceAmountSizeClass: this.getAmountSizeClass((parseFloat(balanceText) >= 0 ? '+' : '') + '¥' + balanceText),
       loading: false
+    });
+  },
+
+  onMonthChange: function (e) {
+    const monthValue = this.normalizeMonthValue(e.detail.value);
+
+    this.setData({
+      selectedMonthValue: monthValue,
+      currentMonth: this.formatMonthText(monthValue)
+    });
+
+    this.processRecords();
+  },
+
+  toggleDateGroup: function (e) {
+    const dateKey = e.currentTarget.dataset.dateKey;
+    if (!dateKey) {
+      return;
+    }
+
+    const collapsedDateGroups = {
+      ...(this.data.collapsedDateGroups || {})
+    };
+
+    if (collapsedDateGroups[dateKey]) {
+      delete collapsedDateGroups[dateKey];
+    } else {
+      collapsedDateGroups[dateKey] = true;
+    }
+
+    const groupedRecords = (this.data.groupedRecords || []).map(group => ({
+      ...group,
+      isCollapsed: group.dateKey === dateKey ? !!collapsedDateGroups[dateKey] : group.isCollapsed
+    }));
+
+    this.setData({
+      collapsedDateGroups,
+      groupedRecords
     });
   },
 
@@ -180,6 +239,53 @@ Page({
     }
 
     return '';
+  },
+
+  getBudgetRate: function(value, budget) {
+    if (!budget) return 0;
+    const rate = Math.round((Number(value) || 0) / budget * 100);
+    return Math.max(0, Math.min(100, rate));
+  },
+
+  formatIntegerAmount: function(value) {
+    const amount = Math.round(Math.abs(Number(value) || 0));
+    return String(amount).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  },
+
+  formatMonthValue: function(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  },
+
+  normalizeMonthValue: function(monthValue) {
+    const match = String(monthValue || '').match(/^(\d{4})-(\d{2})/);
+    if (match) {
+      return `${match[1]}-${match[2]}`;
+    }
+
+    return this.formatMonthValue(new Date());
+  },
+
+  formatMonthText: function(monthValue) {
+    const [year, month] = this.normalizeMonthValue(monthValue).split('-');
+    return `${Number(year)}年${Number(month)}月`;
+  },
+
+  getSelectedMonthParts: function() {
+    const [year, month] = this.normalizeMonthValue(this.data.selectedMonthValue).split('-').map(Number);
+    return {
+      year,
+      monthIndex: month - 1
+    };
+  },
+
+  getAverageDayCount: function(year, monthIndex, today) {
+    if (year === today.getFullYear() && monthIndex === today.getMonth()) {
+      return today.getDate() || 1;
+    }
+
+    return new Date(year, monthIndex + 1, 0).getDate();
   },
 
   shouldIncludeRecordInSummary: function(record, accountMap) {
@@ -261,6 +367,18 @@ Page({
   goToTransfer: function () {
     wx.navigateTo({
       url: '/pages/transfer/transfer'
+    });
+  },
+
+  goToAccounts: function () {
+    wx.switchTab({
+      url: '/pages/accounts/accounts'
+    });
+  },
+
+  goToStatistics: function () {
+    wx.switchTab({
+      url: '/pages/statistics/statistics'
     });
   },
 

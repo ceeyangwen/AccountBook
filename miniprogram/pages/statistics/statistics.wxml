@@ -1,15 +1,26 @@
 <view class="page-container">
   <view class="period-selector card p-15">
-    <view class="period-item {{period === 'month' ? 'active' : ''}}" bindtap="switchPeriod" data-period="month">
-      本月
+    <view class="period-item {{period === 'week' ? 'active' : ''}}" bindtap="switchPeriod" data-period="week">
+      周
     </view>
-    <view class="period-divider"></view>
+    <view class="period-item {{period === 'month' ? 'active' : ''}}" bindtap="switchPeriod" data-period="month">
+      月
+    </view>
     <view class="period-item {{period === 'year' ? 'active' : ''}}" bindtap="switchPeriod" data-period="year">
-      本年
+      年
+    </view>
+    <view class="period-item {{period === 'custom' ? 'active' : ''}}" bindtap="switchPeriod" data-period="custom">
+      自定义
     </view>
   </view>
 
-  <view class="summary-card card p-20 mt-20">
+  <view class="period-navigator">
+    <view class="period-arrow">‹</view>
+    <view class="period-current">{{period === 'year' ? '本年' : period === 'week' ? '本周' : period === 'custom' ? '自定义' : '本月'}}</view>
+    <view class="period-arrow">›</view>
+  </view>
+
+  <view class="summary-card analytics-card card p-20 mt-20">
     <view class="summary-header">
       <view class="summary-title">{{period === 'month' ? '本月' : '本年'}}收支概览</view>
     </view>
@@ -33,8 +44,11 @@
   </view>
 
   <view class="trend-section mt-20">
-    <view class="section-title">总资产趋势</view>
-    <view class="trend-card card p-20">
+    <view class="section-title-row">
+      <view class="section-title">收支趋势</view>
+      <view class="section-unit">单位：元</view>
+    </view>
+    <view class="trend-card analytics-card card p-20">
       <view wx:if="{{assetTrend.length === 0}}" class="empty-state">
         <view class="empty-icon">AST</view>
         <view class="empty-text">暂无资产数据</view>
@@ -99,7 +113,13 @@
   </view>
 
   <view class="category-section mt-20">
-    <view class="section-title">支出分类统计</view>
+    <view class="section-title-row">
+      <view class="section-title">支出分类</view>
+      <view class="category-toggle">
+        <text class="toggle-active">支出</text>
+        <text>收入</text>
+      </view>
+    </view>
     
     <view wx:if="{{expenseCategoryList.length === 0}}" class="empty-state card p-20">
       <view class="empty-icon">CAT</view>
@@ -107,7 +127,7 @@
     </view>
     
     <view wx:else>
-      <view class="pie-chart-section card p-20">
+      <view class="pie-chart-section analytics-card card p-20">
         <view class="pie-chart-wrapper">
           <view class="pie-chart" style="background: conic-gradient({{pieGradient}});">
             <view class="pie-center">
@@ -130,7 +150,7 @@
       </view>
       
       <view class="category-list mt-20">
-        <view wx:for="{{expenseCategoryList}}" wx:key="id" wx:for-index="categoryIndex" class="category-card card p-20">
+        <view wx:for="{{expenseCategoryList}}" wx:key="id" wx:for-index="categoryIndex" class="category-card analytics-card card p-20">
           <view class="category-main" bindtap="toggleCategoryDrilldown" data-index="{{categoryIndex}}">
             <view class="category-header">
               <view class="category-icon-wrapper badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
@@ -182,6 +202,27 @@
               </view>
             </view>
           </view>
+        </view>
+      </view>
+
+      <view class="category-ranking-card">
+        <view class="ranking-header">
+          <view class="section-title">本月支出排行</view>
+          <view class="section-more">全部 ›</view>
+        </view>
+        <view wx:for="{{expenseCategoryList}}" wx:key="id" wx:for-index="rankIndex" class="ranking-row">
+          <view class="ranking-left">
+            <text class="ranking-index">{{rankIndex + 1}}</text>
+            <view class="ranking-badge badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
+            </view>
+            <text class="ranking-name">{{item.name}}</text>
+          </view>
+          <view class="ranking-bar">
+            <view class="ranking-bar-fill" style="width: {{item.percent}}%;"></view>
+          </view>
+          <view class="ranking-amount">¥{{item.amount}}</view>
         </view>
       </view>
     </view>

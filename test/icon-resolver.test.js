@@ -29,6 +29,26 @@ test('应按账号名称解析支付宝、微信、花呗和京东白条徽章',
   assert.strictEqual(iconResolver.resolveAccountBadge({ name: '京东白条' }).label, '京');
 });
 
+test('常见支付账号应解析为公司 logo 样式而不是通用文字徽章', () => {
+  const wechatBadge = iconResolver.resolveAccountBadge({ name: '微信钱包' });
+  const alipayBadge = iconResolver.resolveAccountBadge({ name: '支付宝' });
+  const cashBadge = iconResolver.resolveAccountBadge({ name: '现金' });
+
+  assert.strictEqual(wechatBadge.logo, true);
+  assert.strictEqual(alipayBadge.logo, true);
+  assert.ok(wechatBadge.className.indexOf('account-logo') !== -1);
+  assert.ok(alipayBadge.className.indexOf('account-logo') !== -1);
+  assert.strictEqual(wechatBadge.iconShape, 'wechat');
+  assert.strictEqual(alipayBadge.iconShape, 'alipay');
+  assert.strictEqual(wechatBadge.iconImage, '/images/account-logos/wechat.png');
+  assert.strictEqual(alipayBadge.iconImage, '/images/account-logos/alipay.png');
+  assert.strictEqual(wechatBadge.background, '#FFFFFF');
+  assert.strictEqual(alipayBadge.background, '#FFFFFF');
+  assert.strictEqual(cashBadge.logo, false);
+  assert.strictEqual(cashBadge.iconImage, '');
+  assert.strictEqual(cashBadge.symbol, '¥');
+});
+
 test('应按账号名称解析常见银行徽章', () => {
   assert.strictEqual(iconResolver.resolveAccountBadge({ name: '招商银行储蓄卡' }).label, '招');
   assert.strictEqual(iconResolver.resolveAccountBadge({ name: '工商银行信用卡' }).label, '工');
@@ -36,6 +56,38 @@ test('应按账号名称解析常见银行徽章', () => {
   assert.strictEqual(iconResolver.resolveAccountBadge({ name: '农业银行储蓄卡' }).label, '农');
   assert.strictEqual(iconResolver.resolveAccountBadge({ name: '中国银行储蓄卡' }).label, '中');
   assert.strictEqual(iconResolver.resolveAccountBadge({ name: '交通银行信用卡' }).label, '交');
+});
+
+test('常见银行账号应解析为各自银行 logo 样式', () => {
+  const cmbBadge = iconResolver.resolveAccountBadge({ name: '招商银行储蓄卡' });
+  const icbcBadge = iconResolver.resolveAccountBadge({ name: '工商银行信用卡' });
+  const ccbBadge = iconResolver.resolveAccountBadge({ name: '建设银行储蓄卡' });
+
+  assert.strictEqual(cmbBadge.logo, true);
+  assert.strictEqual(icbcBadge.logo, true);
+  assert.strictEqual(ccbBadge.logo, true);
+  assert.ok(cmbBadge.className.indexOf('bank-logo') !== -1);
+  assert.ok(icbcBadge.className.indexOf('bank-logo') !== -1);
+  assert.ok(ccbBadge.className.indexOf('bank-logo') !== -1);
+  assert.strictEqual(cmbBadge.iconShape, 'cmb');
+  assert.strictEqual(icbcBadge.iconShape, 'icbc');
+  assert.strictEqual(ccbBadge.iconShape, 'ccb');
+  assert.strictEqual(cmbBadge.iconImage, '/images/account-logos/cmb.png');
+  assert.strictEqual(icbcBadge.iconImage, '/images/account-logos/icbc.png');
+  assert.strictEqual(ccbBadge.iconImage, '/images/account-logos/ccb.png');
+  assert.strictEqual(cmbBadge.background, '#FFFFFF');
+  assert.strictEqual(icbcBadge.background, '#FFFFFF');
+  assert.strictEqual(ccbBadge.background, '#FFFFFF');
+});
+
+test('截图中的短银行和金融机构名称也应解析为具体 logo 样式', () => {
+  assert.strictEqual(iconResolver.resolveAccountBadge({ name: '招商', category: '储蓄卡' }).iconShape, 'cmb');
+  assert.strictEqual(iconResolver.resolveAccountBadge({ name: '兴业', category: '储蓄卡' }).iconShape, 'cib');
+  assert.strictEqual(iconResolver.resolveAccountBadge({ name: '工商', category: '储蓄卡' }).iconShape, 'icbc');
+  assert.strictEqual(iconResolver.resolveAccountBadge({ name: '农业', category: '储蓄卡' }).iconShape, 'abc');
+  assert.strictEqual(iconResolver.resolveAccountBadge({ name: '建设', category: '储蓄卡' }).iconShape, 'ccb');
+  assert.strictEqual(iconResolver.resolveAccountBadge({ name: '微众', category: '储蓄卡' }).iconShape, 'webank');
+  assert.strictEqual(iconResolver.resolveAccountBadge({ name: '泉州', category: '储蓄卡' }).iconShape, 'qzbank');
 });
 
 test('默认账户大类和收入分类应解析为短标签徽章', () => {

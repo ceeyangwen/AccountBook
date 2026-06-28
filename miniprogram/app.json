@@ -21,13 +21,13 @@
   },
   "tabBar": {
     "color": "#64748B",
-    "selectedColor": "#22D3EE",
-    "backgroundColor": "#0B1020",
+    "selectedColor": "#12D8C8",
+    "backgroundColor": "#101827",
     "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "记账",
+        "text": "首页",
         "iconPath": "images/icons/home.png",
         "selectedIconPath": "images/icons/home-active.png"
       },

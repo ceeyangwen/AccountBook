@@ -6,6 +6,9 @@ const iconResolver = require('../../utils/iconResolver.js');
 Page({
   data: {
     totalBalance: null,
+    totalAssetBalance: '0.00',
+    totalDebtBalance: '0.00',
+    netAssetBalance: '0.00',
     groupedAccounts: [],
     showQuickAdd: false,
     currentCategory: '',
@@ -13,7 +16,8 @@ Page({
     debugInfo: '',
     isEditing: false,
     showHiddenAccounts: false,
-    hiddenAccountsCount: 0
+    hiddenAccountsCount: 0,
+    collapsedCategories: {}
   },
 
   onLoad: function() {
@@ -50,6 +54,7 @@ Page({
   processAccounts: function() {
     const allAccounts = app.globalData.accounts || [];
     const showHiddenAccounts = this.data.showHiddenAccounts;
+    const collapsedCategories = this.data.collapsedCategories || {};
     const accounts = accountVisibility.getVisibleAccounts(allAccounts, {
       showHidden: showHiddenAccounts
     });
@@ -59,10 +64,14 @@ Page({
     logger.info('accounts', '处理账户数据', { accountCount: allAccounts.length, visibleAccountCount: accounts.length, categoryCount: accountCategories.length });
     
     const grouped = {};
+    let totalAssetBalance = 0;
+    let totalDebtBalance = 0;
     let totalBalance = 0;
     
     accountCategories.forEach(cat => {
       grouped[cat.name] = {
+        category: cat.name,
+        isCollapsed: collapsedCategories[cat.name] === true,
         categoryInfo: {
           ...cat,
           badge: iconResolver.resolveAccountBadge({ name: cat.name, category: cat.name, icon: cat.icon, color: cat.color })
@@ -78,8 +87,10 @@ Page({
         const balance = parseFloat(account.balance) || 0;
         if (account.includeInTotal !== false) {
           if (categoryInfo.type === 'debt' || categoryInfo.type === 'credit') {
+            totalDebtBalance += balance;
             totalBalance -= balance;
           } else {
+            totalAssetBalance += balance;
             totalBalance += balance;
           }
         }
@@ -126,7 +137,34 @@ Page({
       groupedAccounts,
       totalBalance: totalBalance.toFixed(2),
       hiddenAccountsCount,
+      totalAssetBalance: totalAssetBalance.toFixed(2),
+      totalDebtBalance: totalDebtBalance.toFixed(2),
+      netAssetBalance: totalBalance.toFixed(2),
       debugInfo: '账户数量: ' + accounts.length + '/' + allAccounts.length + ', 隐藏: ' + hiddenAccountsCount + ', 分组数: ' + groupedAccounts.length
+    });
+  },
+
+  toggleCategoryCollapse: function(e) {
+    const category = e.currentTarget.dataset.category;
+    if (!category) return;
+
+    const collapsedCategories = { ...(this.data.collapsedCategories || {}) };
+    collapsedCategories[category] = !collapsedCategories[category];
+
+    const groupedAccounts = (this.data.groupedAccounts || []).map(group => {
+      if (group.categoryInfo.name !== category) {
+        return group;
+      }
+
+      return {
+        ...group,
+        isCollapsed: collapsedCategories[category] === true
+      };
+    });
+
+    this.setData({
+      collapsedCategories,
+      groupedAccounts
     });
   },
 

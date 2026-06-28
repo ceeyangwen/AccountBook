@@ -1,68 +1,122 @@
 <view class="page-container">
-  <view class="summary-card card p-20">
-    <view class="summary-header flex flex-between">
-      <view class="summary-title">本月账单</view>
-      <view class="summary-month">{{currentMonth}}</view>
-    </view>
-    <view class="summary-data flex flex-between mt-20">
-      <view class="summary-item">
-        <view class="summary-label">支出</view>
+  <view class="month-dashboard-card card">
+    <picker class="summary-month-picker" mode="date" fields="month" value="{{selectedMonthValue}}" end="{{monthPickerEnd}}" bindchange="onMonthChange">
+      <view class="summary-header flex flex-between">
+        <view class="summary-month-selector">
+          <text>{{currentMonth}}</text>
+          <text class="selector-arrow">⌄</text>
+        </view>
+        <view class="calendar-mark">□</view>
+      </view>
+    </picker>
+
+    <view class="summary-data">
+      <view class="summary-item expense-panel">
+        <view class="summary-label">本月支出</view>
         <view class="summary-value expense {{monthlyExpenseAmountSizeClass}}">-¥{{monthlyExpense}}</view>
+        <view class="budget-track">
+          <view class="budget-progress expense-progress" style="width: {{expenseBudgetRate}}%;"></view>
+        </view>
+        <view class="budget-meta">
+          <text>预算 ¥{{monthlyExpenseBudget}}</text>
+          <text>{{expenseBudgetRate}}%</text>
+        </view>
       </view>
+
       <view class="summary-divider"></view>
-      <view class="summary-item">
-        <view class="summary-label">收入</view>
+
+      <view class="summary-item income-panel">
+        <view class="summary-label">本月收入</view>
         <view class="summary-value income {{monthlyIncomeAmountSizeClass}}">+¥{{monthlyIncome}}</view>
+        <view class="budget-track">
+          <view class="budget-progress income-progress" style="width: {{incomeBudgetRate}}%;"></view>
+        </view>
+        <view class="budget-meta">
+          <text>预算 ¥{{monthlyIncomeBudget}}</text>
+          <text>{{incomeBudgetRate}}%</text>
+        </view>
       </view>
-      <view class="summary-divider"></view>
-      <view class="summary-item">
-        <view class="summary-label">结余</view>
-        <view class="summary-value {{balance >= 0 ? 'income' : 'expense'}} {{balanceAmountSizeClass}}">{{balance >= 0 ? '+' : ''}}¥{{balance}}</view>
+    </view>
+
+    <view class="balance-strip">
+      <view>
+        <view class="summary-label">本月结余</view>
+        <view class="summary-value {{balance >= 0 ? 'income' : 'expense'}} {{balanceAmountSizeClass}} balance-value">{{balance >= 0 ? '+' : ''}}¥{{balance}}</view>
+        <view class="balance-rate">本月结余率 {{balanceRate}}%</view>
+      </view>
+      <view class="daily-balance">
+        <view class="summary-label">本月日均结余</view>
+        <view class="daily-balance-value">¥{{averageDailyBalance}}</view>
       </view>
     </view>
   </view>
 
-  <view class="record-list">
-    <view class="section-header flex flex-between">
-      <view class="section-title">交易流水</view>
+  <view class="quick-action-grid">
+    <view class="quick-action-item" bindtap="goToAddRecord">
+      <view class="quick-action-icon note-icon">记</view>
+      <view class="quick-action-label">记一笔</view>
     </view>
-    
+    <view class="quick-action-item" bindtap="goToStatistics">
+      <view class="quick-action-icon report-icon">报</view>
+      <view class="quick-action-label">报表</view>
+    </view>
+    <view class="quick-action-item" bindtap="goToStatistics">
+      <view class="quick-action-icon budget-icon">算</view>
+      <view class="quick-action-label">预算</view>
+    </view>
+    <view class="quick-action-item" bindtap="goToAccounts">
+      <view class="quick-action-icon account-icon">户</view>
+      <view class="quick-action-label">账户</view>
+    </view>
+  </view>
+
+  <view class="recent-card card">
+    <view class="section-header flex flex-between">
+      <view class="section-title">最近交易</view>
+      <view class="section-more">全部 ›</view>
+    </view>
+
     <view wx:if="{{groupedRecords.length === 0}}" class="empty-state">
       <view class="empty-icon">TXN</view>
       <view class="empty-text">还没有记账记录哦</view>
       <view class="empty-hint">点击下方按钮开始记账吧～</view>
     </view>
     
-    <view wx:for="{{groupedRecords}}" wx:key="date" class="date-group">
-      <view class="date-header">
-        <view class="date-text">{{item.dateText}}</view>
+    <view wx:for="{{groupedRecords}}" wx:key="dateKey" class="date-group">
+      <view class="date-header {{item.isCollapsed ? 'collapsed' : ''}}" bindtap="toggleDateGroup" data-date-key="{{item.dateKey}}">
+        <view class="date-title">
+          <view class="date-text">{{item.dateText}}</view>
+          <view class="date-toggle-icon">{{item.isCollapsed ? '⌄' : '⌃'}}</view>
+        </view>
         <view class="date-summary">
           <text wx:if="{{item.dayExpense > 0}}" class="date-expense">支出 ¥{{item.dayExpense}}</text>
           <text wx:if="{{item.dayIncome > 0}}" class="date-income">收入 ¥{{item.dayIncome}}</text>
         </view>
       </view>
       
-      <view wx:for="{{item.records}}" wx:for-item="record" wx:for-index="recordIndex" wx:key="id" class="record-card card" bindtap="showRecordActions" data-record="{{record}}">
-        <view class="record-left">
-          <view class="category-icon badge-mark {{record.categoryBadge.className}}" style="background: {{record.categoryBadge.background}}; border-color: {{record.categoryBadge.color}}; color: {{record.categoryBadge.color}};">
-            <text class="badge-glyph">{{record.categoryBadge.symbol}}</text>
-            <text class="badge-mark-text">{{record.categoryBadge.label}}</text>
+      <block wx:if="{{!item.isCollapsed}}">
+        <view wx:for="{{item.records}}" wx:for-item="record" wx:for-index="recordIndex" wx:key="id" class="record-card" bindtap="showRecordActions" data-record="{{record}}">
+          <view class="record-left">
+            <view class="category-icon badge-mark {{record.categoryBadge.className}}" style="background: {{record.categoryBadge.background}}; border-color: {{record.categoryBadge.color}}; color: {{record.categoryBadge.color}};">
+              <text class="badge-glyph">{{record.categoryBadge.symbol}}</text>
+              <text class="badge-mark-text">{{record.categoryBadge.label}}</text>
+            </view>
+            <view class="record-info">
+              <view class="record-category" wx:if="{{record.type !== 'transfer'}}">{{record.category.name}}</view>
+              <view class="record-category" wx:else>{{record.fromAccountDisplayName}} → {{record.toAccountDisplayName}}</view>
+              <view class="record-note" wx:if="{{record.note}}">{{record.note}}</view>
+              <view class="record-account" wx:if="{{record.accountDisplayName && record.type !== 'transfer'}}">{{record.accountDisplayName}}</view>
+            </view>
           </view>
-          <view class="record-info">
-            <view class="record-category" wx:if="{{record.type !== 'transfer'}}">{{record.category.name}}</view>
-            <view class="record-category" wx:else>{{record.fromAccountDisplayName}} → {{record.toAccountDisplayName}}</view>
-            <view class="record-note" wx:if="{{record.note}}">{{record.note}}</view>
-            <view class="record-account" wx:if="{{record.accountDisplayName && record.type !== 'transfer'}}">{{record.accountDisplayName}}</view>
+          <view class="record-right">
+            <view class="record-amount {{record.type === 'expense' ? 'expense' : record.type === 'income' ? 'income' : 'transfer'}} {{record.amountSizeClass}}">
+              <block wx:if="{{record.type === 'transfer'}}">¥{{record.amount}}</block>
+              <block wx:else>{{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}</block>
+            </view>
+            <view class="record-more">•••</view>
           </view>
         </view>
-        <view class="record-right">
-          <view class="record-amount {{record.type === 'expense' ? 'expense' : record.type === 'income' ? 'income' : 'transfer'}} {{record.amountSizeClass}}">
-            <block wx:if="{{record.type === 'transfer'}}">¥{{record.amount}}</block>
-            <block wx:else>{{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}</block>
-          </view>
-          <view class="record-more">•••</view>
-        </view>
-      </view>
+      </block>
     </view>
   </view>
 
@@ -86,12 +140,4 @@
     </view>
   </view>
 
-  <view class="floating-btn-group">
-    <view class="floating-btn transfer-btn" bindtap="goToTransfer">
-      <view class="floating-icon">↔</view>
-    </view>
-    <view class="floating-btn" bindtap="goToAddRecord">
-      <view class="floating-icon">+</view>
-    </view>
-  </view>
 </view>

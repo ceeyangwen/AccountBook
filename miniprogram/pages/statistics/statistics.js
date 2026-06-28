@@ -186,12 +186,7 @@ Page({
       const recordYear = recordDate.getFullYear();
       const recordMonth = recordDate.getMonth();
       
-      let isInPeriod = false;
-      if (this.data.period === 'month') {
-        isInPeriod = recordYear === currentYear && recordMonth === currentMonth;
-      } else {
-        isInPeriod = recordYear === currentYear;
-      }
+      const isInPeriod = this.isRecordInSelectedPeriod(recordDate, now);
       
       if (!isInPeriod) return;
       
@@ -305,6 +300,25 @@ Page({
       return '';
     }
     return `${date.getMonth() + 1}月${date.getDate()}日`;
+  },
+
+  isRecordInSelectedPeriod: function(recordDate, now) {
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    const recordYear = recordDate.getFullYear();
+    const recordMonth = recordDate.getMonth();
+
+    if (this.data.period === 'year') {
+      return recordYear === currentYear;
+    }
+
+    if (this.data.period === 'week') {
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      return recordDate >= start && recordDate < end;
+    }
+
+    return recordYear === currentYear && recordMonth === currentMonth;
   },
 
   createDrilldownRecord: function(record, amount, account, category, showHiddenAccounts) {
@@ -654,7 +668,7 @@ Page({
   calculateAssetTrend: function(records, accounts, year, month) {
     const trend = [];
     const now = new Date();
-    const isMonthView = this.data.period === 'month';
+    const isMonthView = this.data.period !== 'year';
     
     // 收集需要统计的账户 ID
     const includedAccountIds = new Set();

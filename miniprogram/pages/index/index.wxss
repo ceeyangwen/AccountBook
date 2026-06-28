@@ -489,3 +489,283 @@
   background: linear-gradient(135deg, #2563EB 0%, #22D3EE 100%);
   box-shadow: 0 12rpx 28rpx rgba(37, 99, 235, 0.25);
 }
+
+.month-dashboard-card {
+  margin-bottom: 18rpx;
+  padding: 28rpx;
+  border-radius: 16rpx;
+  background: rgba(15, 23, 42, 0.84);
+}
+
+.summary-month-selector {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  color: #E5EEF8;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.selector-arrow {
+  color: #9AA8BA;
+  font-size: 24rpx;
+}
+
+.calendar-mark {
+  width: 44rpx;
+  height: 44rpx;
+  border: 2rpx solid #C8D3DF;
+  border-radius: 8rpx;
+  color: transparent;
+  position: relative;
+}
+
+.calendar-mark::before,
+.calendar-mark::after {
+  content: '';
+  position: absolute;
+  top: 8rpx;
+  width: 6rpx;
+  height: 10rpx;
+  border-radius: 4rpx;
+  background: #C8D3DF;
+}
+
+.calendar-mark::before {
+  left: 10rpx;
+}
+
+.calendar-mark::after {
+  right: 10rpx;
+}
+
+.summary-data {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1rpx minmax(0, 1fr);
+  align-items: stretch;
+  gap: 28rpx;
+  padding: 24rpx 0 28rpx;
+}
+
+.summary-item {
+  min-width: 0;
+  text-align: left;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #8EA0B8;
+  margin-bottom: 10rpx;
+}
+
+.summary-value {
+  font-size: 38rpx;
+  line-height: 1.12;
+}
+
+.summary-value.expense,
+.date-expense,
+.record-amount.expense {
+  color: #FF6268;
+}
+
+.summary-value.income,
+.date-income,
+.record-amount.income {
+  color: #18CDAA;
+}
+
+.record-amount.transfer {
+  color: #22D3EE;
+}
+
+.budget-track {
+  height: 10rpx;
+  margin-top: 18rpx;
+  border-radius: 999rpx;
+  background: rgba(148, 163, 184, 0.16);
+  overflow: hidden;
+}
+
+.budget-progress {
+  height: 100%;
+  border-radius: 999rpx;
+}
+
+.expense-progress {
+  background: linear-gradient(90deg, #FF6268, #FF7B81);
+}
+
+.income-progress {
+  background: linear-gradient(90deg, #18CDAA, #22D3B6);
+}
+
+.budget-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 14rpx;
+  color: #8EA0B8;
+  font-size: 24rpx;
+  white-space: nowrap;
+}
+
+.balance-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid rgba(148, 163, 184, 0.13);
+}
+
+.balance-value {
+  color: #E5EEF8;
+}
+
+.balance-rate {
+  margin-top: 8rpx;
+  color: #AEB8C7;
+  font-size: 24rpx;
+}
+
+.daily-balance {
+  min-width: 190rpx;
+  text-align: right;
+}
+
+.daily-balance-value {
+  color: #AEB8C7;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.quick-action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10rpx;
+  margin-bottom: 18rpx;
+  padding: 22rpx 20rpx;
+  background: rgba(15, 23, 42, 0.82);
+  border-radius: 16rpx;
+}
+
+.quick-action-item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.quick-action-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #06111F;
+  font-size: 22rpx;
+  font-weight: 900;
+  box-shadow: 0 8rpx 18rpx rgba(2, 6, 23, 0.18);
+}
+
+.note-icon,
+.report-icon,
+.budget-icon {
+  background: linear-gradient(135deg, #2DD4BF 0%, #22D3EE 100%);
+}
+
+.account-icon {
+  background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);
+}
+
+.quick-action-label {
+  color: #D6E0EA;
+  font-size: 24rpx;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.recent-card {
+  padding: 22rpx;
+  background: rgba(15, 23, 42, 0.84);
+  border-radius: 16rpx;
+}
+
+.section-header {
+  margin: 0 0 12rpx;
+}
+
+.section-more {
+  color: #8EA0B8;
+  font-size: 24rpx;
+}
+
+.date-group {
+  margin-bottom: 8rpx;
+}
+
+.date-header {
+  padding: 14rpx 2rpx 12rpx;
+}
+
+.record-card {
+  padding: 18rpx 0;
+  margin-bottom: 0;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 1rpx solid rgba(148, 163, 184, 0.10);
+  background: transparent;
+}
+
+.record-card:last-child {
+  border-bottom: 0;
+}
+
+.record-category {
+  font-size: 28rpx;
+  font-weight: 750;
+}
+
+.record-account,
+.record-note {
+  color: #8EA0B8;
+  font-size: 23rpx;
+}
+
+.summary-month-picker {
+  display: block;
+}
+
+.date-header {
+  border-radius: 10rpx;
+}
+
+.date-header:active {
+  background: rgba(34, 211, 238, 0.08);
+}
+
+.date-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.date-toggle-icon {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #67E8F9;
+  font-size: 24rpx;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.date-header.collapsed {
+  margin-bottom: 8rpx;
+}
