@@ -22,7 +22,7 @@
 
   <view class="summary-card analytics-card card p-20 mt-20">
     <view class="summary-header">
-      <view class="summary-title">{{period === 'month' ? '本月' : '本年'}}收支概览</view>
+      <view class="summary-title">{{period === 'year' ? '本年' : period === 'week' ? '本周' : period === 'custom' ? '自定义' : '本月'}}收支概览</view>
     </view>
     <view class="summary-data flex flex-between mt-20">
       <view class="summary-item">
@@ -56,7 +56,7 @@
       <view wx:else class="line-chart">
         <view class="chart-header">
           <view class="chart-heading">
-            <text class="chart-label">{{period === 'month' ? '每日' : '每月'}}资产变化</text>
+            <text class="chart-label">{{period === 'year' ? '每月' : '每日'}}资产变化</text>
             <text class="chart-subtitle">点击或滑动图表查看详情</text>
           </view>
           <view class="trend-current">
@@ -123,7 +123,7 @@
     
     <view wx:if="{{expenseCategoryList.length === 0}}" class="empty-state card p-20">
       <view class="empty-icon">CAT</view>
-      <view class="empty-text">{{period === 'month' ? '本月' : '本年'}}暂无支出记录</view>
+      <view class="empty-text">{{period === 'year' ? '本年' : period === 'week' ? '本周' : period === 'custom' ? '自定义' : '本月'}}暂无支出记录</view>
     </view>
     
     <view wx:else>
@@ -210,7 +210,7 @@
 
       <view class="category-ranking-card">
         <view class="ranking-header">
-          <view class="section-title">本月支出排行</view>
+          <view class="section-title">{{period === 'year' ? '本年' : period === 'week' ? '本周' : period === 'custom' ? '自定义' : '本月'}}支出排行</view>
           <view class="section-more">全部 ›</view>
         </view>
         <view wx:for="{{expenseCategoryList}}" wx:key="id" wx:for-index="rankIndex" class="ranking-row">

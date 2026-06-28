@@ -669,6 +669,12 @@ Page({
     const trend = [];
     const now = new Date();
     const isMonthView = this.data.period !== 'year';
+    const formatDateKey = function(date) {
+      const dateYear = date.getFullYear();
+      const dateMonth = String(date.getMonth() + 1).padStart(2, '0');
+      const dateDay = String(date.getDate()).padStart(2, '0');
+      return `${dateYear}-${dateMonth}-${dateDay}`;
+    };
     
     // 收集需要统计的账户 ID
     const includedAccountIds = new Set();
@@ -689,6 +695,54 @@ Page({
       }
     });
     
+    if (this.data.period === 'week') {
+      const datesToCalculate = [];
+      for (let offset = 0; offset < 7; offset++) {
+        datesToCalculate.push(new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset));
+      }
+
+      const sortedRecords = [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
+      const dailyData = {};
+
+      datesToCalculate.forEach(date => {
+        const dateKey = formatDateKey(date);
+        dailyData[dateKey] = {
+          totalBalance: calculateTotalBalanceFromAccountBalances(accountBalances, accountMap),
+          expense: 0,
+          income: 0
+        };
+
+        sortedRecords.forEach(record => {
+          const recordDate = new Date(record.date);
+          if (formatDateKey(recordDate) !== dateKey) {
+            return;
+          }
+
+          const amount = parseFloat(record.amount) || 0;
+          if (record.type === 'income' && record.accountId && includedAccountIds.has(record.accountId)) {
+            dailyData[dateKey].income += amount;
+          } else if (record.type === 'expense' && record.accountId && includedAccountIds.has(record.accountId)) {
+            dailyData[dateKey].expense += amount;
+          }
+
+          reverseRecordBalances(accountBalances, record, accountMap, includedAccountIds);
+        });
+      });
+
+      datesToCalculate.reverse().forEach(date => {
+        const dateKey = formatDateKey(date);
+        trend.push({
+          date: dateKey,
+          label: `${date.getMonth() + 1}/${date.getDate()}`,
+          balance: dailyData[dateKey].totalBalance.toFixed(2),
+          expense: dailyData[dateKey].expense.toFixed(2),
+          income: dailyData[dateKey].income.toFixed(2)
+        });
+      });
+
+      return trend;
+    }
+
     // 为每天计算每个账户的余额，需要从现在往回倒推
     if (isMonthView) {
       const daysInMonth = new Date(year, month + 1, 0).getDate();

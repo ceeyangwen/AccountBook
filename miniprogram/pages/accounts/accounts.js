@@ -101,9 +101,12 @@ Page({
       logger.info('accounts', '处理可见账户', account);
       const categoryInfo = accountCategories.find(cat => cat.name === account.category);
       if (categoryInfo) {
-        account.categoryInfo = categoryInfo;
-        account.badge = iconResolver.resolveAccountBadge(account);
-        grouped[account.category].accounts.push(account);
+        const displayAccount = {
+          ...account,
+          categoryInfo,
+          badge: iconResolver.resolveAccountBadge(account)
+        };
+        grouped[account.category].accounts.push(displayAccount);
         
         const balance = parseFloat(account.balance) || 0;
         
