@@ -213,6 +213,7 @@ Page({
                 title: '删除成功',
                 icon: 'success'
               });
+              this.loadAccounts();
             } else {
               wx.showToast({
                 title: '删除失败',

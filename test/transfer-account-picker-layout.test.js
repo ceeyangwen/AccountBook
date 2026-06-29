@@ -36,10 +36,17 @@ function assertNotMatches(actual, pattern, message) {
   }
 }
 
+function assertEqual(actual, expected, message) {
+  if (actual !== expected) {
+    throw new Error(`${message} - 期望 ${expected}, 实际 ${actual}`);
+  }
+}
+
 const root = path.join(__dirname, '..');
 const wxml = fs.readFileSync(path.join(root, 'miniprogram/pages/transfer/transfer.wxml'), 'utf8');
 const js = fs.readFileSync(path.join(root, 'miniprogram/pages/transfer/transfer.js'), 'utf8');
 const wxss = fs.readFileSync(path.join(root, 'miniprogram/pages/transfer/transfer.wxss'), 'utf8');
+const appWxss = fs.readFileSync(path.join(root, 'miniprogram/app.wxss'), 'utf8');
 
 test('转出账户弹窗应先展示账户大类，再展示小账户', () => {
   assertMatches(wxml, /wx:if="\{\{!selectedFromAccountCategoryId\}\}"[\s\S]*wx:for="\{\{groupedAccounts\}\}"/, '转出账户应先展示 groupedAccounts');
@@ -71,6 +78,18 @@ test('转账账户弹窗不应在弹窗列表里直接遍历全部 accounts', ()
 test('转账账户分类选项应有对应样式', () => {
   assertMatches(wxss, /\.account-category-option\s*\{[\s\S]*display:\s*flex;/, '应有账户分类选项样式');
   assertMatches(wxss, /\.account-step-header\s*\{[\s\S]*display:\s*flex;/, '应有账户小类列表头部样式');
+});
+
+test('转账已选账户和账户弹窗应使用账号列表同款图片 logo', () => {
+  const logoImages = wxml.match(/class="brand-logo-image"\s+src="\{\{item\.badge\.iconImage\}\}"\s+mode="aspectFit"/g) || [];
+
+  assertMatches(wxml, /wx:if="\{\{fromAccountId\}\}"[\s\S]*<block wx:if="\{\{item\.badge\.iconImage\}\}">[\s\S]*class="brand-logo-image"/, '转出已选账户应渲染账号图片 logo');
+  assertMatches(wxml, /wx:if="\{\{toAccountId\}\}"[\s\S]*<block wx:if="\{\{item\.badge\.iconImage\}\}">[\s\S]*class="brand-logo-image"/, '转入已选账户应渲染账号图片 logo');
+  assertEqual(logoImages.length, 4, '转出/转入已选账户和弹窗账户项都应渲染账号图片 logo');
+});
+
+test('转账账号图片 logo 应有公共固定尺寸，避免挤压选择器布局', () => {
+  assertMatches(appWxss, /\.brand-logo-image\s*\{[\s\S]*width:\s*48rpx;[\s\S]*height:\s*48rpx;/, '公共样式应限制 logo 图片尺寸');
 });
 
 console.log('\n========================================');

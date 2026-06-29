@@ -551,6 +551,7 @@
 
 .type-toggle,
 .amount-card,
+.category-step,
 .date-card,
 .note-card,
 .account-selector {
@@ -638,12 +639,12 @@
   background: rgba(34, 211, 238, 0.08);
 }
 
-.category-item.selected.expense {
+.category-item.expense.selected {
   border-color: rgba(34, 197, 94, 0.55);
   background: rgba(34, 197, 94, 0.10);
 }
 
-.category-item.selected.income {
+.category-item.income.selected {
   border-color: rgba(239, 68, 68, 0.55);
   background: rgba(239, 68, 68, 0.10);
 }

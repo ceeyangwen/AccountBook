@@ -313,8 +313,8 @@ App({
       success: res => {
         logger.info('App', '云函数返回结果', res);
         
-        if (res.result && res.result.openid) {
-          const openid = res.result.openid;
+        const openid = res.result && res.result.openid;
+        if (openid) {
           wx.setStorageSync('openid', openid);
           logger.info('App', '获取openid成功', { openid });
           this.isGettingOpenId = false;
@@ -335,16 +335,18 @@ App({
               });
             });
           });
+          if (callback) callback(openid);
         } else {
           logger.error('App', '获取openid失败，返回结果异常', res);
+          this.isGettingOpenId = false;
+          this.notifyOpenIdReady(null);
           wx.showModal({
             title: '获取用户信息失败',
             content: '请确保已部署云函数',
             showCancel: false
           });
+          if (callback) callback(null);
         }
-        
-        if (callback) callback(res.result && res.result.openid);
       },
       fail: err => {
         logger.error('App', '获取openid失败', err);
@@ -498,183 +500,192 @@ App({
       });
   },
 
+  cloneAccountsForMutation: function() {
+    return (this.globalData.accounts || []).map(account => ({
+      ...account
+    }));
+  },
+
+  applyBalanceChangeToAccounts: function(accounts, accountId, amount, isTransferIn = false) {
+    const account = accounts.find(acc => acc.id === accountId);
+
+    if (!account) {
+      return false;
+    }
+
+    const oldBalance = parseFloat(account.balance) || 0;
+    const newBalance = balanceCalculator.calculateNewBalance(account, amount, isTransferIn);
+
+    account.balance = newBalance;
+
+    logger.info('App', '更新账户余额', {
+      accountId,
+      accountName: account.name,
+      accountCategory: account.category,
+      oldBalance,
+      change: amount,
+      newBalance,
+      isTransferIn
+    });
+
+    return true;
+  },
+
+  applyRecordBalanceChange: function(accounts, record, direction) {
+    const amount = parseFloat(record.amount);
+
+    if (record.type === 'transfer') {
+      if (record.fromAccountId) {
+        this.applyBalanceChangeToAccounts(accounts, record.fromAccountId, direction * -amount, false);
+      }
+      if (record.toAccountId) {
+        this.applyBalanceChangeToAccounts(accounts, record.toAccountId, direction * amount, true);
+      }
+      return;
+    }
+
+    if (record.accountId) {
+      const change = record.type === 'expense' ? -amount : amount;
+      this.applyBalanceChangeToAccounts(accounts, record.accountId, direction * change);
+    }
+  },
+
+  commitRecordsAndAccounts: function(records, accounts) {
+    this.globalData.records = this.sortRecordsByTime(records);
+    this.globalData.accounts = accounts;
+    this.writeDataCache('records', this.globalData.records);
+    this.writeDataCache('accounts', this.globalData.accounts);
+  },
+
+  persistRecordMutation: function(records, accounts, callback, successMessage, failureMessage) {
+    const previousRecords = this.globalData.records || [];
+
+    cloudStorage.writeDataToCloud('records', records)
+      .then(recordsResult => {
+        if (!recordsResult.success) {
+          logger.error('App', failureMessage, recordsResult.errMsg);
+          if (callback) callback(false);
+          return null;
+        }
+
+        return cloudStorage.writeDataToCloud('accounts', accounts)
+          .then(accountsResult => {
+            if (accountsResult.success) {
+              this.commitRecordsAndAccounts(records, accounts);
+              logger.info('App', successMessage);
+              if (callback) callback(true);
+              return;
+            }
+
+            logger.error('App', '账户数据写入失败，准备回滚记录文件', accountsResult.errMsg);
+            return cloudStorage.writeDataToCloud('records', previousRecords)
+              .then(rollbackResult => {
+                if (!rollbackResult.success) {
+                  logger.error('App', '记录文件回滚失败', rollbackResult.errMsg);
+                }
+                logger.error('App', failureMessage, accountsResult.errMsg);
+                if (callback) callback(false);
+              })
+              .catch(rollbackErr => {
+                logger.error('App', '记录文件回滚异常', rollbackErr);
+                logger.error('App', failureMessage, accountsResult.errMsg);
+                if (callback) callback(false);
+              });
+          });
+      })
+      .catch(err => {
+        logger.error('App', failureMessage, err);
+        if (callback) callback(false);
+      });
+  },
+
   addRecord: function(record, callback) {
     logger.info('App', '开始添加记账记录', record);
-    
+
     const newRecord = {
       ...record,
       id: Date.now().toString(),
       createdAt: new Date().toISOString()
     };
-    
-    const records = this.globalData.records || [];
-    records.unshift(newRecord);
-    
-    if (record.accountId) {
-      this.updateAccountBalance(record.accountId, record.type === 'expense' ? -parseFloat(record.amount) : parseFloat(record.amount));
+    const records = [newRecord].concat(this.globalData.records || []);
+    const accounts = this.cloneAccountsForMutation();
+
+    this.applyRecordBalanceChange(accounts, newRecord, 1);
+    this.persistRecordMutation(records, accounts, callback, '记账记录添加成功', '记账记录添加失败');
+  },
+
+  updateAccountBalance: function(accountId, amount, isTransferIn = false, callback) {
+    const accounts = this.cloneAccountsForMutation();
+
+    if (!this.applyBalanceChangeToAccounts(accounts, accountId, amount, isTransferIn)) {
+      if (callback) callback(false);
+      return;
     }
-    
-    cloudStorage.writeDataToCloud('records', records)
+
+    cloudStorage.writeDataToCloud('accounts', accounts)
       .then(result => {
         if (result.success) {
-          this.globalData.records = records;
-          this.writeDataCache('records', records);
-          logger.info('App', '记账记录添加成功');
+          this.globalData.accounts = accounts;
+          this.writeDataCache('accounts', accounts);
+          logger.info('App', '账户余额更新成功');
           if (callback) callback(true);
         } else {
-          logger.error('App', '记账记录添加失败', result.errMsg);
+          logger.error('App', '账户余额更新失败', result.errMsg);
           if (callback) callback(false);
         }
       })
       .catch(err => {
-        logger.error('App', '添加记录失败', err);
+        logger.error('App', '账户余额更新异常', err);
         if (callback) callback(false);
       });
   },
 
-  updateAccountBalance: function(accountId, amount, isTransferIn = false) {
-    const accounts = this.globalData.accounts || [];
-    const account = accounts.find(acc => acc.id === accountId);
-    
-    if (account) {
-      const oldBalance = parseFloat(account.balance) || 0;
-      const newBalance = balanceCalculator.calculateNewBalance(account, amount, isTransferIn);
-      
-      account.balance = newBalance;
-      
-      logger.info('App', '更新账户余额', { 
-        accountId, 
-        accountName: account.name,
-        accountCategory: account.category,
-        oldBalance, 
-        change: amount, 
-        newBalance,
-        isTransferIn
-      });
-      
-      cloudStorage.writeDataToCloud('accounts', accounts)
-        .then(result => {
-          if (result.success) {
-            this.writeDataCache('accounts', accounts);
-            logger.info('App', '账户余额更新成功');
-          } else {
-            logger.error('App', '账户余额更新失败', result.errMsg);
-          }
-        })
-        .catch(err => {
-          logger.error('App', '账户余额更新异常', err);
-        });
-    }
-  },
-
   addTransfer: function(transfer, callback) {
     logger.info('App', '开始添加转账记录', transfer);
-    
+
     const newTransfer = {
       ...transfer,
       id: Date.now().toString(),
       createdAt: new Date().toISOString()
     };
-    
-    const records = this.globalData.records || [];
-    records.unshift(newTransfer);
-    
-    if (transfer.fromAccountId) {
-      this.updateAccountBalance(transfer.fromAccountId, -parseFloat(transfer.amount), false);
-    }
-    
-    if (transfer.toAccountId) {
-      this.updateAccountBalance(transfer.toAccountId, parseFloat(transfer.amount), true);
-    }
-    
-    cloudStorage.writeDataToCloud('records', records)
-      .then(result => {
-        if (result.success) {
-          this.globalData.records = records;
-          this.writeDataCache('records', records);
-          logger.info('App', '转账记录添加成功');
-          if (callback) callback(true);
-        } else {
-          logger.error('App', '转账记录添加失败', result.errMsg);
-          if (callback) callback(false);
-        }
-      })
-      .catch(err => {
-        logger.error('App', '添加转账失败', err);
-        if (callback) callback(false);
-      });
+    const records = [newTransfer].concat(this.globalData.records || []);
+    const accounts = this.cloneAccountsForMutation();
+
+    this.applyRecordBalanceChange(accounts, newTransfer, 1);
+    this.persistRecordMutation(records, accounts, callback, '转账记录添加成功', '转账记录添加失败');
   },
 
   deleteRecord: function(id, callback) {
     logger.info('App', '删除记录', { id });
-    
+
     const record = this.globalData.records.find(rec => rec.id === id);
     if (!record) {
       logger.error('App', '未找到要删除的记录');
       if (callback) callback(false);
       return;
     }
-    
+
     logger.info('App', '找到要删除的记录', record);
-    
-    if (record.type === 'transfer') {
-      if (record.fromAccountId) {
-        this.updateAccountBalance(record.fromAccountId, parseFloat(record.amount), false);
-      }
-      if (record.toAccountId) {
-        this.updateAccountBalance(record.toAccountId, -parseFloat(record.amount), true);
-      }
-    } else {
-      if (record.accountId) {
-        this.updateAccountBalance(record.accountId, record.type === 'expense' ? parseFloat(record.amount) : -parseFloat(record.amount));
-      }
-    }
-    
+
     const records = this.globalData.records.filter(rec => rec.id !== id);
-    
-    cloudStorage.writeDataToCloud('records', records)
-      .then(result => {
-        if (result.success) {
-          this.globalData.records = records;
-          this.writeDataCache('records', records);
-          logger.info('App', '记录删除成功');
-          if (callback) callback(true);
-        } else {
-          logger.error('App', '记录删除失败', result.errMsg);
-          if (callback) callback(false);
-        }
-      })
-      .catch(err => {
-        logger.error('App', '删除记录失败', err);
-        if (callback) callback(false);
-      });
+    const accounts = this.cloneAccountsForMutation();
+
+    this.applyRecordBalanceChange(accounts, record, -1);
+    this.persistRecordMutation(records, accounts, callback, '记录删除成功', '记录删除失败');
   },
 
   updateRecord: function(id, newRecord, callback) {
     logger.info('App', '更新记录', { id, newRecord });
-    
+
     const oldRecord = this.globalData.records.find(rec => rec.id === id);
     if (!oldRecord) {
       logger.error('App', '未找到要更新的记录');
       if (callback) callback(false);
       return;
     }
-    
+
     logger.info('App', '找到要更新的记录', oldRecord);
-    
-    if (oldRecord.type === 'transfer') {
-      if (oldRecord.fromAccountId) {
-        this.updateAccountBalance(oldRecord.fromAccountId, parseFloat(oldRecord.amount), false);
-      }
-      if (oldRecord.toAccountId) {
-        this.updateAccountBalance(oldRecord.toAccountId, -parseFloat(oldRecord.amount), true);
-      }
-    } else {
-      if (oldRecord.accountId) {
-        this.updateAccountBalance(oldRecord.accountId, oldRecord.type === 'expense' ? parseFloat(oldRecord.amount) : -parseFloat(oldRecord.amount));
-      }
-    }
-    
+
     const records = this.globalData.records.map(rec => {
       if (rec.id === id) {
         return {
@@ -686,37 +697,12 @@ App({
       }
       return rec;
     });
-    
     const updatedRecord = records.find(rec => rec.id === id);
-    if (updatedRecord.type === 'transfer') {
-      if (updatedRecord.fromAccountId) {
-        this.updateAccountBalance(updatedRecord.fromAccountId, -parseFloat(updatedRecord.amount), false);
-      }
-      if (updatedRecord.toAccountId) {
-        this.updateAccountBalance(updatedRecord.toAccountId, parseFloat(updatedRecord.amount), true);
-      }
-    } else {
-      if (updatedRecord.accountId) {
-        this.updateAccountBalance(updatedRecord.accountId, updatedRecord.type === 'expense' ? -parseFloat(updatedRecord.amount) : parseFloat(updatedRecord.amount));
-      }
-    }
-    
-    cloudStorage.writeDataToCloud('records', records)
-      .then(result => {
-        if (result.success) {
-          this.globalData.records = records;
-          this.writeDataCache('records', records);
-          logger.info('App', '记录更新成功');
-          if (callback) callback(true);
-        } else {
-          logger.error('App', '记录更新失败', result.errMsg);
-          if (callback) callback(false);
-        }
-      })
-      .catch(err => {
-        logger.error('App', '更新记录失败', err);
-        if (callback) callback(false);
-      });
+    const accounts = this.cloneAccountsForMutation();
+
+    this.applyRecordBalanceChange(accounts, oldRecord, -1);
+    this.applyRecordBalanceChange(accounts, updatedRecord, 1);
+    this.persistRecordMutation(records, accounts, callback, '记录更新成功', '记录更新失败');
   },
 
   loadAccounts: function(callback, forceRefresh = false) {
@@ -758,15 +744,13 @@ App({
           this.applyAccountsData(data);
           logger.info('App', '账户加载成功', { count: data.length });
         } else {
-          logger.info('App', '云存储没有账户数据或读取失败，使用空数组');
-          this.globalData.accounts = [];
+          logger.warn('App', '云存储账户读取失败，保留现有账户数据');
         }
         
         if (callback) callback();
       })
       .catch(err => {
         logger.error('App', '加载账户失败', err);
-        this.globalData.accounts = [];
         if (callback) callback();
       });
   },
@@ -781,8 +765,7 @@ App({
       order: 0
     };
     
-    const accounts = this.globalData.accounts || [];
-    accounts.push(newAccount);
+    const accounts = (this.globalData.accounts || []).concat(newAccount);
     
     cloudStorage.writeDataToCloud('accounts', accounts)
       .then(result => {
@@ -812,7 +795,7 @@ App({
   updateAccount: function(account, callback) {
     logger.info('App', '开始更新账户', account);
     
-    const accounts = this.globalData.accounts || [];
+    const accounts = (this.globalData.accounts || []).map(acc => ({ ...acc }));
     const index = accounts.findIndex(acc => acc.id === account.id);
     
     if (index !== -1) {
@@ -841,10 +824,26 @@ App({
       });
   },
 
+  hasAccountReferences: function(id) {
+    return (this.globalData.records || []).some(record => {
+      return record.accountId === id || record.fromAccountId === id || record.toAccountId === id;
+    });
+  },
+
   deleteAccount: function(id, callback) {
     logger.info('App', '删除账户', { id });
+
+    if (this.hasAccountReferences(id)) {
+      logger.warn('App', '账户仍有关联记录，禁止删除', { id });
+      wx.showToast({
+        title: '账户有记录，不能删除',
+        icon: 'none'
+      });
+      if (callback) callback(false);
+      return;
+    }
     
-    const accounts = this.globalData.accounts.filter(acc => acc.id !== id);
+    const accounts = (this.globalData.accounts || []).filter(acc => acc.id !== id);
     
     cloudStorage.writeDataToCloud('accounts', accounts)
       .then(result => {

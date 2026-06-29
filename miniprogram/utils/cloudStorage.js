@@ -248,6 +248,14 @@ const isEmptyCloudData = function (data) {
   return !data;
 };
 
+const getErrorMessage = function (error) {
+  return error && (error.errMsg || error.message) ? (error.errMsg || error.message) : String(error || '');
+};
+
+const isFileNotFoundError = function (errMsg) {
+  return errMsg.includes('file not exist') || errMsg.includes('不存在') || errMsg.includes('not found');
+};
+
 const readDataByCloudFunction = async function (dataType) {
   try {
     logger.info('cloudStorage', '尝试通过云函数读取: ' + dataType);
@@ -547,7 +555,9 @@ const readDataFromCloud = async function (dataType) {
     }
     
     if (lastErr) {
-      logger.error('cloudStorage', '所有候选FileID读取失败: ' + (lastErr.errMsg || lastErr.message || lastErr));
+      const errMsg = getErrorMessage(lastErr);
+      logger.error('cloudStorage', '所有候选FileID读取失败: ' + errMsg);
+      return isFileNotFoundError(errMsg) ? (emptyData || []) : null;
     }
     
     return emptyData || [];
@@ -556,12 +566,12 @@ const readDataFromCloud = async function (dataType) {
     logger.error('cloudStorage', '读取文件异常: ' + errMsg);
     
     // 如果是文件不存在的错误，返回空数组
-    if (errMsg.includes('file not exist') || errMsg.includes('不存在')) {
+    if (isFileNotFoundError(errMsg)) {
       logger.info('cloudStorage', '文件不存在，返回空数组');
       return [];
     }
     
-    return [];
+    return null;
   }
 };
 

@@ -22,7 +22,8 @@ Page({
     showToPicker: false,
     showHiddenAccounts: false,
     isEdit: false,
-    recordId: null
+    recordId: null,
+    isSaving: false
   },
 
   onLoad: function (options) {
@@ -317,6 +318,10 @@ Page({
   },
 
   saveTransfer: function () {
+    if (this.data.isSaving) {
+      return;
+    }
+
     if (!this.data.amount) {
       wx.showToast({
         title: '请输入有效金额',
@@ -382,6 +387,10 @@ Page({
 
     logger.info('transfer', isEdit ? '更新转账记录' : '保存转账记录', transferRecord);
 
+    this.setData({
+      isSaving: true
+    });
+
     wx.showLoading({
       title: isEdit ? '更新中...' : '保存中...'
     });
@@ -403,6 +412,9 @@ Page({
         wx.showToast({
           title: isEdit ? '更新失败' : '转账失败',
           icon: 'none'
+        });
+        this.setData({
+          isSaving: false
         });
       }
     };

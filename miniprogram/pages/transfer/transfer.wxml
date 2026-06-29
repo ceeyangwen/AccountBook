@@ -21,8 +21,13 @@
       <view class="account-display" wx:if="{{fromAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === fromAccountId}}">
           <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-            <text class="badge-glyph">{{item.badge.symbol}}</text>
-            <text class="badge-mark-text">{{item.badge.label}}</text>
+            <block wx:if="{{item.badge.iconImage}}">
+              <image class="brand-logo-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
+            </block>
           </view>
           <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
@@ -45,8 +50,13 @@
       <view class="account-display" wx:if="{{toAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === toAccountId}}">
           <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-            <text class="badge-glyph">{{item.badge.symbol}}</text>
-            <text class="badge-mark-text">{{item.badge.label}}</text>
+            <block wx:if="{{item.badge.iconImage}}">
+              <image class="brand-logo-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
+            </block>
           </view>
           <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
@@ -79,7 +89,7 @@
   </view>
 
   <view class="btn-group mt-40">
-    <button class="save-btn btn-primary" bindtap="saveTransfer">
+    <button class="save-btn btn-primary" bindtap="saveTransfer" disabled="{{isSaving}}">
       {{isEdit ? '更新转账' : '确认转账'}}
     </button>
   </view>
@@ -128,8 +138,13 @@
             data-id="{{item.id}}"
           >
             <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-              <text class="badge-glyph">{{item.badge.symbol}}</text>
-              <text class="badge-mark-text">{{item.badge.label}}</text>
+              <block wx:if="{{item.badge.iconImage}}">
+                <image class="brand-logo-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+              </block>
+              <block wx:else>
+                <text class="badge-glyph">{{item.badge.symbol}}</text>
+                <text class="badge-mark-text">{{item.badge.label}}</text>
+              </block>
             </view>
             <view class="account-info">
               <text class="account-name-text">{{item.displayName}}</text>
@@ -191,8 +206,13 @@
             data-id="{{item.id}}"
           >
             <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-              <text class="badge-glyph">{{item.badge.symbol}}</text>
-              <text class="badge-mark-text">{{item.badge.label}}</text>
+              <block wx:if="{{item.badge.iconImage}}">
+                <image class="brand-logo-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+              </block>
+              <block wx:else>
+                <text class="badge-glyph">{{item.badge.symbol}}</text>
+                <text class="badge-mark-text">{{item.badge.label}}</text>
+              </block>
             </view>
             <view class="account-info">
               <text class="account-name-text">{{item.displayName}}</text>

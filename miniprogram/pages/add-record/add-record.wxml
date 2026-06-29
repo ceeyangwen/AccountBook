@@ -100,8 +100,13 @@
       <view class="account-display" wx:if="{{selectedAccountId}}">
         <view wx:for="{{accounts}}" wx:key="id" wx:if="{{item.id === selectedAccountId}}">
           <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-            <text class="badge-glyph">{{item.badge.symbol}}</text>
-            <text class="badge-mark-text">{{item.badge.label}}</text>
+            <block wx:if="{{item.badge.iconImage}}">
+              <image class="brand-logo-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+            </block>
+            <block wx:else>
+              <text class="badge-glyph">{{item.badge.symbol}}</text>
+              <text class="badge-mark-text">{{item.badge.label}}</text>
+            </block>
           </view>
           <text class="account-name-text">{{item.displayName}}</text>
           <text class="account-balance">¥{{item.balance}}</text>
@@ -185,8 +190,13 @@
             data-id="{{item.id}}"
           >
             <view class="account-icon badge-mark {{item.badge.className}}" style="background: {{item.badge.background}}; border-color: {{item.badge.color}}; color: {{item.badge.color}};">
-              <text class="badge-glyph">{{item.badge.symbol}}</text>
-              <text class="badge-mark-text">{{item.badge.label}}</text>
+              <block wx:if="{{item.badge.iconImage}}">
+                <image class="brand-logo-image" src="{{item.badge.iconImage}}" mode="aspectFit"></image>
+              </block>
+              <block wx:else>
+                <text class="badge-glyph">{{item.badge.symbol}}</text>
+                <text class="badge-mark-text">{{item.badge.label}}</text>
+              </block>
             </view>
             <view class="account-info">
               <text class="account-name-text">{{item.displayName}}</text>

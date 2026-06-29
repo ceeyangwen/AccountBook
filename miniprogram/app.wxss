@@ -237,6 +237,13 @@ view, text {
   display: none;
 }
 
+.brand-logo-image {
+  width: 48rpx;
+  height: 48rpx;
+  display: block;
+  flex-shrink: 0;
+}
+
 .badge-mark.glass-category-icon {
   border: 1rpx solid rgba(255, 255, 255, 0.14);
   box-shadow:
